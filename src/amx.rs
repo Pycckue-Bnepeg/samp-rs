@@ -20,7 +20,7 @@ impl AMX {
 
     pub fn exec(&self, index: i32) -> AmxResult<i64> {
         unsafe {
-            let exec: types::Exec_t = read(transmute(amx_functions + PLUGIN_AMX_EXPORT_FindPublic));
+            let exec: types::Exec_t = read(transmute(amx_functions + PLUGIN_AMX_EXPORT_Exec));
 
             let retval = -1;
             let result = exec(self.amx, transmute(&retval), index);
