@@ -8,6 +8,7 @@ use data::amx_functions;
 
 pub type AmxResult<T> = Result<T, AmxError>;
 
+/// # AMX
 pub struct AMX {
     amx: *mut types::AMX,
 }
@@ -97,6 +98,16 @@ impl AMX {
     }
 }
 
+/// Custom error type for AMX errors.
+/// Can be casted from i32
+///
+/// # Examples
+/// 
+/// ```
+/// let find_public: samp_sdk::types::FindPublic_t = ...;
+/// let result = find_public(...);
+/// return AmxError::from(result);
+/// ```
 #[derive(Debug)]
 pub enum AmxError {
     Exit = 1,

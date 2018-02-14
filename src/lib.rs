@@ -1,3 +1,6 @@
+//! # SA:MP SDK
+//! `samp_sdk` is a Rust lang bindings for original C SA:MP SDK
+
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
@@ -10,3 +13,4 @@ pub mod consts;
 pub mod data;
 pub mod types;
 pub mod amx;
+#[macro_use] pub mod macros;
