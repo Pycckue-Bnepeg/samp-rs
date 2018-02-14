@@ -1,4 +1,3 @@
-#[macro_export]
 /// `natives!` macro
 ///
 /// # Examples
@@ -10,6 +9,7 @@
 /// ];
 /// amx.register(natives);
 /// ```
+#[macro_export]
 macro_rules! natives {
     [ $( { $name:expr, $func:ident } ),* ] => {
         {
@@ -25,4 +25,58 @@ macro_rules! natives {
             natives
         }
     };
+}
+
+/// `new_plugin!` macro
+/// Hide ugly C code from your eyes.
+///
+/// # Examples
+///
+/// ```
+/// struct MyPlugin;
+/// 
+/// impl MyPlugin {
+///     fn load() -> bool {
+///         amx_log!("My plugin is loaded!");
+///         return true;
+///     }
+///     ...
+/// }
+/// 
+/// new_plugin!(MyPlugin)
+/// ```
+#[macro_export]
+macro_rules! new_plugin {
+    ($name:ident) => {
+        #[no_mangle]
+        pub extern "C" fn Supports() -> u32 {
+            $name::supports()
+        }
+
+        #[no_mangle]
+        pub unsafe extern "C" fn Load(data: *const ::std::os::raw::c_void) -> bool {
+            let mut log = $crate::data::logprintf.lock().unwrap();
+
+            *log = *(data as *const $crate::types::Logprintf_t);
+            $crate::data::amx_functions = std::ptr::read((data as u32 + $crate::consts::PLUGIN_DATA_AMX_EXPORTS) as *const u32);
+
+            drop(log);
+            $name::load()
+        }
+
+        #[no_mangle]
+        pub extern "C" fn Unload() {
+            $name::unload();
+        }
+
+        #[no_mangle]
+        pub extern "C" fn AmxLoad(amx: *mut $crate::types::AMX) -> u32 {
+            $name::amx_load($crate::amx::AMX::new(amx))
+        }
+
+        #[no_mangle]
+        pub extern "C" fn AmxUnload(amx: *mut $crate::types::AMX) -> u32 {
+            $name::amx_unload($crate::amx::AMX::new(amx))
+        }
+    }
 }
