@@ -89,5 +89,5 @@ pub const AMX_FLAG_JITC: u32 = 0x2000;
 pub const AMX_FLAG_BROWSE: u32 = 0x4000;
 pub const AMX_FLAG_RELOC: u32 = 0x8000;
 
-pub const AMX_EXEC_MAIN: i8 = -1;
-pub const AMX_EXEC_CONT: i8 = -2;
+pub const AMX_EXEC_MAIN: i32 = -1;
+pub const AMX_EXEC_CONT: i32 = -2;

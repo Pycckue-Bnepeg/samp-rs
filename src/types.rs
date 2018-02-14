@@ -28,9 +28,9 @@ pub struct AMX {
     pub sysreq_d: Cell,
 }
 
-pub type AmxNative = unsafe extern "C" fn(*mut AMX, params: *mut Cell) -> Cell;
-pub type AmxCallback = unsafe extern "C" fn(*mut AMX, index: Cell, result: *mut Cell, params: *mut Cell) -> i32;
-pub type AmxDebug = unsafe extern "C" fn(*mut AMX) -> i32;
+pub type AmxNative = extern "C" fn(*mut AMX, params: *mut Cell) -> Cell;
+pub type AmxCallback = extern "C" fn(*mut AMX, index: Cell, result: *mut Cell, params: *mut Cell) -> i32;
+pub type AmxDebug = extern "C" fn(*mut AMX) -> i32;
 
 #[repr(C, packed)]
 #[derive(Debug, Copy, Clone)]

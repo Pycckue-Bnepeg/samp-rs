@@ -2,6 +2,7 @@ use std::ptr::read;
 use std::mem::transmute;
 use std::ffi::CString;
 use types;
+use types::Cell;
 use consts::*;
 use data::amx_functions;
 
@@ -15,6 +16,52 @@ impl AMX {
     pub fn new(amx: *mut types::AMX) -> AMX {
         AMX {
             amx,
+        }
+    }
+
+    pub fn register(&self, natives: &Vec<types::AMX_NATIVE_INFO>) -> AmxResult<()> {
+        let len = natives.len();
+        let ptr = natives.as_slice().as_ptr();
+
+        unsafe {
+            let register: types::Register_t = read(transmute(amx_functions + PLUGIN_AMX_EXPORT_Register));
+            
+            let result = register(self.amx, ptr, len as i32);
+
+            if result == 0 {
+                Ok(())
+            } else {
+                Err(AmxError::from(result))
+            }
+        }
+    }
+
+    pub fn get_address(&self, address: Cell) -> AmxResult<Box<Box<Cell>>> {
+        unsafe {
+            let get_addr: types::GetAddr_t = read(transmute(amx_functions + PLUGIN_AMX_EXPORT_GetAddr));
+
+            let ptr = 0;
+            let result = get_addr(self.amx, address, transmute(&ptr));
+
+            if result == 0 {
+                Ok(Box::new(Box::from_raw(transmute(ptr))))
+            } else {
+                Err(AmxError::from(result))
+            }
+        }
+    }
+
+    pub fn push(&self, value: Cell) -> AmxResult<()> {
+        unsafe {
+            let push: types::Push_t = read(transmute(amx_functions + PLUGIN_AMX_EXPORT_Push));
+            
+            let result = push(self.amx, value);
+
+            if result == 0 {
+                Ok(())
+            } else {
+                Err(AmxError::from(result))
+            }
         }
     }
 
