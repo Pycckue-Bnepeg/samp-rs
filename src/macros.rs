@@ -16,10 +16,10 @@ macro_rules! natives {
             let natives = vec![
                 $(
                     $crate::types::AMX_NATIVE_INFO {
-                        name: ::std::ffi::CString::new($name).unwrap().as_ptr(),
+                        name: ::std::ffi::CString::new($name).unwrap().into_raw(),
                         func: $func,
                     }
-                )*
+                ),*
             ];
 
             natives
@@ -77,6 +77,26 @@ macro_rules! new_plugin {
         #[no_mangle]
         pub extern "C" fn AmxUnload(amx: *mut $crate::types::AMX) -> u32 {
             $name::amx_unload($crate::amx::AMX::new(amx))
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! log {
+    ($( $arg:tt ),* ) => {
+        {
+            let printf = $crate::data::logprintf.lock().unwrap();
+            let c_text = ::std::ffi::CString::new(format!($( $arg ),*)).unwrap();
+            printf(c_text.as_ptr());
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! define_native {
+    ($plugin:ident, $name:ident) => {
+        pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
+            $plugin::$name($crate::amx::AMX::new(amx), params)
         }
     }
 }

@@ -9,8 +9,8 @@
 #[macro_use] extern crate lazy_static;
 extern crate libc;
 
+#[macro_use] pub mod macros;
 pub mod consts;
 pub mod data;
 pub mod types;
 pub mod amx;
-#[macro_use] pub mod macros;

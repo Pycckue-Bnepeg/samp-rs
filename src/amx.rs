@@ -26,7 +26,7 @@ impl AMX {
 
         unsafe {
             let register: types::Register_t = read(transmute(amx_functions + PLUGIN_AMX_EXPORT_Register));
-            
+
             let result = register(self.amx, ptr, len as i32);
 
             if result == 0 {
@@ -37,7 +37,7 @@ impl AMX {
         }
     }
 
-    pub fn get_address(&self, address: Cell) -> AmxResult<Box<Box<Cell>>> {
+    pub fn get_address<T: Sized>(&self, address: Cell) -> AmxResult<Box<T>> {
         unsafe {
             let get_addr: types::GetAddr_t = read(transmute(amx_functions + PLUGIN_AMX_EXPORT_GetAddr));
 
@@ -45,7 +45,7 @@ impl AMX {
             let result = get_addr(self.amx, address, transmute(&ptr));
 
             if result == 0 {
-                Ok(Box::new(Box::from_raw(transmute(ptr))))
+                Ok(Box::from_raw(transmute(ptr)))
             } else {
                 Err(AmxError::from(result))
             }
