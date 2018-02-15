@@ -10,6 +10,7 @@
 extern crate libc;
 
 #[macro_use] pub mod macros;
+pub mod args;
 pub mod consts;
 pub mod data;
 pub mod types;

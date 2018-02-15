@@ -94,9 +94,141 @@ macro_rules! log {
 
 #[macro_export]
 macro_rules! define_native {
-    ($plugin:ident, $name:ident) => {
+    ($plugin:ident, $name:ident as raw) => {
         pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
             $plugin::$name($crate::amx::AMX::new(amx), params)
         }
+    };
+
+    ($plugin:ident, $name:ident) => {
+        pub extern "C" fn $name(amx: *mut $crate::types::AMX, _: *mut $crate::types::Cell) -> $crate::types::Cell {
+            $plugin::$name($crate::amx::AMX::new(amx))
+        }
+    };
+
+    ($plugin:ident, $name:ident, $( $arg:ident : $( $data:ident )+ ),* ) => {
+        pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
+            let amx = $crate::amx::AMX::new(amx);
+            expand_args!(amx, params, $( $arg : $( $data )+ ),* );
+            
+            let retval = $plugin::$name(amx, $( 
+                    ___internal_expand_arguments!( 
+                        $arg: $( $data )+ 
+                    )
+                ),* 
+            );
+
+            ___internal_forget!( $( $arg : $( $data )+ ),* );
+
+            retval
+        }
     }
+}
+
+#[macro_export]
+macro_rules! ___internal_forget {
+    (
+        $arg:ident : ref $type:ty
+    ) => {
+        ::std::mem::forget($arg);
+    };
+
+    (
+        $arg:ident : $type:ty
+    ) => ();
+
+    (
+        $arg:ident : ref $type:ty,
+        $( $tail_arg:ident : $( $tail_data:ident )+ ),*
+    ) => {
+        ___internal_forget!( $arg : ref $type );
+        ___internal_forget!( $( $tail_arg : $( $tail_data )+ ),* );
+    };
+
+    (
+        $arg:ident : $type:ty,
+        $( $tail_arg:ident : $( $tail_data:ident )+ ),*
+    ) => {
+        ___internal_forget!( $( $tail_arg : $( $tail_data )+ ),* );
+    };
+}
+
+#[macro_export]
+macro_rules! ___internal_expand_arguments {
+    (
+        $arg:ident : ref $type:ty
+    ) => {
+        $arg.as_mut()
+    };
+
+    (
+        $arg:ident : $type:ty
+    ) => {
+        $arg
+    };
+}
+
+#[macro_export]
+macro_rules! expand_args {
+    (
+        @
+        $amx:ident,
+        $parser:ident,
+        
+        // last ref arg
+        $arg:ident : ref $type:ty
+    ) => {
+        let mut $arg: Box<$type> = unsafe {
+            let ptr = $parser.next();
+            $amx.get_address(::std::ptr::read(ptr as *const $crate::types::Cell)).unwrap()
+        };
+    };
+
+    (
+        @
+        $amx:ident,
+        $parser:ident,
+
+        // last arg
+        $arg:ident : $type:ty
+    ) => {
+        let $arg: $type = unsafe {
+            let ptr = $parser.next();
+            ::std::ptr::read(ptr as *const $type)
+        };
+    };
+
+    (
+        @
+        $amx:ident,
+        $parser:ident,
+
+        $arg:ident : ref $type:ty,
+        $( $tail_arg:ident : $( $tail_data:ident )+ ),*
+    ) => {
+        expand_args!(@$amx, $parser, $arg : ref $type);
+        expand_args!(@$amx, $parser, $( $tail_arg : $( $tail_data )+ ),*);
+    };
+
+    (
+        @
+        $amx:ident,
+        $parser:ident,
+
+        $arg:ident : $type:ty,
+        $( $tail_arg:ident : $( $tail_data:ident )+ ),*
+    ) => {
+        expand_args!(@$amx, $parser, $arg : $type);
+        expand_args!(@$amx, $parser, $( $tail_arg : $( $tail_data )+ ),*);
+    };
+
+    (
+        $amx:ident,
+        $params:ident,
+
+        $( $arg:ident : $($data:ident)+ ),*
+    ) => {
+        let mut parser = $crate::args::Parser::new($params);
+        expand_args!(@$amx, parser, $( $arg : $( $data )+ ),*);
+    };
 }
