@@ -9,7 +9,9 @@
 ### Удобные и крутейшие макросы
 Зачем объявлять эти вонючие глобальные логгеры и прочие вещи руками?
 ``` Rust
-struct Plugin {
+struct Plugin;
+
+impl Plugin {
     fn load() -> bool {
         log!("Plugin is loaded");
         return true;
