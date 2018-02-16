@@ -50,6 +50,11 @@ define_native!(Plugin, function_name, int_arg: i32, float_ref_arg: ref f32);
 define_native(Plugin, function_name);
 ```
 
+## TODO List
+* Следует добавить документацию к тому, что уже есть.
+* Добавить всевозможные нужные `amx_*` для AMX wrapper.
+* Добавить еще крутых макросов (например, `let money = call_native!("GetPlayerMoney", player_id);`).
+
 ## Документация
 Скорее всего она скоро-скоро появится, но пока что здесь абсолютно ничего нет.
 
