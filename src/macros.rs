@@ -62,12 +62,7 @@ macro_rules! natives {
 /// ```
 #[macro_export]
 macro_rules! new_plugin {
-    ($name:ident) => {
-        #[no_mangle]
-        pub extern "C" fn Supports() -> u32 {
-            $name::supports()
-        }
-
+    (@internal $name:ident) => {
         #[no_mangle]
         pub unsafe extern "C" fn Load(data: *const ::std::os::raw::c_void) -> bool {
             let mut log = $crate::data::logprintf.lock().unwrap();
@@ -95,12 +90,26 @@ macro_rules! new_plugin {
         }
     };
 
+    ($name:ident) => {
+        new_plugin!(@internal $name);
+
+        #[no_mangle]
+        pub extern "C" fn Supports() -> u32 {
+            $crate::consts::SUPPORTS_VERSION | $crate::consts::SUPPORTS_AMX_NATIVES
+        }
+    };
+
     ($name:ident with process_tick) => {
-        new_plugin!($name);
+        new_plugin!(@internal $name);
 
         #[no_mangle]
         pub extern "C" fn ProcessTick() {
             $name::process_tick();
+        }
+
+        #[no_mangle]
+        pub extern "C" fn Supports() -> u32 {
+            $crate::consts::SUPPORTS_PROCESS_TICK | $crate::consts::SUPPORTS_VERSION | $crate::consts::SUPPORTS_AMX_NATIVES
         }
     }
 }
