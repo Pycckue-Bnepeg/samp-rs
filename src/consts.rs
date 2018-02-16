@@ -1,7 +1,11 @@
-//! # AMX Constants.
-//! 
-//! There is a bunch of raw AMX constants. 
-//! They shouldn't be used in yours plugin code (exclude SUPPORTS consts).
+/*!
+AMX Constants.
+
+
+There is a bunch of raw AMX constants. 
+
+They shouldn't be used in yours plugin code.
+*/
 
 pub const SUPPORTS_VERSION: u32 = 512;
 pub const SUPPORTS_VERSION_MASK: u32 = 65535;

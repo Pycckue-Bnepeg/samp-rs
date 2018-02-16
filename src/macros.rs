@@ -1,4 +1,8 @@
-/// `natives!` macro
+/*!
+Some useful macros to easy access and define natives.
+*/
+
+/// Clear macros that makes a new `Vec<AMX_NATIVE_INFO>`.
 ///
 /// # Examples
 ///
@@ -42,8 +46,9 @@ macro_rules! natives {
     };
 }
 
-/// `new_plugin!` macro
-/// Hide ugly C code from your eyes.
+/// Hides ugly C code from your eyes.
+/// 
+/// Generates raw extern C functions and makes call to your own static methods. 
 ///
 /// # Examples
 ///
@@ -55,10 +60,21 @@ macro_rules! natives {
 ///         amx_log!("My plugin is loaded!");
 ///         return true;
 ///     }
-///     ...
+///     
+///     fn unload();
+///     fn amx_load(amx: AMX) -> Cell;
+///     fn amx_unload(amx: AMX) -> Cell;
 /// }
 /// 
-/// new_plugin!(MyPlugin)
+/// new_plugin!(MyPlugin) 
+/// ```
+/// To make a plugin with `ProccessTick` support use this:
+/// ```
+/// impl MyPlugin {
+///     fn process_tick();
+/// }
+///
+/// new_plugin!(MyPlugin with process_tick);
 /// ```
 #[macro_export]
 macro_rules! new_plugin {
@@ -124,6 +140,33 @@ macro_rules! log {
         }
     }
 }
+
+/// Define native and hide raw C export functions.
+///
+/// # Examples
+/// Define a native with raw params (`*mut Cell`).
+/// ```
+/// // native: WithRawParams(&arg1, arg2, arg3);
+/// define_native!(Plugin, with_raw_params as raw);
+///
+/// fn with_raw_params(amx: AMX, args: *mut Cell) -> Cell;
+/// ```
+///
+/// Define a native without arguments.
+/// ```
+/// // native: WithoutArguments();
+/// define_native!(Plugin, without_arguments);
+///
+/// fn without_arguments(amx: AMX) -> Cell;
+/// ```
+/// 
+/// Define a native with converted arguments.
+/// ```
+/// // native: SomeFunction(&int_val, float_val);
+/// define_native!(Plugin, some_function, int_val: ref i32, float_val: f32);
+///
+/// fn some_function(amx: AMX, int_val: &mut i32, float_val: f32) -> Cell;
+/// ```
 
 #[macro_export]
 macro_rules! define_native {

@@ -1,3 +1,7 @@
+/*!
+
+*/
+
 use std::ptr::read;
 use std::mem::transmute;
 use std::ffi::CString;
@@ -41,12 +45,13 @@ macro_rules! import {
     };
 }
 
-/// # AMX
+/// AMX struct that holds raw `types::AMX` pointer.
 pub struct AMX {
     amx: *mut types::AMX,
 }
 
 impl AMX {
+    /// Convert raw `types::AMX` pointer.
     pub fn new(amx: *mut types::AMX) -> AMX {
         AMX {
             amx,
@@ -77,13 +82,14 @@ impl AMX {
         call!(register(self.amx, ptr, len as i32) => ())
     }
 
-    /// Get an address of a reference value given to native
+    /// Get an address of a reference value given to native.
+    ///
     /// You **must** use `std::mem::forget` for this value because `get_address` return `Box<T>` which releases memory.
     ///
     /// # Examples
     ///
     /// ```
-    /// native: SomeNative(&int_value);
+    /// // native: SomeNative(&int_value);
     /// fn some_native(amx: AMX, args: *mut Cell) -> Cell {
     ///     let arg = std::ptr::read((args as usize + 4) as *const Cell);
     ///     let int_value: Box<i32> = amx.get_address(arg).unwrap();
