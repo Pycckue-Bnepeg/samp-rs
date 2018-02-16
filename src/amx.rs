@@ -96,6 +96,22 @@ impl AMX {
             }
         }
     }
+
+    pub fn find_native(&self, name: &str) -> AmxResult<i32> {
+        unsafe {
+            let find_native: types::FindNative_t = read(transmute(amx_functions + PLUGIN_AMX_EXPORT_FindNative));
+
+            let index = -1;
+            let c_name = CString::new(name).unwrap();
+            let result = find_native(self.amx, c_name.as_ptr(), transmute(&index));
+
+            if result == 0 {
+                Ok(index)
+            } else {
+                Err(AmxError::from(result))
+            }
+        }
+    }
 }
 
 /// Custom error type for AMX errors.

@@ -25,6 +25,21 @@ macro_rules! natives {
             natives
         }
     };
+
+    [ $( $name:expr => $func:ident ),* ] => {
+        {
+            let natives = vec![
+                $(
+                    $crate::types::AMX_NATIVE_INFO {
+                        name: ::std::ffi::CString::new($name).unwrap().into_raw(),
+                        func: $func,
+                    }
+                ),*
+            ];
+
+            natives
+        }
+    };
 }
 
 /// `new_plugin!` macro
@@ -77,6 +92,15 @@ macro_rules! new_plugin {
         #[no_mangle]
         pub extern "C" fn AmxUnload(amx: *mut $crate::types::AMX) -> u32 {
             $name::amx_unload($crate::amx::AMX::new(amx))
+        }
+    };
+
+    ($name:ident with process_tick) => {
+        new_plugin!($name);
+
+        #[no_mangle]
+        pub extern "C" fn ProcessTick() {
+            $name::process_tick();
         }
     }
 }

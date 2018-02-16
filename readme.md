@@ -36,6 +36,9 @@ impl Plugin {
 }
 
 new_plugin!(Plugin);
+
+// Так же можно запилить ProcessTick, но ты должен, конечно же, объявить Plugin::process_tick.
+new_plugin!(Plugin with process_tick)
 ```
 
 Хочешь определить нативную функцию и никогда своими руками не делать грязный парсинг аргументов?
