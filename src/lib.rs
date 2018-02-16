@@ -1,5 +1,9 @@
-//! # SA:MP SDK
-//! `samp_sdk` is a Rust lang bindings for original C SA:MP SDK
+/*! 
+
+# SA:MP SDK
+`samp_sdk` is a Rust lang bindings for original C SA:MP SDK
+
+*/
 
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
