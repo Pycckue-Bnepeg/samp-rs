@@ -3,7 +3,7 @@
 */
 
 use std::ptr::read;
-use std::mem::transmute;
+use std::mem::{transmute, transmute_copy};
 use std::ffi::CString;
 use types;
 use types::Cell;
@@ -91,8 +91,8 @@ impl AMX {
     /// ```
     /// // native: SomeNative(&int_value);
     /// fn some_native(amx: AMX, args: *mut Cell) -> Cell {
-    ///     let arg = std::ptr::read((args as usize + 4) as *const Cell);
-    ///     let int_value: Box<i32> = amx.get_address(arg).unwrap();
+    ///     let ptr = std::ptr::read(args.offset(1));
+    ///     let int_value: Box<i32> = amx.get_address(ptr).unwrap();
     ///     *int_value = 10;
     ///     
     ///     std::mem::forget(int_value);
@@ -108,11 +108,37 @@ impl AMX {
         }
     }
 
-    pub fn push(&self, value: Cell) -> AmxResult<()> {
+    /// Push primitive value to AMX stack
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let index = amx.find_public("OnPlayerHPChanged").unwrap();
+    /// let player_id: u32 = 12;
+    /// let health: f32 = 100.0;
+    ///
+    /// amx.push(health);
+    /// amx.push(player_id);
+    /// amx.exec(index);
+    /// ```
+    pub fn push<T: Sized>(&self, value: T) -> AmxResult<()> {
         let push = import!(Push);
-        call!(push(self.amx, value) => ())
+        call!(push(self.amx, transmute_copy(&value)) => ())
     }
 
+    /// Exec an AMX function.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let index = amx.find_native("GetPlayerMoney").unwrap();
+    /// amx.push(1); // player with ID 1
+    /// 
+    /// match amx.exec(index) {
+    ///     Ok(money) => log!("Player has {} money.", money),
+    ///     Err(err) => log!("Error: {:?}", err),
+    /// }
+    /// ```
     pub fn exec(&self, index: i32) -> AmxResult<i64> {
         let exec = import!(Exec);
 
@@ -122,6 +148,13 @@ impl AMX {
         }
     }
 
+    /// Return an index of a public by its name.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let public_index = amx.find_public("OnPlayerConnect").unwrap();
+    /// ```
     pub fn find_public(&self, name: &str) -> AmxResult<i32> {
         let find_public = import!(FindPublic);
 
@@ -133,6 +166,10 @@ impl AMX {
         }
     }
 
+    /// Return an index of a native by its name.
+    ///
+    /// # Examples
+    /// See `find_public` and `exec` examples.
     pub fn find_native(&self, name: &str) -> AmxResult<i32> {
         let find_native = import!(FindNative);
 
