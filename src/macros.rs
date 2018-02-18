@@ -132,10 +132,10 @@ macro_rules! new_plugin {
 
 #[macro_export]
 macro_rules! log {
-    ($( $arg:tt ),* ) => {
+    ($( $arg:tt )* ) => {
         {
             let printf = $crate::data::logprintf.lock().unwrap();
-            let c_text = ::std::ffi::CString::new(format!($( $arg ),*)).unwrap();
+            let c_text = ::std::ffi::CString::new(format!($( $arg )*)).unwrap();
             printf(c_text.as_ptr());
         }
     }
