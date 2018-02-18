@@ -40,7 +40,7 @@ macro_rules! call {
 macro_rules! import {
     ($type:ident) => {
         unsafe {
-            read(transmute::<u32, *const types::$type>(amx_functions + Exports::$type as u32))
+            read(amx_functions.offset(Exports::$type as isize) as *const $crate::types::$type)
         }
     };
 }

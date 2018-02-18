@@ -8,4 +8,4 @@ lazy_static! {
     };
 }
 
-pub static mut amx_functions: u32 = 0;
+pub static mut amx_functions: *const u32 = 0 as *const u32;

@@ -80,11 +80,11 @@ macro_rules! natives {
 macro_rules! new_plugin {
     (@internal $name:ident) => {
         #[no_mangle]
-        pub unsafe extern "C" fn Load(data: *const ::std::os::raw::c_void) -> bool {
+        pub unsafe extern "C" fn Load(data: *const *const u32) -> bool {
             let mut log = $crate::data::logprintf.lock().unwrap();
 
             *log = *(data as *const $crate::types::Logprintf_t);
-            $crate::data::amx_functions = std::ptr::read((data as u32 + $crate::consts::PLUGIN_DATA_AMX_EXPORTS) as *const u32);
+            $crate::data::amx_functions = std::ptr::read(data.offset($crate::consts::PLUGIN_DATA_AMX_EXPORTS as isize) as *const *const u32);
 
             drop(log);
             $name::load()

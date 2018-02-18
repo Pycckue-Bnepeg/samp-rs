@@ -1,9 +1,8 @@
-use std::mem::size_of;
 use types::Cell;
 
 pub struct Parser {
     params: *mut Cell,
-    index: usize,
+    index: isize,
 }
 
 impl Parser {
@@ -16,7 +15,9 @@ impl Parser {
 
     pub fn next(&mut self) -> *mut Cell {
         self.index += 1;
-
-        (self.params as usize + self.index * size_of::<usize>()) as *mut Cell
+        
+        unsafe {
+            self.params.offset(self.index)
+        }
     }
 }
