@@ -108,7 +108,7 @@ impl AMX {
         }
     }
 
-    /// Push primitive value to AMX stack
+    /// Push a primitive value to AMX stack
     ///
     /// # Examples
     ///
@@ -123,7 +123,10 @@ impl AMX {
     /// ```
     pub fn push<T: Sized>(&self, value: T) -> AmxResult<()> {
         let push = import!(Push);
-        call!(push(self.amx, transmute_copy(&value)) => ())
+        
+        unsafe {
+            call!(push(self.amx, transmute_copy(&value)) => ())
+        }
     }
 
     /// Exec an AMX function.
@@ -132,7 +135,7 @@ impl AMX {
     ///
     /// ```
     /// let index = amx.find_native("GetPlayerMoney").unwrap();
-    /// amx.push(1); // player with ID 1
+    /// amx.push(1); // a player with ID 1
     /// 
     /// match amx.exec(index) {
     ///     Ok(money) => log!("Player has {} money.", money),
@@ -191,6 +194,56 @@ impl AMX {
             call!(find_pubvar(self.amx, c_name.as_ptr(), transmute(&value)) => value)
         }
     }
+
+    /// Get length of a string.
+    pub fn string_len(&self, address: *const Cell) -> AmxResult<usize> {
+        let string_len = import!(StrLen);
+        let mut length = 0;
+        
+        call!(string_len(address, &mut length) => length as usize)
+    }
+
+    /// Get a string from AMX.
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// fn raw_function(amx: AMX, params: *mut types::Cell) -> types::Cell {
+    ///     unsafe {
+    ///         let ptr = std::ptr::read(params.offset(1));
+    ///         let mut addr = amx.get_address::<i32>(ptr).unwrap(); // get a pointer from amx
+    ///         let len = amx.string_len(addr.as_mut()).unwrap(); // get string length in amx
+    ///         let string = amx.get_string(addr.as_mut(), len + 1).unwrap(); // convert amx string to rust String
+    ///        
+    ///         log!("got string: {}", string);
+    ///
+    ///         std::mem::forget(addr);
+    ///     }
+    ///
+    ///     0
+    /// }
+    /// ```
+    pub fn get_string(&self, address: *const Cell, length: usize) -> AmxResult<String> {
+        let get_string = import!(GetString);
+        let mut buffer: Vec<u8> = vec![0; length];
+        let ptr = buffer.as_mut_slice().as_mut_ptr();
+
+        let result = get_string(ptr, address, 0, length);
+
+        if result == 0 {
+            CString::new(&buffer[0..length - 1])
+                .map_err(|_| AmxError::Params)
+                .and_then(|cstring| cstring.into_string().map_err(|_| AmxError::Params))
+        } else {
+            Err(AmxError::from(result))
+        }
+    }
+
+    /// Raise an AMX error.
+    pub fn raise_error(&self, error: AmxError) -> AmxResult<()> {
+        let raise_error = import!(RaiseError);
+        call!(raise_error(self.amx, error as i32) => ())
+    }
 }
 
 /// Custom error type for AMX errors.
@@ -212,9 +265,12 @@ pub enum AmxError {
     MemoryAccess = 5,
     InvalidInstruction = 6,
     StackLow = 7,
-    Native = 8,
-    Divide = 9,
-    Sleep = 10,
+    HeapLow = 8,
+    Callback = 9,
+    Native = 10,
+    Divide = 11,
+    Sleep = 12,
+    InvalidState = 13,
     Memory = 16,
     Format = 17,
     Version = 18,
@@ -240,9 +296,12 @@ impl From<i32> for AmxError {
             5 => AmxError::MemoryAccess,
             6 => AmxError::InvalidInstruction,
             7 => AmxError::StackLow,
-            8 => AmxError::Native,
-            9 => AmxError::Divide,
-            10 => AmxError::Sleep,
+            8 => AmxError::HeapLow,
+            9 => AmxError::Callback,
+            10 => AmxError::Native,
+            11 => AmxError::Divide,
+            12 => AmxError::Sleep,
+            13 => AmxError::InvalidState,
             16 => AmxError::Memory,
             17 => AmxError::Format,
             18 => AmxError::Version,

@@ -23,7 +23,7 @@ impl Plugin {
         ];
 
         match amx.register(natives) {
-            Ok(_) => log!("Natives is successful loaded"),
+            Ok(_) => log!("Natives are successful loaded"),
             Err(err) => log!("Whoops, there is an error {:?}", err),
         }
 
@@ -54,6 +54,7 @@ define_native(Plugin, function_name);
 * Следует добавить документацию к тому, что уже есть.
 * Добавить всевозможные нужные `amx_*` для AMX wrapper.
 * Добавить еще крутых макросов (например, `let money = call_native!("GetPlayerMoney", player_id);`).
+* Не статичная структура для плагина.
 
 ## Документация
 Скорее всего она скоро-скоро появится, но пока что здесь абсолютно ничего нет.

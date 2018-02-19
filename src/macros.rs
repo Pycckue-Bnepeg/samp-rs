@@ -1,5 +1,7 @@
 /*!
 Some useful macros to easy access and define natives.
+
+Most of them hide raw C bindings and exports to make code easier to understand.
 */
 
 /// Clear macros that makes a new `Vec<AMX_NATIVE_INFO>`.
@@ -167,7 +169,6 @@ macro_rules! log {
 ///
 /// fn some_function(amx: AMX, int_val: &mut i32, float_val: f32) -> Cell;
 /// ```
-
 #[macro_export]
 macro_rules! define_native {
     ($plugin:ident, $name:ident as raw) => {
@@ -246,12 +247,34 @@ macro_rules! ___internal_expand_arguments {
 
 #[macro_export]
 macro_rules! expand_args {
+    // A string.
+    (
+        @
+        $amx:ident,
+        $parser:ident,
+
+        $arg:ident : String,
+    ) => {
+        unimplemented!();
+    };
+
+    // TODO: A reference to a string.
+    (
+        @
+        $amx:ident,
+        $parser: ident,
+
+        $arg:ident : ref String,
+    ) => {
+        unimplemented!();
+    };
+
+    // A reference to an primitive value.
     (
         @
         $amx:ident,
         $parser:ident,
         
-        // last ref arg
         $arg:ident : ref $type:ty
     ) => {
         let mut $arg: Box<$type> = unsafe {
@@ -260,12 +283,12 @@ macro_rules! expand_args {
         };
     };
 
+    // An primitive value.
     (
         @
         $amx:ident,
         $parser:ident,
 
-        // last arg
         $arg:ident : $type:ty
     ) => {
         let $arg: $type = unsafe {
