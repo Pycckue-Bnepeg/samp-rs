@@ -30,7 +30,7 @@ impl Plugin {
         AMX_ERR_NONE
     }
 
-    fn my_function(amx: AMX, player_id: i32) -> Cell {
+    fn my_function(amx: AMX, player_id: i32) -> AmxResult<Cell> {
         return -player_id;
     }
 }

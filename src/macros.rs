@@ -151,7 +151,7 @@ macro_rules! log {
 /// // native: WithRawParams(&arg1, arg2, arg3);
 /// define_native!(Plugin, with_raw_params as raw);
 ///
-/// fn with_raw_params(amx: AMX, args: *mut Cell) -> Cell;
+/// fn with_raw_params(amx: AMX, args: *mut Cell) -> AmxResult<Cell>;
 /// ```
 ///
 /// Define a native without arguments.
@@ -159,7 +159,7 @@ macro_rules! log {
 /// // native: WithoutArguments();
 /// define_native!(Plugin, without_arguments);
 ///
-/// fn without_arguments(amx: AMX) -> Cell;
+/// fn without_arguments(amx: AMX) -> AmxResult<Cell>;
 /// ```
 /// 
 /// Define a native with converted arguments.
@@ -167,28 +167,42 @@ macro_rules! log {
 /// // native: SomeFunction(&int_val, float_val);
 /// define_native!(Plugin, some_function, int_val: ref i32, float_val: f32);
 ///
-/// fn some_function(amx: AMX, int_val: &mut i32, float_val: f32) -> Cell;
+/// fn some_function(amx: AMX, int_val: &mut i32, float_val: f32) -> AmxResult<Cell>;
 /// ```
 #[macro_export]
 macro_rules! define_native {
     ($plugin:ident, $name:ident as raw) => {
         pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
-            $plugin::$name($crate::amx::AMX::new(amx), params)
+            let mut amx = $crate::amx::AMX::new(amx);
+            match $plugin::$name(&mut amx, params) {
+                Ok(res) => return res,
+                Err(err) => {
+                    amx.raise_error(err).unwrap();
+                    return 0;
+                },
+            };
         }
     };
 
     ($plugin:ident, $name:ident) => {
         pub extern "C" fn $name(amx: *mut $crate::types::AMX, _: *mut $crate::types::Cell) -> $crate::types::Cell {
-            $plugin::$name($crate::amx::AMX::new(amx))
+            let mut amx = $crate::amx::AMX::new(amx);
+            match $plugin::$name(&mut amx) {
+                Ok(res) => return res,
+                Err(err) => {
+                    amx.raise_error(err).unwrap();
+                    return 0;
+                },
+            };
         }
     };
 
     ($plugin:ident, $name:ident, $( $arg:ident : $( $data:ident )+ ),* ) => {
         pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
-            let amx = $crate::amx::AMX::new(amx);
+            let mut amx = $crate::amx::AMX::new(amx);
             expand_args!(amx, params, $( $arg : $( $data )+ ),* );
             
-            let retval = $plugin::$name(amx, $( 
+            let retval = $plugin::$name(&mut amx, $( 
                     ___internal_expand_arguments!( 
                         $arg: $( $data )+ 
                     )
@@ -197,7 +211,13 @@ macro_rules! define_native {
 
             ___internal_forget!( $( $arg : $( $data )+ ),* );
 
-            retval
+            match retval {
+                Ok(res) => return res,
+                Err(err) => {
+                    amx.raise_error(err).unwrap();
+                    return 0;
+                },
+            };
         }
     }
 }
@@ -279,7 +299,13 @@ macro_rules! expand_args {
     ) => {
         let mut $arg: Box<$type> = unsafe {
             let ptr = $parser.next();
-            $amx.get_address(::std::ptr::read(ptr as *const $crate::types::Cell)).unwrap()
+            match $amx.get_address(::std::ptr::read(ptr as *const $crate::types::Cell)) {
+                Ok(res) => res,
+                Err(err) => {
+                    $amx.raise_error(err).unwrap();
+                    return 0;
+                },
+            }
         };
     };
 
