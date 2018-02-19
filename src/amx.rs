@@ -208,12 +208,12 @@ impl AMX {
     /// # Examples
     /// 
     /// ```
-    /// fn raw_function(amx: AMX, params: *mut types::Cell) -> types::Cell {
+    /// fn raw_function(amx: AMX, params: *mut types::Cell) -> AmxResult<Cell> {
     ///     unsafe {
     ///         let ptr = std::ptr::read(params.offset(1));
-    ///         let mut addr = amx.get_address::<i32>(ptr).unwrap(); // get a pointer from amx
-    ///         let len = amx.string_len(addr.as_mut()).unwrap(); // get string length in amx
-    ///         let string = amx.get_string(addr.as_mut(), len + 1).unwrap(); // convert amx string to rust String
+    ///         let mut addr = try!(amx.get_address::<i32>(ptr)); // get a pointer from amx
+    ///         let len = try!(amx.string_len(addr.as_mut())); // get string length in amx
+    ///         let string = try!(amx.get_string(addr.as_mut(), len + 1)); // convert amx string to rust String
     ///        
     ///         log!("got string: {}", string);
     ///
