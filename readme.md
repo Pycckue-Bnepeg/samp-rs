@@ -31,7 +31,7 @@ impl Plugin {
     }
 
     fn my_function(amx: AMX, player_id: i32) -> AmxResult<Cell> {
-        return -player_id;
+        Ok(-player_id)
     }
 }
 
