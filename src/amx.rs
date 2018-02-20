@@ -116,6 +116,24 @@ impl AMX {
         }
     }
 
+    pub fn get_address_experemental<'a, T: Sized>(&'a self, address: Cell) -> AmxResult<&'a mut T> {
+        unsafe {
+            let header = (*self.amx).base as *const types::AMX_HEADER;
+            
+            let data = if (*self.amx).data.is_null() {
+                (*self.amx).base as usize + (*header).dat as usize
+            } else {
+                (*self.amx).data as usize
+            };
+
+            if address >= (*self.amx).hea && address < (*self.amx).stk || address < 0 || address >= (*self.amx).stp {
+                Err(AmxError::MemoryAccess)
+            } else {
+                Ok(transmute(data + address as usize))
+            }
+        }
+    }
+
     /// Push a primitive value to AMX stack
     ///
     /// # Examples
