@@ -99,12 +99,20 @@ impl AMX {
     /// }
     /// ```
     pub fn get_address<T: Sized>(&self, address: Cell) -> AmxResult<Box<T>> {
-        let get_addr = import!(GetAddr);
-
-        let ptr = 0;
-
         unsafe {
-            call!(get_addr(self.amx, address, transmute(&ptr)) => Box::from_raw(transmute(ptr)))
+            let header = (*self.amx).base as *const types::AMX_HEADER;
+            
+            let data = if (*self.amx).data.is_null() {
+                (*self.amx).base as usize + (*header).dat as usize
+            } else {
+                (*self.amx).data as usize
+            };
+
+            if address >= (*self.amx).hea && address < (*self.amx).stk || address < 0 || address >= (*self.amx).stp {
+                Err(AmxError::MemoryAccess)
+            } else {
+                Ok(Box::from_raw((data + address as usize) as *mut T))
+            }
         }
     }
 
