@@ -3,7 +3,7 @@
 */
 
 use std::ptr::read;
-use std::mem::{transmute, transmute_copy};
+use std::mem::{transmute, transmute_copy, size_of};
 use std::ffi::CString;
 use types;
 use types::Cell;
@@ -262,6 +262,51 @@ impl AMX {
                 .and_then(|cstring| cstring.into_string().map_err(|_| AmxError::Params))
         } else {
             Err(AmxError::from(result))
+        }
+    }
+
+    pub fn get_string_experemental(&self, address: *const Cell, size: usize) -> AmxResult<String> {
+        const UNPACKEDMAX: u32 = ((1u32 << (size_of::<u32>() - 1) * 8) - 1u32);
+        const CHARBITS: usize = 8 * size_of::<u8>();
+
+        let mut string = Vec::with_capacity(size);
+        
+        unsafe {
+            if read(address) as u32 > UNPACKEDMAX {
+                // packed string
+                let mut i = size_of::<Cell>() - 1;
+                let mut cell = 0;
+                let mut ch;
+                let mut length = 0;
+                let mut offset = 0;
+
+                while length < size {
+                    if i == size_of::<Cell>() - 1 {
+                        cell = read(address.offset(offset));
+                        offset += 1;
+                    }
+
+                    ch = (cell >> i * CHARBITS) as u8;
+
+                    if ch == 0 {
+                        break;
+                    }
+
+                    string.push(ch);
+                    length += 1;
+                    i = (i + size_of::<Cell>() - 1) % size_of::<Cell>();
+                }
+            } else {
+                let mut length = 0;
+                let mut byte = read(address.offset(length));
+
+                while byte != 0 && length < size as isize {
+                    string.push(byte as u8);
+                    length += 1;
+                    byte = read(address.offset(length));
+                }
+            }
+            Ok(String::from_utf8_unchecked(string))
         }
     }
 
