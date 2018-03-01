@@ -9,9 +9,9 @@
 #![allow(non_camel_case_types)]
 #![allow(dead_code)]
 #![allow(non_snake_case)]
+#![feature(macro_reexport)]
 
-#[macro_use] extern crate lazy_static;
-extern crate libc;
+#[macro_use] #[macro_reexport(lazy_static, __lazy_static_internal, __lazy_static_create)] pub extern crate lazy_static;
 
 #[macro_use] pub mod macros;
 pub mod args;
