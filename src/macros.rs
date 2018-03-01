@@ -142,6 +142,9 @@ macro_rules! new_plugin {
     }
 }
 
+/// Useful macro to log to SA:MP server output.
+///
+/// Take a look at println! in Rust Standard Library.
 #[macro_export]
 macro_rules! log {
     ($( $arg:tt )* ) => {
