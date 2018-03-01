@@ -9,15 +9,18 @@
 ### Удобные и крутейшие макросы
 Зачем объявлять эти вонючие глобальные логгеры и прочие вещи руками?
 ``` Rust
-struct Plugin;
+struct Plugin {
+    version: &'static str,
+    amx_count: u32,
+}
 
 impl Plugin {
     fn load(&self) -> bool {
-        log!("Plugin is loaded");
+        log!("Plugin is loaded. Version: {}", self.version);
         return true;
     }
 
-    fn amx_load(&self, amx: AMX) -> Cell {
+    fn amx_load(&mut self, amx: AMX) -> Cell {
         let natives = natives![
             { "MyFunction", my_function }
         ];
@@ -27,11 +30,28 @@ impl Plugin {
             Err(err) => log!("Whoops, there is an error {:?}", err),
         }
 
+        self.amx_count += 1;
+
+        AMX_ERR_NONE
+    }
+
+    fn amx_unload(&mut self, _: AMX) -> Cell {
+        self.amx_count -= 1;
+
         AMX_ERR_NONE
     }
 
     fn my_function(&self, amx: AMX, player_id: i32) -> AmxResult<Cell> {
         Ok(-player_id)
+    }
+}
+
+impl Default for Plugin {
+    fn default() -> Self {
+        Plugin {
+            version: "0.1",
+            amx_count: 0,
+        }
     }
 }
 
