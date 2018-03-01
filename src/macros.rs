@@ -88,7 +88,7 @@ macro_rules! natives {
 macro_rules! new_plugin {
     (@internal $name:ident) => {
         lazy_static! {
-            static ref ___PLUGIN: $name = $name::default();
+            static ref ___PLUGIN: ::std::sync::Mutex<$name> = ::std::sync::Mutex::new($name::default());
         }
 
         #[no_mangle]
@@ -99,22 +99,22 @@ macro_rules! new_plugin {
             $crate::data::amx_functions = std::ptr::read(data.offset($crate::consts::PLUGIN_DATA_AMX_EXPORTS as isize) as *const *const u32);
 
             drop(log);
-            ___PLUGIN.load()
+            ___PLUGIN.lock().unwrap().load()
         }
 
         #[no_mangle]
         pub extern "C" fn Unload() {
-            ___PLUGIN.unload();
+            ___PLUGIN.lock().unwrap().unload();
         }
 
         #[no_mangle]
         pub extern "C" fn AmxLoad(amx: *mut $crate::types::AMX) -> u32 {
-            ___PLUGIN.amx_load($crate::amx::AMX::new(amx))
+            ___PLUGIN.lock().unwrap().amx_load($crate::amx::AMX::new(amx))
         }
 
         #[no_mangle]
         pub extern "C" fn AmxUnload(amx: *mut $crate::types::AMX) -> u32 {
-            ___PLUGIN.amx_unload($crate::amx::AMX::new(amx))
+            ___PLUGIN.lock().unwrap().amx_unload($crate::amx::AMX::new(amx))
         }
     };
 
@@ -132,7 +132,7 @@ macro_rules! new_plugin {
 
         #[no_mangle]
         pub extern "C" fn ProcessTick() {
-            ___PLUGIN.process_tick();
+            ___PLUGIN.lock().unwrap().process_tick();
         }
 
         #[no_mangle]
@@ -184,7 +184,7 @@ macro_rules! define_native {
     ($name:ident as raw) => {
         pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
-            match super::___PLUGIN.$name(&mut amx, params) {
+            match super::___PLUGIN.lock().unwrap().$name(&mut amx, params) {
                 Ok(res) => return res,
                 Err(err) => {
                     amx.raise_error(err).unwrap();
@@ -197,7 +197,7 @@ macro_rules! define_native {
     ($name:ident) => {
         pub extern "C" fn $name(amx: *mut $crate::types::AMX, _: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
-            match super::___PLUGIN.$name(&mut amx) {
+            match super::___PLUGIN.lock().unwrap().$name(&mut amx) {
                 Ok(res) => return res,
                 Err(err) => {
                     amx.raise_error(err).unwrap();
@@ -212,7 +212,7 @@ macro_rules! define_native {
             let mut amx = $crate::amx::AMX::new(amx);
             expand_args!(amx, params, $( $arg : $( $data )+ ),* );
             
-            let retval = super::___PLUGIN.$name(&mut amx, $( 
+            let retval = super::___PLUGIN.lock().unwrap().$name(&mut amx, $( 
                     ___internal_expand_arguments!( 
                         $arg: $( $data )+ 
                     )
