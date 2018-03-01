@@ -12,12 +12,12 @@
 struct Plugin;
 
 impl Plugin {
-    fn load() -> bool {
+    fn load(&self) -> bool {
         log!("Plugin is loaded");
         return true;
     }
 
-    fn amx_load(amx: AMX) -> Cell {
+    fn amx_load(&self, amx: AMX) -> Cell {
         let natives = natives![
             { "MyFunction", my_function }
         ];
@@ -30,7 +30,7 @@ impl Plugin {
         AMX_ERR_NONE
     }
 
-    fn my_function(amx: AMX, player_id: i32) -> AmxResult<Cell> {
+    fn my_function(&self, amx: AMX, player_id: i32) -> AmxResult<Cell> {
         Ok(-player_id)
     }
 }
@@ -44,10 +44,10 @@ new_plugin!(Plugin with process_tick)
 Хочешь определить нативную функцию и никогда своими руками не делать грязный парсинг аргументов?
 ``` Rust
 // native: FunctionName(int_arg, &float_arg);
-define_native!(Plugin, function_name, int_arg: i32, float_ref_arg: ref f32);
+define_native!(function_name, int_arg: i32, float_ref_arg: ref f32);
 
 // native: WithoutArguments();
-define_native(Plugin, function_name);
+define_native(function_name);
 ```
 
 ## TODO List
