@@ -159,7 +159,7 @@ macro_rules! log {
 /// Define a native with raw params (`*mut Cell`).
 /// ```
 /// // native: WithRawParams(&arg1, arg2, arg3);
-/// define_native!(Plugin, with_raw_params as raw);
+/// define_native!(with_raw_params as raw);
 ///
 /// fn with_raw_params(&self, amx: AMX, args: *mut Cell) -> AmxResult<Cell>;
 /// ```
@@ -167,7 +167,7 @@ macro_rules! log {
 /// Define a native without arguments.
 /// ```
 /// // native: WithoutArguments();
-/// define_native!(Plugin, without_arguments);
+/// define_native!(without_arguments);
 ///
 /// fn without_arguments(&self, amx: AMX) -> AmxResult<Cell>;
 /// ```
@@ -175,13 +175,13 @@ macro_rules! log {
 /// Define a native with converted arguments.
 /// ```
 /// // native: SomeFunction(&int_val, float_val);
-/// define_native!(Plugin, some_function, int_val: ref i32, float_val: f32);
+/// define_native!(some_function, int_val: ref i32, float_val: f32);
 ///
 /// fn some_function(&self, amx: AMX, int_val: &mut i32, float_val: f32) -> AmxResult<Cell>;
 /// ```
 #[macro_export]
 macro_rules! define_native {
-    ($plugin:ident, $name:ident as raw) => {
+    ($name:ident as raw) => {
         pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             match super::___PLUGIN.$name(&mut amx, params) {
@@ -194,7 +194,7 @@ macro_rules! define_native {
         }
     };
 
-    ($plugin:ident, $name:ident) => {
+    ($name:ident) => {
         pub extern "C" fn $name(amx: *mut $crate::types::AMX, _: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             match super::___PLUGIN.$name(&mut amx) {
@@ -207,7 +207,7 @@ macro_rules! define_native {
         }
     };
 
-    ($plugin:ident, $name:ident, $( $arg:ident : $( $data:ident )+ ),* ) => {
+    ($name:ident, $( $arg:ident : $( $data:ident )+ ),* ) => {
         pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             expand_args!(amx, params, $( $arg : $( $data )+ ),* );
