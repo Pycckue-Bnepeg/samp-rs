@@ -370,3 +370,21 @@ macro_rules! expand_args {
         expand_args!(@$amx, parser, $( $arg : $( $data )+ ),*);
     };
 }
+
+/// Get count of passed arguments in a native.
+///
+/// # Examples
+/// ```
+/// fn native(&self, _amx: AMX, params: *mut Cell) -> AmxResult<Cell> {
+///     let count = args_count!(params);
+///     log!("Args count: {}", count);
+/// }
+/// ```
+#[macro_export]
+macro_rules! args_count {
+    ($params:ident) => {
+        unsafe {
+            ::std::ptr::read($params) as usize / ::std::mem::size_of::<$crate::types::Cell>()
+        }
+    }
+}
