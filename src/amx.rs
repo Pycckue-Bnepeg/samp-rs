@@ -82,6 +82,29 @@ impl AMX {
         call!(register(self.amx, ptr, len as i32) => ())
     }
 
+    /// Allocates memory cells inside AMX.
+    /// 
+    /// # Return
+    /// Return typle of two addresses:
+    /// * The address of the variable relatived to AMX data section.
+    /// * The physical address.
+    pub fn allot(&self, cells: usize) -> AmxResult<(Cell, usize)> {
+        let amx_addr = 0;
+        let phys_addr = 0;
+
+        let allot = import!(Allot);
+        
+        unsafe {
+            call!(allot(self.amx, cells as i32, transmute(&amx_addr), transmute(&phys_addr)) => (amx_addr, phys_addr))
+        }
+    }
+
+    /// Frees all memory **above** input address.
+    pub fn release(&self, address: Cell) -> AmxResult<()> {
+        let release = import!(Release);
+        call!(release(self.amx, address) => ())
+    }
+
     /// Get an address of a reference value given to native.
     ///
     /// You **must** use `std::mem::forget` for this value because `get_address` return `Box<T>` which releases memory.

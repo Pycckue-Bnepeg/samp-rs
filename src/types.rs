@@ -77,7 +77,7 @@ pub struct AMX_HEADER {
 
 pub type Align16 = extern "C" fn(*mut u16) -> *mut u16;
 pub type Align32 = extern "C" fn(*mut u32) -> *mut u32;
-pub type Allot = extern "C" fn(*mut AMX, i32, *mut Cell, *mut *mut Cell) -> i32;
+pub type Allot = extern "C" fn(*mut AMX, i32, *mut Cell, *mut Cell) -> i32;
 pub type Callback = extern "C" fn(*mut AMX, Cell, *mut Cell, *mut Cell) -> i32;
 pub type Cleanup = extern "C" fn(*mut AMX) -> i32;
 pub type Clone = extern "C" fn(*mut AMX, *mut AMX, *mut c_void) -> i32;
