@@ -93,7 +93,7 @@ impl AMX {
         let phys_addr = 0;
 
         let allot = import!(Allot);
-        
+
         unsafe {
             call!(allot(self.amx, cells as i32, transmute(&amx_addr), transmute(&phys_addr)) => (amx_addr, phys_addr))
         }
@@ -157,7 +157,7 @@ impl AMX {
         }
     }
 
-    /// Push a primitive value to AMX stack
+    /// Push a primitive value or an address to AMX stack.
     ///
     /// # Examples
     ///
@@ -175,6 +175,43 @@ impl AMX {
         
         unsafe {
             call!(push(self.amx, transmute_copy(&value)) => ())
+        }
+    }
+
+    /// Push a vector to AMX stack.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let func = amx.find_public("GiveMeArray")?;
+    /// let player_data = vec![1, 2, 3, 4, 5];
+    /// let player_ids = vec![1, 2, 3, 4, 5];
+    /// 
+    /// let amx_addr = amx.push_array(player_data)?; // push an array and save address relatived to first item on the heap.
+    /// amx.push_array(player_ids)?; // push the next array
+    /// amx.exec(func)?; // exec the public
+    /// amx.release(amx_addr)?; // release all allocated memory inside AMX
+    /// ```
+    pub fn push_array<T: Sized>(&self, array: &[T]) -> AmxResult<Cell> {
+        let (amx_addr, phys_addr) = self.allot(array.len())?;
+        let dest = phys_addr as *mut Cell;
+
+        for i in 0..array.len() {
+            unsafe {
+                *(dest.offset(i as isize)) = transmute_copy(&array[i]);
+            }
+        }
+
+        self.push(amx_addr)?;
+        Ok(amx_addr)
+    }
+
+    pub fn push_string(&self, string: &str, packed: bool) -> AmxResult<Cell> {
+        if packed {
+            // TODO: implement push an packed string
+            Ok(0)
+        } else {
+            self.push_array(&string.as_bytes())
         }
     }
 
