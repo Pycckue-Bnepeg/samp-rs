@@ -187,8 +187,8 @@ impl AMX {
     /// let player_data = vec![1, 2, 3, 4, 5];
     /// let player_ids = vec![1, 2, 3, 4, 5];
     /// 
-    /// let amx_addr = amx.push_array(player_data)?; // push an array and save address relatived to first item on the heap.
-    /// amx.push_array(player_ids)?; // push the next array
+    /// let amx_addr = amx.push_array(&player_data)?; // push an array and save address relatived to first item on the heap.
+    /// amx.push_array(&player_ids)?; // push the next array
     /// amx.exec(func)?; // exec the public
     /// amx.release(amx_addr)?; // release all allocated memory inside AMX
     /// ```
@@ -209,7 +209,7 @@ impl AMX {
     pub fn push_string(&self, string: &str, packed: bool) -> AmxResult<Cell> {
         if packed {
             // TODO: implement push an packed string
-            Ok(0)
+            unimplemented!()
         } else {
             self.push_array(&string.as_bytes())
         }
