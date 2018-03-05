@@ -2,7 +2,7 @@
 
 */
 
-use std::ptr::read;
+use std::ptr::{read};
 use std::mem::{transmute, transmute_copy, size_of};
 use std::ffi::CString;
 use types;
@@ -178,7 +178,7 @@ impl AMX {
         }
     }
 
-    /// Push a vector to AMX stack.
+    /// Push a slice to AMX stack.
     ///
     /// # Examples
     ///
@@ -208,10 +208,24 @@ impl AMX {
 
     pub fn push_string(&self, string: &str, packed: bool) -> AmxResult<Cell> {
         if packed {
-            // TODO: implement push an packed string
             unimplemented!()
         } else {
-            self.push_array(&string.as_bytes())
+            let bytes = string.as_bytes();
+            let (amx_addr, phys_addr) = self.allot(bytes.len() + 1)?;
+            let dest = phys_addr as *mut Cell;
+
+            for i in 0..string.len() {
+                unsafe {
+                    *(dest.offset(i as isize)) = transmute_copy(&bytes[i]);
+                }
+            }
+
+            unsafe {
+                *(dest.offset(string.len() as isize)) = 0;
+            }
+
+            self.push(amx_addr)?;
+            Ok(amx_addr)
         }
     }
 
@@ -297,9 +311,9 @@ impl AMX {
     /// fn raw_function(amx: AMX, params: *mut types::Cell) -> AmxResult<Cell> {
     ///     unsafe {
     ///         let ptr = std::ptr::read(params.offset(1));
-    ///         let mut addr = try!(amx.get_address::<i32>(ptr)); // get a pointer from amx
-    ///         let len = try!(amx.string_len(addr.as_mut())); // get string length in amx
-    ///         let string = try!(amx.get_string(addr.as_mut(), len + 1)); // convert amx string to rust String
+    ///         let mut addr = amx.get_address::<i32>(ptr)?; // get a pointer from amx
+    ///         let len = amx.string_len(addr.as_mut())?; // get string length in amx
+    ///         let string = amx.get_string(addr.as_mut(), len + 1)?; // convert amx string to rust String
     ///        
     ///         log!("got string: {}", string);
     ///
