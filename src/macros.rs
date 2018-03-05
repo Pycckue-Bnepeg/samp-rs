@@ -409,6 +409,7 @@ macro_rules! args_count {
 #[macro_export]
 macro_rules! exec {
     (@internal
+        $addr:ident,
         $amx:ident;
         $arg:ident
     ) => {
@@ -416,44 +417,55 @@ macro_rules! exec {
     };
 
     (@internal
+        $addr:ident,
         $amx:ident;
         $arg:ident => string
     ) => {
-        $amx.push_string(&$arg, false)?;
+        let __res = $amx.push_string(&$arg, false)?;
+        if $addr.is_none() {
+            $addr = Some(__res);
+        }
     };
 
     (@internal
+        $addr:ident,
         $amx:ident;
         $arg:ident => array
     ) => {
-        $amx.push_array(&$arg)?;
+        let __res = $amx.push_array(&$arg)?;
+        if $addr.is_none() {
+            $addr = Some(__res);
+        }
     };
 
     (@internal
+        $addr:ident,
         $amx:ident;
         $arg:ident,
         $($tail:tt)*
     ) => {
-        exec!(@internal $amx; $($tail)*);
-        exec!(@internal $amx; $arg);
+        exec!(@internal $addr, $amx; $($tail)*);
+        exec!(@internal $addr, $amx; $arg);
     };
 
     (@internal
+        $addr:ident,
         $amx:ident;
         $arg:ident => string,
         $($tail:tt)*
     ) => {
-        exec!(@internal $amx; $($tail)*);
-        exec!(@internal $amx; $arg => string);
+        exec!(@internal $addr, $amx; $($tail)*);
+        exec!(@internal $addr, $amx; $arg => string);
     };
 
     (@internal
+        $addr:ident,
         $amx:ident;
         $arg:ident => array,
         $($tail:tt)*
     ) => {
-        exec!(@internal $amx; $($tail)*);
-        exec!(@internal $amx; $arg => array);
+        exec!(@internal $addr, $amx; $($tail)*);
+        exec!(@internal $addr, $amx; $arg => array);
     };
 
     (
@@ -462,8 +474,13 @@ macro_rules! exec {
         $($tail:tt)*
     ) => {
         {
-            exec!(@internal $amx; $($tail)*);
-            $amx.exec($index)
+            let mut __first_addr = None;
+            exec!(@internal __first_addr, $amx; $($tail)*);
+            let res = $amx.exec($index);
+            if let Some(addr) = __first_addr {
+                $amx.release(addr)?;
+            }
+            res
         }
     };
 }
