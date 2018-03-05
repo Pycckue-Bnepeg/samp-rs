@@ -388,3 +388,82 @@ macro_rules! args_count {
         }
     }
 }
+
+/// Executes `AMX::exec` with given arguments.
+///
+/// # Examples
+/// fn native(&self, amx: AMX) -> AmxResult<Cell> {
+///     let public = amx.find_public("TestPublic");
+///     let player_name = String::from("Some_Name");
+///     let player_id = 12;
+///     let player_data = vec![51, 2, 256, 0, 22];
+///     let data_size = player_data.len();
+///     
+///     let res = exec!(amx, public; 
+///         player_name => string, 
+///         player_id, 
+///         player_data => array, 
+///         data_size
+///     );
+/// }
+#[macro_export]
+macro_rules! exec {
+    (@internal
+        $amx:ident;
+        $arg:ident
+    ) => {
+        $amx.push($arg)?;
+    };
+
+    (@internal
+        $amx:ident;
+        $arg:ident => string
+    ) => {
+        $amx.push_string(&$arg, false)?;
+    };
+
+    (@internal
+        $amx:ident;
+        $arg:ident => array
+    ) => {
+        $amx.push_array(&$arg)?;
+    };
+
+    (@internal
+        $amx:ident;
+        $arg:ident,
+        $($tail:tt)*
+    ) => {
+        exec!(@internal $amx; $($tail)*);
+        exec!(@internal $amx; $arg);
+    };
+
+    (@internal
+        $amx:ident;
+        $arg:ident => string,
+        $($tail:tt)*
+    ) => {
+        exec!(@internal $amx; $($tail)*);
+        exec!(@internal $amx; $arg => string);
+    };
+
+    (@internal
+        $amx:ident;
+        $arg:ident => array,
+        $($tail:tt)*
+    ) => {
+        exec!(@internal $amx; $($tail)*);
+        exec!(@internal $amx; $arg => array);
+    };
+
+    (
+        $amx:ident, 
+        $index:ident;
+        $($tail:tt)*
+    ) => {
+        {
+            exec!(@internal $amx; $($tail)*);
+            $amx.exec($index)
+        }
+    };
+}

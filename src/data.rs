@@ -1,9 +1,9 @@
 use std;
 use std::sync::Mutex;
-use types;
+use types::Logprintf_t;
 
 lazy_static! {
-    pub static ref logprintf: Mutex<types::Logprintf_t> = unsafe {
+    pub static ref logprintf: Mutex<Logprintf_t> = unsafe {
         Mutex::new(std::mem::transmute(0u32))
     };
 }
