@@ -288,7 +288,16 @@ macro_rules! expand_args {
 
         $arg:ident : String,
     ) => {
-        unimplemented!();
+        let $arg = {
+            let arg = $parser.next();
+            match get_string!($amx, arg) {
+                Ok(res) => res,
+                Err(err) => {
+                    $amx.raise_error(err).unwrap();
+                    return 0;
+                },
+            }
+        };
     };
 
     // TODO: A reference to a string.
@@ -411,7 +420,7 @@ macro_rules! exec {
     (@internal
         $addr:ident,
         $amx:ident;
-        $arg:ident
+        $arg:expr
     ) => {
         $amx.push($arg)?;
     };
@@ -419,7 +428,7 @@ macro_rules! exec {
     (@internal
         $addr:ident,
         $amx:ident;
-        $arg:ident => string
+        $arg:expr => string
     ) => {
         let __res = $amx.push_string(&$arg, false)?;
         if $addr.is_none() {
@@ -430,7 +439,7 @@ macro_rules! exec {
     (@internal
         $addr:ident,
         $amx:ident;
-        $arg:ident => array
+        $arg:expr => array
     ) => {
         let __res = $amx.push_array(&$arg)?;
         if $addr.is_none() {
