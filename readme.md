@@ -90,9 +90,7 @@ fn notify(&self, amx: AMX, player_id: u32, old_name: String, new_name: String) -
 * Add string and arrays parsing inside `define_native!`.
 
 ## Documentation
-There will be a link to the docs.
-
-You can install Rust and type `cargo doc --no-deps --open` in the terminal and take a look on the docs.
+[Here](https://zottce.github.io/samp-sdk/samp_sdk/).
 
 ## Plugin example
 [Here](https://github.com/ZOTTCE/samp-plugin-example) you can see such a beautiful example of the samp-sdk.

@@ -320,7 +320,7 @@ impl AMX {
     ///         std::mem::forget(addr);
     ///     }
     ///
-    ///     0
+    ///     Ok(0)
     /// }
     /// ```
     pub fn get_string(&self, address: *const Cell, length: usize) -> AmxResult<String> {

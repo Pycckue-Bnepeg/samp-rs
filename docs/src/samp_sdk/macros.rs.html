@@ -607,6 +607,12 @@
 <span id="551">551</span>
 <span id="552">552</span>
 <span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
 </pre><pre class="rust ">
 <span class="doccomment">/*!
 Some useful macros to easy access and define natives.
@@ -1011,6 +1017,7 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">/// Executes `AMX::exec` with given arguments.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
+<span class="doccomment">/// ```</span>
 <span class="doccomment">/// fn native(&amp;self, amx: AMX) -&gt; AmxResult&lt;Cell&gt; {</span>
 <span class="doccomment">///     let public = amx.find_public(&quot;TestPublic&quot;);</span>
 <span class="doccomment">///     let player_name = String::from(&quot;Some_Name&quot;);</span>
@@ -1025,6 +1032,7 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">///         data_size</span>
 <span class="doccomment">///     );</span>
 <span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">exec</span> {
     (@<span class="ident">internal</span>
@@ -1107,11 +1115,13 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">/// Finds a public and executes `AMX::exec` with given arguments.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
+<span class="doccomment">/// ```</span>
 <span class="doccomment">/// fn native(&amp;self, amx: AMX) -&gt; AmxResult&lt;Cell&gt; {</span>
 <span class="doccomment">///     let old_name = String::from(&quot;Old_Name&quot;);</span>
 <span class="doccomment">///     let new_name = String::from(&quot;Name_Surname&quot;);</span>
 <span class="doccomment">///     exec_public!(amx, &quot;OnPlayerNameChanged&quot;; old_name =&gt; string, new_name =&gt; string); </span>
 <span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">exec_public</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">expr</span>; $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">args</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {
@@ -1139,12 +1149,14 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">/// Gets a string from `Cell`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
+<span class="doccomment">/// ```</span>
 <span class="doccomment">/// // native:PushString(const string[]);</span>
 <span class="doccomment">/// fn raw_arguments(&amp;self, amx: AMX, args: *mut Cell) -&gt; AmxResult&lt;Cell&gt; {</span>
 <span class="doccomment">///     let string = get_string!(amx, args.offset(1));</span>
 <span class="doccomment">///     log!(&quot;got a string: {}&quot;, string);</span>
 <span class="doccomment">///     Ok(0)</span>
 <span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">get_string</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cell</span>:<span class="ident">expr</span>) <span class="op">=&gt;</span> {

@@ -401,6 +401,7 @@ macro_rules! args_count {
 /// Executes `AMX::exec` with given arguments.
 ///
 /// # Examples
+/// ```
 /// fn native(&self, amx: AMX) -> AmxResult<Cell> {
 ///     let public = amx.find_public("TestPublic");
 ///     let player_name = String::from("Some_Name");
@@ -415,6 +416,7 @@ macro_rules! args_count {
 ///         data_size
 ///     );
 /// }
+/// ```
 #[macro_export]
 macro_rules! exec {
     (@internal
@@ -497,11 +499,13 @@ macro_rules! exec {
 /// Finds a public and executes `AMX::exec` with given arguments.
 ///
 /// # Examples
+/// ```
 /// fn native(&self, amx: AMX) -> AmxResult<Cell> {
 ///     let old_name = String::from("Old_Name");
 ///     let new_name = String::from("Name_Surname");
 ///     exec_public!(amx, "OnPlayerNameChanged"; old_name => string, new_name => string); 
 /// }
+/// ```
 #[macro_export]
 macro_rules! exec_public {
     ($amx:ident, $name:expr; $($args:tt)*) => {
@@ -529,12 +533,14 @@ macro_rules! exec_native {
 /// Gets a string from `Cell`.
 ///
 /// # Examples
+/// ```
 /// // native:PushString(const string[]);
 /// fn raw_arguments(&self, amx: AMX, args: *mut Cell) -> AmxResult<Cell> {
 ///     let string = get_string!(amx, args.offset(1));
 ///     log!("got a string: {}", string);
 ///     Ok(0)
 /// }
+/// ```
 #[macro_export]
 macro_rules! get_string {
     ($amx:ident, $cell:expr) => {
