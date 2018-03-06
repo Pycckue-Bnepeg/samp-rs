@@ -484,3 +484,35 @@ macro_rules! exec {
         }
     };
 }
+
+/// Finds a public and executes `AMX::exec` with given arguments.
+///
+/// # Examples
+/// fn native(&self, amx: AMX) -> AmxResult<Cell> {
+///     let old_name = String::from("Old_Name");
+///     let new_name = String::from("Name_Surname");
+///     exec_public!(amx, "OnPlayerNameChanged"; old_name => string, new_name => string); 
+/// }
+#[macro_export]
+macro_rules! exec_public {
+    ($amx:ident, $name:expr; $($args:tt)*) => {
+        {
+            $amx.find_public($name)
+                .and_then(|index| exec!($amx, index; $($args)*))
+        }
+    };
+}
+
+/// Finds a native function and executes `AMX::exec` with given arguments.
+///
+/// # Examples
+/// Same as `exec_public!`.
+#[macro_export]
+macro_rules! exec_native {
+    ($amx:ident, $name:expr; $($args:tt)*) => {
+        {
+            $amx.find_native($name)
+                .and_then(|index| exec!($amx, index; $($args)*))
+        }
+    }
+}
