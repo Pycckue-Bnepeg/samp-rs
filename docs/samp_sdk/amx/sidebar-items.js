@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["AmxError","Custom error type for AMX errors. Can be casted from i32"]],"struct":[["AMX","AMX struct that holds raw `types::AMX` pointer."]],"type":[["AmxResult",""]]});

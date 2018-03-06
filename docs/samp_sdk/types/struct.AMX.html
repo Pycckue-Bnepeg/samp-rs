@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `AMX` struct in crate `samp_sdk`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, AMX">
+
+    <title>samp_sdk::types::AMX - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../../dark.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css" id="themeStyle">
+    <script src="../../storage.js"></script>
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
+        
+        <p class='location'>Struct AMX</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.base">base</a><a href="#structfield.data">data</a><a href="#structfield.callback">callback</a><a href="#structfield.debug">debug</a><a href="#structfield.cip">cip</a><a href="#structfield.frm">frm</a><a href="#structfield.hea">hea</a><a href="#structfield.hlw">hlw</a><a href="#structfield.stk">stk</a><a href="#structfield.stp">stp</a><a href="#structfield.flags">flags</a><a href="#structfield.usertags">usertags</a><a href="#structfield.userdata">userdata</a><a href="#structfield.error">error</a><a href="#structfield.paramcount">paramcount</a><a href="#structfield.pri">pri</a><a href="#structfield.alt">alt</a><a href="#structfield.reset_stk">reset_stk</a><a href="#structfield.reset_hea">reset_hea</a><a href="#structfield.sysreq_d">sysreq_d</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a></div><a class="sidebar-title" href="#synthetic-implementations">Auto Trait Implementations</a><div class="sidebar-links"><a href="#impl-Send">!Send</a><a href="#impl-Sync">!Sync</a></div></div><p class='location'><a href='../index.html'>samp_sdk</a>::<wbr><a href='index.html'>types</a></p><script>window.sidebarCurrent = {name: 'AMX', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
+    </nav>
+
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../../theme.js"></script>
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>samp_sdk</a>::<wbr><a href='index.html'>types</a>::<wbr><a class="struct" href=''>AMX</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/samp_sdk/types.rs.html#8-29' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'><div class="docblock attributes">#[repr(C, packed)]
+</div>pub struct AMX {
+    pub base: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
+    pub data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>,
+    pub callback: <a class="type" href="../../samp_sdk/types/type.AmxCallback.html" title="type samp_sdk::types::AmxCallback">AmxCallback</a>,
+    pub debug: <a class="type" href="../../samp_sdk/types/type.AmxDebug.html" title="type samp_sdk::types::AmxDebug">AmxDebug</a>,
+    pub cip: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+    pub frm: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+    pub hea: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+    pub hlw: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+    pub stk: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+    pub stp: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+    pub flags: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+    pub usertags: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">[</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">; 4]</a>,
+    pub userdata: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">[</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">; 4]</a>,
+    pub error: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+    pub paramcount: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+    pub pri: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+    pub alt: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+    pub reset_stk: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+    pub reset_hea: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+    pub sysreq_d: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a>,
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.base" class="structfield small-section-header">
+                           <a href="#structfield.base" class="anchor field"></a>
+                           <span id="base.v" class='invisible'>
+                           <code>base: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></code>
+                           </span></span><span id="structfield.data" class="structfield small-section-header">
+                           <a href="#structfield.data" class="anchor field"></a>
+                           <span id="data.v" class='invisible'>
+                           <code>data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></code>
+                           </span></span><span id="structfield.callback" class="structfield small-section-header">
+                           <a href="#structfield.callback" class="anchor field"></a>
+                           <span id="callback.v" class='invisible'>
+                           <code>callback: <a class="type" href="../../samp_sdk/types/type.AmxCallback.html" title="type samp_sdk::types::AmxCallback">AmxCallback</a></code>
+                           </span></span><span id="structfield.debug" class="structfield small-section-header">
+                           <a href="#structfield.debug" class="anchor field"></a>
+                           <span id="debug.v" class='invisible'>
+                           <code>debug: <a class="type" href="../../samp_sdk/types/type.AmxDebug.html" title="type samp_sdk::types::AmxDebug">AmxDebug</a></code>
+                           </span></span><span id="structfield.cip" class="structfield small-section-header">
+                           <a href="#structfield.cip" class="anchor field"></a>
+                           <span id="cip.v" class='invisible'>
+                           <code>cip: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span><span id="structfield.frm" class="structfield small-section-header">
+                           <a href="#structfield.frm" class="anchor field"></a>
+                           <span id="frm.v" class='invisible'>
+                           <code>frm: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span><span id="structfield.hea" class="structfield small-section-header">
+                           <a href="#structfield.hea" class="anchor field"></a>
+                           <span id="hea.v" class='invisible'>
+                           <code>hea: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span><span id="structfield.hlw" class="structfield small-section-header">
+                           <a href="#structfield.hlw" class="anchor field"></a>
+                           <span id="hlw.v" class='invisible'>
+                           <code>hlw: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span><span id="structfield.stk" class="structfield small-section-header">
+                           <a href="#structfield.stk" class="anchor field"></a>
+                           <span id="stk.v" class='invisible'>
+                           <code>stk: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span><span id="structfield.stp" class="structfield small-section-header">
+                           <a href="#structfield.stp" class="anchor field"></a>
+                           <span id="stp.v" class='invisible'>
+                           <code>stp: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span><span id="structfield.flags" class="structfield small-section-header">
+                           <a href="#structfield.flags" class="anchor field"></a>
+                           <span id="flags.v" class='invisible'>
+                           <code>flags: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code>
+                           </span></span><span id="structfield.usertags" class="structfield small-section-header">
+                           <a href="#structfield.usertags" class="anchor field"></a>
+                           <span id="usertags.v" class='invisible'>
+                           <code>usertags: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">[</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">; 4]</a></code>
+                           </span></span><span id="structfield.userdata" class="structfield small-section-header">
+                           <a href="#structfield.userdata" class="anchor field"></a>
+                           <span id="userdata.v" class='invisible'>
+                           <code>userdata: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">[</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">; 4]</a></code>
+                           </span></span><span id="structfield.error" class="structfield small-section-header">
+                           <a href="#structfield.error" class="anchor field"></a>
+                           <span id="error.v" class='invisible'>
+                           <code>error: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code>
+                           </span></span><span id="structfield.paramcount" class="structfield small-section-header">
+                           <a href="#structfield.paramcount" class="anchor field"></a>
+                           <span id="paramcount.v" class='invisible'>
+                           <code>paramcount: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code>
+                           </span></span><span id="structfield.pri" class="structfield small-section-header">
+                           <a href="#structfield.pri" class="anchor field"></a>
+                           <span id="pri.v" class='invisible'>
+                           <code>pri: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span><span id="structfield.alt" class="structfield small-section-header">
+                           <a href="#structfield.alt" class="anchor field"></a>
+                           <span id="alt.v" class='invisible'>
+                           <code>alt: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span><span id="structfield.reset_stk" class="structfield small-section-header">
+                           <a href="#structfield.reset_stk" class="anchor field"></a>
+                           <span id="reset_stk.v" class='invisible'>
+                           <code>reset_stk: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span><span id="structfield.reset_hea" class="structfield small-section-header">
+                           <a href="#structfield.reset_hea" class="anchor field"></a>
+                           <span id="reset_hea.v" class='invisible'>
+                           <code>reset_hea: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span><span id="structfield.sysreq_d" class="structfield small-section-header">
+                           <a href="#structfield.sysreq_d" class="anchor field"></a>
+                           <span id="sysreq_d.v" class='invisible'>
+                           <code>sysreq_d: <a class="type" href="../../samp_sdk/types/type.Cell.html" title="type samp_sdk::types::Cell">Cell</a></code>
+                           </span></span>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+            <div id='implementations-list'>
+        <h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../samp_sdk/types/struct.AMX.html" title="struct samp_sdk::types::AMX">AMX</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/samp_sdk/types.rs.html#7' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/samp_sdk/types.rs.html#7' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../samp_sdk/types/struct.AMX.html" title="struct samp_sdk::types::AMX">AMX</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/samp_sdk/types.rs.html#7' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../samp_sdk/types/struct.AMX.html" title="struct samp_sdk::types::AMX">AMX</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/samp_sdk/types.rs.html#7' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../samp_sdk/types/struct.AMX.html" title="struct samp_sdk::types::AMX">AMX</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/samp_sdk/types.rs.html#7' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div></div>
+            <h2 id='synthetic-implementations' class='small-section-header'>
+              Auto Trait Implementations<a href='#synthetic-implementations' class='anchor'></a>
+            </h2>
+            <div id='synthetic-implementations-list'>
+        <h3 id='impl-Send' class='impl'><span class='in-band'><code>impl !<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="../../samp_sdk/types/struct.AMX.html" title="struct samp_sdk::types::AMX">AMX</a></code><a href='#impl-Send' class='anchor'></a></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div><h3 id='impl-Sync' class='impl'><span class='in-band'><code>impl !<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="../../samp_sdk/types/struct.AMX.html" title="struct samp_sdk::types::AMX">AMX</a></code><a href='#impl-Sync' class='anchor'></a></span><span class='out-of-band'></span></h3>
+<div class='impl-items'></div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt><kbd>?</kbd></dt>
+                    <dd>Show this help dialog</dd>
+                    <dt><kbd>S</kbd></dt>
+                    <dd>Focus the search field</dd>
+                    <dt><kbd>↑</kbd></dt>
+                    <dd>Move up in search results</dd>
+                    <dt><kbd>↓</kbd></dt>
+                    <dd>Move down in search results</dd>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
+                    <dd>Go to active search result</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "samp_sdk";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
