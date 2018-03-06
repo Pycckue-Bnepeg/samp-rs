@@ -1,14 +1,17 @@
 # SA:MP SDK
-Наилучшие биндинги для разработки плагинов SA:MP, которые вы когда либо встречали!
+Pretty cool and beautiful bindings for SA:MP SDK.
 
 ## Features
-В наличии куча всяких крутых плюшек, чтобы создание плагина не убило вас.
+Hides most of type coercion. You don't need make a `cell` type as a `String` or other things yourself.
 
-После одного раза использования Rust SA:MP SDK тебя будет тошнить от любого плагина, что написан не на этом **крутейшем** SDK.
+Macros:
+* `new_plugin!` that defines a plugin and exports functions.
+* `define_native!` defines a native and parses arguments.
+* `log!` calls `logprinft` funciton.
+* `natives` makes a vec of your natives.
 
-### Удобные и крутейшие макросы
-#### Создание плагина
-Зачем объявлять эти вонючие глобальные логгеры и прочие вещи руками?
+### Useful macros
+#### Make a new plugin
 ``` Rust
 struct Plugin {
     version: &'static str,
@@ -58,11 +61,13 @@ impl Default for Plugin {
 
 new_plugin!(Plugin);
 
-// Так же можно запилить ProcessTick, но ты должен, конечно же, объявить Plugin::process_tick.
+// Also you can make a plugin with ProcessTick support.
 new_plugin!(Plugin with process_tick)
 ```
-#### Объявление нативных функций.
-Хочешь определить нативную функцию и никогда своими руками не делать грязный парсинг аргументов?
+#### Define a native function.
+Hides arguments parsing inside the macro.
+
+All you need is define a method `function_name` in your new plugin with given arguments.
 ``` Rust
 // native: FunctionName(int_arg, &float_arg);
 define_native!(function_name, int_arg: i32, float_ref_arg: ref f32);
@@ -71,23 +76,23 @@ define_native!(function_name, int_arg: i32, float_ref_arg: ref f32);
 define_native(function_name);
 ```
 
-#### Вызов нативных функций и паблик функций.
+#### Call natives and public functions.
 ``` Rust
-// Уведомление всех подписчиков о смене никнейма пользователя.
+// Broadcast to all subscribers that a user have changed his name.
 fn notify(&self, amx: AMX, player_id: u32, old_name: String, new_name: String) -> AmxResult<Cell> {
     exec_public!(amx, "OnPlayerNameChanged"; player_id, old_name => string, new_name => string) 
 }
 ```
 
 ## TODO List
-* Сделать новый samp-plugin-example, который будет отражать все плюсы данного SDK.
-* Обновить макрос `expand_args!` под новый `AMX::get_address_experemental`.
-* Добавить автоматический парсинг для строк и массивов (внутри `define_native!`).
+* Develop a new samp-plugin-example that shows all good points of this samp-sdk.
+* Update `expand_args!` macro for `AMX::get_address_experemental`.
+* Add string and arrays parsing inside `define_native!`.
 
-## Документация
-Скорее всего она скоро-скоро появится, но пока что здесь абсолютно ничего нет.
+## Documentation
+There will be a link to the docs.
 
-Но ее можно посмотреть в исходном коде, либо установив Cargo и выполнив `cargo doc --no-deps`.
+You can install Rust and type `cargo doc --no-deps --open` in the terminal and take a look on the docs.
 
-## Пример плагина
-А [здесь](https://github.com/ZOTTCE/samp-plugin-example) ты можешь взглянуть на лаконичный код простого плагина, где нет грязного и некрасивого C lang.
+## Plugin example
+[Here](https://github.com/ZOTTCE/samp-plugin-example) you can see such a beautiful example of the samp-sdk.
