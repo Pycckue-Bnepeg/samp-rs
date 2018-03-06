@@ -7,6 +7,7 @@
 После одного раза использования Rust SA:MP SDK тебя будет тошнить от любого плагина, что написан не на этом **крутейшем** SDK.
 
 ### Удобные и крутейшие макросы
+#### Создание плагина
 Зачем объявлять эти вонючие глобальные логгеры и прочие вещи руками?
 ``` Rust
 struct Plugin {
@@ -60,7 +61,7 @@ new_plugin!(Plugin);
 // Так же можно запилить ProcessTick, но ты должен, конечно же, объявить Plugin::process_tick.
 new_plugin!(Plugin with process_tick)
 ```
-
+#### Объявление нативных функций.
 Хочешь определить нативную функцию и никогда своими руками не делать грязный парсинг аргументов?
 ``` Rust
 // native: FunctionName(int_arg, &float_arg);
@@ -70,12 +71,18 @@ define_native!(function_name, int_arg: i32, float_ref_arg: ref f32);
 define_native(function_name);
 ```
 
+#### Вызов нативных функций и паблик функций.
+``` Rust
+// Уведомление всех подписчиков о смене никнейма пользователя.
+fn notify(&self, amx: AMX, player_id: u32, old_name: String, new_name: String) -> AmxResult<Cell> {
+    exec_public!(amx, "OnPlayerNameChanged"; player_id, old_name => string, new_name => string) 
+}
+```
+
 ## TODO List
-* ~~Следует добавить документацию к тому, что уже есть.~~
-* Добавить всевозможные нужные `amx_*` для AMX wrapper.
-* Добавить еще крутых макросов (например, `let money = call_native!("GetPlayerMoney", player_id);`).
-* ~~Не статичная структура для плагина.~~
-* ~~Продумать `amx_GetAddr`. Текущая реализация выглядит такой себе, так как приходится использовать `std::mem::forget` на `Box`, возвращаемый из `AMX::get_address`.~~ Реализовано на данный момент как `AMX::get_address_experemental`.
+* Сделать новый samp-plugin-example, который будет отражать все плюсы данного SDK.
+* Обновить макрос `expand_args!` под новый `AMX::get_address_experemental`.
+* Добавить автоматический парсинг для строк и массивов (внутри `define_native!`).
 
 ## Документация
 Скорее всего она скоро-скоро появится, но пока что здесь абсолютно ничего нет.
