@@ -516,3 +516,29 @@ macro_rules! exec_native {
         }
     }
 }
+
+/// Gets a string from `Cell`.
+///
+/// # Examples
+/// // native:PushString(const string[]);
+/// fn raw_arguments(&self, amx: AMX, args: *mut Cell) -> AmxResult<Cell> {
+///     let string = get_string!(amx, args.offset(1));
+///     log!("got a string: {}", string);
+///     Ok(0)
+/// }
+#[macro_export]
+macro_rules! get_string {
+    ($amx:ident, $cell:expr) => {
+        {
+            let pointer = unsafe {
+                ::std::ptr::read($cell)
+            };
+
+            $amx.get_address_experemental::<i32>(pointer)
+                .and_then(|address| {
+                    $amx.string_len(address)
+                        .and_then(|len| $amx.get_string_experemental(address, len))
+                })
+        }
+    }
+}
