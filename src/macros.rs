@@ -236,7 +236,7 @@ macro_rules! expand_args {
         $amx:ident,
         $parser:ident,
 
-        $arg:ident : String,
+        $arg:ident : String
     ) => {
         let $arg = {
             let arg = $parser.next();
@@ -248,17 +248,6 @@ macro_rules! expand_args {
                 },
             }
         };
-    };
-
-    // TODO: A reference to a string.
-    (
-        @
-        $amx:ident,
-        $parser: ident,
-
-        $arg:ident : ref String,
-    ) => {
-        unimplemented!();
     };
 
     // A reference to an primitive value.
@@ -304,6 +293,18 @@ macro_rules! expand_args {
         $( $tail_arg:ident : $( $tail_data:ident )+ ),*
     ) => {
         expand_args!(@$amx, $parser, $arg : ref $type);
+        expand_args!(@$amx, $parser, $( $tail_arg : $( $tail_data )+ ),*);
+    };
+
+    (
+        @
+        $amx:ident,
+        $parser:ident,
+
+        $arg:ident : String,
+        $( $tail_arg:ident : $( $tail_data:ident )+ ),*
+    ) => {
+        expand_args!(@$amx, $parser, $arg : String);
         expand_args!(@$amx, $parser, $( $tail_arg : $( $tail_data )+ ),*);
     };
 
