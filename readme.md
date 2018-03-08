@@ -8,7 +8,8 @@ Macros:
 * `new_plugin!` that defines a plugin and exports functions.
 * `define_native!` defines a native and parses arguments.
 * `log!` calls `logprinft` funciton.
-* `natives` makes a vec of your natives.
+* `natives!` makes a vec of your natives.
+* `get_string!` and `get_array!` convert pointers to a `slice` or a `String`.
 
 ### Useful macros
 #### Make a new plugin
@@ -87,7 +88,6 @@ fn notify(&self, amx: AMX, player_id: u32, old_name: String, new_name: String) -
 ## TODO List
 * Develop a new samp-plugin-example that shows all good points of this samp-sdk.
 * Update `expand_args!` macro for `AMX::get_address_experemental`.
-* Add string and arrays parsing inside `define_native!`.
 
 ## Documentation
 [Here](https://zottce.github.io/samp-sdk/samp_sdk/).

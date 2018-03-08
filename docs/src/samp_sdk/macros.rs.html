@@ -613,6 +613,28 @@
 <span id="557">557</span>
 <span id="558">558</span>
 <span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
 </pre><pre class="rust ">
 <span class="doccomment">/*!
 Some useful macros to easy access and define natives.
@@ -1146,7 +1168,9 @@ Most of them hide raw C bindings and exports to make code easier to understand.
     }
 }
 
-<span class="doccomment">/// Gets a string from `Cell`.</span>
+<span class="doccomment">/// Gets a string from a raw pointer to `Cell`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Should used in `define_native!` and raw functions.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
@@ -1172,6 +1196,26 @@ Most of them hide raw C bindings and exports to make code easier to understand.
                 })
         }
     }
+}
+
+<span class="doccomment">/// Get a slice (an array) from arguments.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// // native:PassArray(const array[], size);</span>
+<span class="doccomment">/// define_native(pass_array, array_ptr: Cell, size: usize);</span>
+<span class="doccomment">/// </span>
+<span class="doccomment">/// fn pass_array(&amp;self, amx: AMX, array_ptr: Cell, size: usize) {</span>
+<span class="doccomment">///     let array: &amp;[u32] = get_array!(amx, array_ptr, size);</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">get_array</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">addr</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">expr</span>) <span class="op">=&gt;</span> {
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>.<span class="ident">get_address_experemental</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">addr</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pointer</span><span class="op">|</span> <span class="kw">unsafe</span> { ::<span class="ident">std</span>::<span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(<span class="ident">pointer</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>) })
+    };
 }</pre>
 </section>
     <section id='search' class="content hidden"></section>

@@ -530,7 +530,9 @@ macro_rules! exec_native {
     }
 }
 
-/// Gets a string from `Cell`.
+/// Gets a string from a raw pointer to `Cell`.
+///
+/// Should used in `define_native!` and raw functions.
 ///
 /// # Examples
 /// ```
@@ -556,4 +558,24 @@ macro_rules! get_string {
                 })
         }
     }
+}
+
+/// Get a slice (an array) from arguments.
+///
+/// # Examples
+///
+/// ```
+/// // native:PassArray(const array[], size);
+/// define_native(pass_array, array_ptr: Cell, size: usize);
+/// 
+/// fn pass_array(&self, amx: AMX, array_ptr: Cell, size: usize) {
+///     let array: &[u32] = get_array!(amx, array_ptr, size);
+/// }
+/// ```
+#[macro_export]
+macro_rules! get_array {
+    ($amx:ident, $addr:expr, $len:expr) => {
+        $amx.get_address_experemental($addr)
+            .map(|pointer| unsafe { ::std::slice::from_raw_parts_mut(pointer, $len) })
+    };
 }
