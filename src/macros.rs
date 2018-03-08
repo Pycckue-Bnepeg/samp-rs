@@ -164,7 +164,7 @@ macro_rules! log {
 /// // native: WithRawParams(&arg1, arg2, arg3);
 /// define_native!(with_raw_params as raw);
 ///
-/// fn with_raw_params(&self, amx: AMX, args: *mut Cell) -> AmxResult<Cell>;
+/// fn with_raw_params(&self, amx: &AMX, args: *mut Cell) -> AmxResult<Cell>;
 /// ```
 ///
 /// Define a native without arguments.
@@ -172,7 +172,7 @@ macro_rules! log {
 /// // native: WithoutArguments();
 /// define_native!(without_arguments);
 ///
-/// fn without_arguments(&self, amx: AMX) -> AmxResult<Cell>;
+/// fn without_arguments(&self, amx: &AMX) -> AmxResult<Cell>;
 /// ```
 /// 
 /// Define a native with converted arguments.
@@ -180,7 +180,7 @@ macro_rules! log {
 /// // native: SomeFunction(&int_val, float_val);
 /// define_native!(some_function, int_val: ref i32, float_val: f32);
 ///
-/// fn some_function(&self, amx: AMX, int_val: &mut i32, float_val: f32) -> AmxResult<Cell>;
+/// fn some_function(&self, amx: &AMX, int_val: &mut i32, float_val: f32) -> AmxResult<Cell>;
 /// ```
 #[macro_export]
 macro_rules! define_native {
@@ -335,7 +335,7 @@ macro_rules! expand_args {
 ///
 /// # Examples
 /// ```
-/// fn native(&self, _amx: AMX, params: *mut Cell) -> AmxResult<Cell> {
+/// fn native(&self, _amx: &AMX, params: *mut Cell) -> AmxResult<Cell> {
 ///     let count = args_count!(params);
 ///     log!("Args count: {}", count);
 /// }
@@ -353,7 +353,7 @@ macro_rules! args_count {
 ///
 /// # Examples
 /// ```
-/// fn native(&self, amx: AMX) -> AmxResult<Cell> {
+/// fn native(&self, amx: &AMX) -> AmxResult<Cell> {
 ///     let public = amx.find_public("TestPublic");
 ///     let player_name = String::from("Some_Name");
 ///     let player_id = 12;
@@ -451,7 +451,7 @@ macro_rules! exec {
 ///
 /// # Examples
 /// ```
-/// fn native(&self, amx: AMX) -> AmxResult<Cell> {
+/// fn native(&self, amx: &AMX) -> AmxResult<Cell> {
 ///     let old_name = String::from("Old_Name");
 ///     let new_name = String::from("Name_Surname");
 ///     exec_public!(amx, "OnPlayerNameChanged"; old_name => string, new_name => string); 
@@ -488,7 +488,7 @@ macro_rules! exec_native {
 /// # Examples
 /// ```
 /// // native:PushString(const string[]);
-/// fn raw_arguments(&self, amx: AMX, args: *mut Cell) -> AmxResult<Cell> {
+/// fn raw_arguments(&self, amx: &AMX, args: *mut Cell) -> AmxResult<Cell> {
 ///     let string = get_string!(amx, args.offset(1));
 ///     log!("got a string: {}", string);
 ///     Ok(0)
@@ -517,9 +517,9 @@ macro_rules! get_string {
 ///
 /// ```
 /// // native:PassArray(const array[], size);
-/// define_native(pass_array, array_ptr: Cell, size: usize);
+/// define_native!(pass_array, array_ptr: Cell, size: usize);
 /// 
-/// fn pass_array(&self, amx: AMX, array_ptr: Cell, size: usize) {
+/// fn pass_array(&self, amx: &AMX, array_ptr: Cell, size: usize) {
 ///     let array: &[u32] = get_array!(amx, array_ptr, size);
 /// }
 /// ```
@@ -529,4 +529,39 @@ macro_rules! get_array {
         $amx.get_address($addr)
             .map(|pointer| unsafe { ::std::slice::from_raw_parts_mut(pointer, $len) })
     };
+}
+
+/// Sets a string to physical address.
+///
+/// # Examples
+///
+/// ```
+/// // native: rot13(const source[], dest[], size=sizeof(dest));
+/// define_native!(n_rot13, source: String, dest_ptr: Cell, size: usize);
+///
+/// fn n_rot13(&self, amx: &AMX, source: String, dest_ptr: Cell, size: usize) -> AmxResult<Cell> {
+///     let roted = rot13(&source);
+///     let phys_addr = amx.get_address::<Cell>(dest_ptr)?;
+///     set_string!(roted, phys_addr);
+///     Ok(0)
+/// }
+/// ```
+#[macro_export]
+macro_rules! set_string {
+    ($string:ident, $address:ident) => {
+        {
+            let bytes = $string.as_bytes();
+            let dest = $address as *mut $crate::types::Cell;
+
+            for i in 0..$string.len() {
+                unsafe {
+                    *(dest.offset(i as isize)) = ::std::mem::transmute_copy(&bytes[i]);
+                }
+            }
+
+            unsafe {
+                *(dest.offset($string.len() as isize)) = 0;
+            }
+        }
+    }
 }

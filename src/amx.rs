@@ -156,7 +156,7 @@ impl AMX {
         }
     }
 
-    /// Push a slice to AMX stack.
+    /// Push a slice to the AMX stack.
     ///
     /// # Examples
     ///
@@ -184,6 +184,9 @@ impl AMX {
         Ok(amx_addr)
     }
 
+    /// Allots memory for a string and pushes it to the AMX stack.
+    ///
+    /// Please, don't use it directly! Better use macros `exec!`, `exec_public!` and `exec_native!`.
     pub fn push_string(&self, string: &str, packed: bool) -> AmxResult<Cell> {
         if packed {
             unimplemented!()
