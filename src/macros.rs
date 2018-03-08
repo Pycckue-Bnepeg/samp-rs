@@ -215,14 +215,7 @@ macro_rules! define_native {
             let mut amx = $crate::amx::AMX::new(amx);
             expand_args!(amx, params, $( $arg : $( $data )+ ),* );
             
-            let retval = super::___PLUGIN.lock().unwrap().$name(&mut amx, $( 
-                    ___internal_expand_arguments!( 
-                        $arg: $( $data )+ 
-                    )
-                ),* 
-            );
-
-            ___internal_forget!( $( $arg : $( $data )+ ),* );
+            let retval = super::___PLUGIN.lock().unwrap().$name(&mut amx, $($arg),*);
 
             match retval {
                 Ok(res) => return res,
@@ -233,49 +226,6 @@ macro_rules! define_native {
             };
         }
     }
-}
-
-#[macro_export]
-macro_rules! ___internal_forget {
-    (
-        $arg:ident : ref $type:ty
-    ) => {
-        ::std::mem::forget($arg);
-    };
-
-    (
-        $arg:ident : $type:ty
-    ) => ();
-
-    (
-        $arg:ident : ref $type:ty,
-        $( $tail_arg:ident : $( $tail_data:ident )+ ),*
-    ) => {
-        ___internal_forget!( $arg : ref $type );
-        ___internal_forget!( $( $tail_arg : $( $tail_data )+ ),* );
-    };
-
-    (
-        $arg:ident : $type:ty,
-        $( $tail_arg:ident : $( $tail_data:ident )+ ),*
-    ) => {
-        ___internal_forget!( $( $tail_arg : $( $tail_data )+ ),* );
-    };
-}
-
-#[macro_export]
-macro_rules! ___internal_expand_arguments {
-    (
-        $arg:ident : ref $type:ty
-    ) => {
-        $arg.as_mut()
-    };
-
-    (
-        $arg:ident : $type:ty
-    ) => {
-        $arg
-    };
 }
 
 #[macro_export]
@@ -319,7 +269,7 @@ macro_rules! expand_args {
         
         $arg:ident : ref $type:ty
     ) => {
-        let mut $arg: Box<$type> = unsafe {
+        let $arg: &mut $type = unsafe {
             let ptr = $parser.next();
             match $amx.get_address(::std::ptr::read(ptr as *const $crate::types::Cell)) {
                 Ok(res) => res,
@@ -551,10 +501,10 @@ macro_rules! get_string {
                 ::std::ptr::read($cell)
             };
 
-            $amx.get_address_experemental::<i32>(pointer)
+            $amx.get_address::<i32>(pointer)
                 .and_then(|address| {
                     $amx.string_len(address)
-                        .and_then(|len| $amx.get_string_experemental(address, len))
+                        .and_then(|len| $amx.get_string(address, len))
                 })
         }
     }
@@ -575,7 +525,7 @@ macro_rules! get_string {
 #[macro_export]
 macro_rules! get_array {
     ($amx:ident, $addr:expr, $len:expr) => {
-        $amx.get_address_experemental($addr)
+        $amx.get_address($addr)
             .map(|pointer| unsafe { ::std::slice::from_raw_parts_mut(pointer, $len) })
     };
 }

@@ -107,39 +107,17 @@ impl AMX {
 
     /// Get an address of a reference value given to native.
     ///
-    /// You **must** use `std::mem::forget` for this value because `get_address` return `Box<T>` which releases memory.
-    ///
     /// # Examples
     ///
     /// ```
     /// // native: SomeNative(&int_value);
     /// fn some_native(amx: AMX, args: *mut Cell) -> Cell {
     ///     let ptr = std::ptr::read(args.offset(1));
-    ///     let int_value: Box<i32> = amx.get_address(ptr).unwrap();
+    ///     let int_value: &mut i32 = amx.get_address(ptr).unwrap();
     ///     *int_value = 10;
-    ///     
-    ///     std::mem::forget(int_value);
     /// }
     /// ```
-    pub fn get_address<T: Sized>(&self, address: Cell) -> AmxResult<Box<T>> {
-        unsafe {
-            let header = (*self.amx).base as *const types::AMX_HEADER;
-            
-            let data = if (*self.amx).data.is_null() {
-                (*self.amx).base as usize + (*header).dat as usize
-            } else {
-                (*self.amx).data as usize
-            };
-
-            if address >= (*self.amx).hea && address < (*self.amx).stk || address < 0 || address >= (*self.amx).stp {
-                Err(AmxError::MemoryAccess)
-            } else {
-                Ok(Box::from_raw((data + address as usize) as *mut T))
-            }
-        }
-    }
-
-    pub fn get_address_experemental<'a, T: Sized>(&'a self, address: Cell) -> AmxResult<&'a mut T> {
+    pub fn get_address<'a, T: Sized>(&self, address: Cell) -> AmxResult<&'a mut T> {
         unsafe {
             let header = (*self.amx).base as *const types::AMX_HEADER;
             
@@ -323,23 +301,7 @@ impl AMX {
     ///     Ok(0)
     /// }
     /// ```
-    pub fn get_string(&self, address: *const Cell, length: usize) -> AmxResult<String> {
-        let get_string = import!(GetString);
-        let mut buffer: Vec<u8> = vec![0; length];
-        let ptr = buffer.as_mut_slice().as_mut_ptr();
-
-        let result = get_string(ptr, address, 0, length);
-
-        if result == 0 {
-            CString::new(&buffer[0..length - 1])
-                .map_err(|_| AmxError::Params)
-                .and_then(|cstring| cstring.into_string().map_err(|_| AmxError::Params))
-        } else {
-            Err(AmxError::from(result))
-        }
-    }
-
-    pub fn get_string_experemental(&self, address: *const Cell, size: usize) -> AmxResult<String> {
+    pub fn get_string(&self, address: *const Cell, size: usize) -> AmxResult<String> {
         const UNPACKEDMAX: u32 = ((1u32 << (size_of::<u32>() - 1) * 8) - 1u32);
         const CHARBITS: usize = 8 * size_of::<u8>();
 

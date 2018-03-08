@@ -87,7 +87,6 @@ fn notify(&self, amx: AMX, player_id: u32, old_name: String, new_name: String) -
 
 ## TODO List
 * Develop a new samp-plugin-example that shows all good points of this samp-sdk.
-* Update `expand_args!` macro for `AMX::get_address_experemental`.
 
 ## Documentation
 [Here](https://zottce.github.io/samp-sdk/samp_sdk/).
