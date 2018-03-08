@@ -1,3 +1,11 @@
+/*!
+    Raw pointers to logprintf and the list of AMX functions.
+
+    Do **not** use it directly.
+
+    Used in `log!` macro and `amx` module.
+*/
+
 use std;
 use std::sync::Mutex;
 use types::Logprintf_t;

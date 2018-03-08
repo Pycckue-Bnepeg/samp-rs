@@ -61,7 +61,7 @@
                    </a>
                </span><a class='srclink' href='../src/samp_sdk/lib.rs.html#1-21' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><h1 id="samp-sdk" class="section-header"><a href="#samp-sdk">SA:MP SDK</a></h1>
-<p><code>samp_sdk</code> is a Rust lang bindings for original C SA:MP SDK</p>
+<p>This crate is a Rust language wrapper for SA:MP SDK.</p>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Re-exports</a></h2>
 <table><tr><td><code>pub extern crate <a class="mod" href="https://docs.rs/lazy_static/1.0.0/lazy_static/index.html" title="mod lazy_static">lazy_static</a>;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
@@ -69,14 +69,16 @@
                            <td><a class="mod" href="amx/index.html"
                                   title='mod samp_sdk::amx'>amx</a></td>
                            <td class='docblock-short'>
-                                
+                                <p>Core of SDK to interact with AMX.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
                            <td><a class="mod" href="args/index.html"
                                   title='mod samp_sdk::args'>args</a></td>
                            <td class='docblock-short'>
-                                
+                                <p>Simple argument interator.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -91,7 +93,8 @@
                            <td><a class="mod" href="data/index.html"
                                   title='mod samp_sdk::data'>data</a></td>
                            <td class='docblock-short'>
-                                
+                                <p>Raw pointers to logprintf and the list of AMX functions.</p>
+
                            </td>
                        </tr>
                        <tr class=' module-item'>
@@ -106,7 +109,8 @@
                            <td><a class="mod" href="types/index.html"
                                   title='mod samp_sdk::types'>types</a></td>
                            <td class='docblock-short'>
-                                
+                                <p>List of AMX types such as <code>Cell</code>, <code>AMX_NATIVE_INFO</code> and signatures of functions.</p>
+
                            </td>
                        </tr></table><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
 <table>
@@ -201,6 +205,14 @@
                                   title='macro samp_sdk::new_plugin'>new_plugin</a></td>
                            <td class='docblock-short'>
                                 <p>Hides ugly C code from your eyes.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="macro" href="macro.set_string.html"
+                                  title='macro samp_sdk::set_string'>set_string</a></td>
+                           <td class='docblock-short'>
+                                <p>Sets a string to physical address.</p>
 
                            </td>
                        </tr></table></section>

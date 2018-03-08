@@ -1,3 +1,8 @@
+/*!
+    Simple argument interator.
+
+    Used in `expand_args!`.
+*/
 use types::Cell;
 
 pub struct Parser {
@@ -8,7 +13,7 @@ pub struct Parser {
 impl Parser {
     pub fn new(params: *mut Cell) -> Parser {
         Parser {
-            params,
+            params, 
             index: 0,
         }
     }

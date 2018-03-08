@@ -585,6 +585,41 @@
 <span id="529">529</span>
 <span id="530">530</span>
 <span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
 </pre><pre class="rust ">
 <span class="doccomment">/*!
 Some useful macros to easy access and define natives.
@@ -752,7 +787,7 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">/// // native: WithRawParams(&amp;arg1, arg2, arg3);</span>
 <span class="doccomment">/// define_native!(with_raw_params as raw);</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// fn with_raw_params(&amp;self, amx: AMX, args: *mut Cell) -&gt; AmxResult&lt;Cell&gt;;</span>
+<span class="doccomment">/// fn with_raw_params(&amp;self, amx: &amp;AMX, args: *mut Cell) -&gt; AmxResult&lt;Cell&gt;;</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Define a native without arguments.</span>
@@ -760,7 +795,7 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">/// // native: WithoutArguments();</span>
 <span class="doccomment">/// define_native!(without_arguments);</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// fn without_arguments(&amp;self, amx: AMX) -&gt; AmxResult&lt;Cell&gt;;</span>
+<span class="doccomment">/// fn without_arguments(&amp;self, amx: &amp;AMX) -&gt; AmxResult&lt;Cell&gt;;</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// </span>
 <span class="doccomment">/// Define a native with converted arguments.</span>
@@ -768,7 +803,7 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">/// // native: SomeFunction(&amp;int_val, float_val);</span>
 <span class="doccomment">/// define_native!(some_function, int_val: ref i32, float_val: f32);</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// fn some_function(&amp;self, amx: AMX, int_val: &amp;mut i32, float_val: f32) -&gt; AmxResult&lt;Cell&gt;;</span>
+<span class="doccomment">/// fn some_function(&amp;self, amx: &amp;AMX, int_val: &amp;mut i32, float_val: f32) -&gt; AmxResult&lt;Cell&gt;;</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">define_native</span> {
@@ -824,7 +859,7 @@ Most of them hide raw C bindings and exports to make code easier to understand.
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>:<span class="ident">ident</span>,
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>:<span class="ident">ident</span>,
 
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span> : <span class="ident">String</span>,
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span> : <span class="ident">String</span>
     ) <span class="op">=&gt;</span> {
         <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>.<span class="ident">next</span>();
@@ -836,17 +871,6 @@ Most of them hide raw C bindings and exports to make code easier to understand.
                 },
             }
         };
-    };
-
-    <span class="comment">// TODO: A reference to a string.</span>
-    (
-        @
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>:<span class="ident">ident</span>,
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>: <span class="ident">ident</span>,
-
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span> : <span class="kw-2">ref</span> <span class="ident">String</span>,
-    ) <span class="op">=&gt;</span> {
-        <span class="macro">unimplemented</span><span class="macro">!</span>();
     };
 
     <span class="comment">// A reference to an primitive value.</span>
@@ -900,6 +924,18 @@ Most of them hide raw C bindings and exports to make code easier to understand.
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>:<span class="ident">ident</span>,
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>:<span class="ident">ident</span>,
 
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span> : <span class="ident">String</span>,
+        $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_arg</span>:<span class="ident">ident</span> : $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_data</span>:<span class="ident">ident</span> )<span class="op">+</span> ),<span class="op">*</span>
+    ) <span class="op">=&gt;</span> {
+        <span class="macro">expand_args</span><span class="macro">!</span>(@<span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span> : <span class="ident">String</span>);
+        <span class="macro">expand_args</span><span class="macro">!</span>(@<span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>, $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_arg</span> : $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_data</span> )<span class="op">+</span> ),<span class="kw-2">*</span>);
+    };
+
+    (
+        @
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>:<span class="ident">ident</span>,
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>:<span class="ident">ident</span>,
+
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>,
         $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_arg</span>:<span class="ident">ident</span> : $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_data</span>:<span class="ident">ident</span> )<span class="op">+</span> ),<span class="op">*</span>
     ) <span class="op">=&gt;</span> {
@@ -922,7 +958,7 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// fn native(&amp;self, _amx: AMX, params: *mut Cell) -&gt; AmxResult&lt;Cell&gt; {</span>
+<span class="doccomment">/// fn native(&amp;self, _amx: &amp;AMX, params: *mut Cell) -&gt; AmxResult&lt;Cell&gt; {</span>
 <span class="doccomment">///     let count = args_count!(params);</span>
 <span class="doccomment">///     log!(&quot;Args count: {}&quot;, count);</span>
 <span class="doccomment">/// }</span>
@@ -940,7 +976,7 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// fn native(&amp;self, amx: AMX) -&gt; AmxResult&lt;Cell&gt; {</span>
+<span class="doccomment">/// fn native(&amp;self, amx: &amp;AMX) -&gt; AmxResult&lt;Cell&gt; {</span>
 <span class="doccomment">///     let public = amx.find_public(&quot;TestPublic&quot;);</span>
 <span class="doccomment">///     let player_name = String::from(&quot;Some_Name&quot;);</span>
 <span class="doccomment">///     let player_id = 12;</span>
@@ -1038,7 +1074,7 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// fn native(&amp;self, amx: AMX) -&gt; AmxResult&lt;Cell&gt; {</span>
+<span class="doccomment">/// fn native(&amp;self, amx: &amp;AMX) -&gt; AmxResult&lt;Cell&gt; {</span>
 <span class="doccomment">///     let old_name = String::from(&quot;Old_Name&quot;);</span>
 <span class="doccomment">///     let new_name = String::from(&quot;Name_Surname&quot;);</span>
 <span class="doccomment">///     exec_public!(amx, &quot;OnPlayerNameChanged&quot;; old_name =&gt; string, new_name =&gt; string); </span>
@@ -1075,7 +1111,7 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// // native:PushString(const string[]);</span>
-<span class="doccomment">/// fn raw_arguments(&amp;self, amx: AMX, args: *mut Cell) -&gt; AmxResult&lt;Cell&gt; {</span>
+<span class="doccomment">/// fn raw_arguments(&amp;self, amx: &amp;AMX, args: *mut Cell) -&gt; AmxResult&lt;Cell&gt; {</span>
 <span class="doccomment">///     let string = get_string!(amx, args.offset(1));</span>
 <span class="doccomment">///     log!(&quot;got a string: {}&quot;, string);</span>
 <span class="doccomment">///     Ok(0)</span>
@@ -1104,9 +1140,9 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// // native:PassArray(const array[], size);</span>
-<span class="doccomment">/// define_native(pass_array, array_ptr: Cell, size: usize);</span>
+<span class="doccomment">/// define_native!(pass_array, array_ptr: Cell, size: usize);</span>
 <span class="doccomment">/// </span>
-<span class="doccomment">/// fn pass_array(&amp;self, amx: AMX, array_ptr: Cell, size: usize) {</span>
+<span class="doccomment">/// fn pass_array(&amp;self, amx: &amp;AMX, array_ptr: Cell, size: usize) {</span>
 <span class="doccomment">///     let array: &amp;[u32] = get_array!(amx, array_ptr, size);</span>
 <span class="doccomment">/// }</span>
 <span class="doccomment">/// ```</span>
@@ -1116,6 +1152,40 @@ Most of them hide raw C bindings and exports to make code easier to understand.
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>.<span class="ident">get_address</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">addr</span>)
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pointer</span><span class="op">|</span> <span class="kw">unsafe</span> { ::<span class="ident">std</span>::<span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(<span class="ident">pointer</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>) })
     };
+}
+
+<span class="doccomment">/// Sets a string to physical address.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// // native: rot13(const source[], dest[], size=sizeof(dest));</span>
+<span class="doccomment">/// define_native!(n_rot13, source: String, dest_ptr: ref Cell, size: usize);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// fn n_rot13(&amp;self, amx: &amp;AMX, source: String, dest_ptr: &amp;mut Cell, size: usize) -&gt; AmxResult&lt;Cell&gt; {</span>
+<span class="doccomment">///     let roted = rot13(&amp;source);</span>
+<span class="doccomment">///     set_string!(roted, dest_ptr);</span>
+<span class="doccomment">///     Ok(0)</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">set_string</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">string</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">address</span>:<span class="ident">ident</span>) <span class="op">=&gt;</span> {
+        {
+            <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">string</span>.<span class="ident">as_bytes</span>();
+            <span class="kw">let</span> <span class="ident">dest</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">address</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">types</span>::<span class="ident">Cell</span>;
+
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="macro-nonterminal">$</span><span class="macro-nonterminal">string</span>.<span class="ident">len</span>() {
+                <span class="kw">unsafe</span> {
+                    <span class="kw-2">*</span>(<span class="ident">dest</span>.<span class="ident">offset</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">isize</span>)) <span class="op">=</span> ::<span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">transmute_copy</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[<span class="ident">i</span>]);
+                }
+            }
+
+            <span class="kw">unsafe</span> {
+                <span class="kw-2">*</span>(<span class="ident">dest</span>.<span class="ident">offset</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">string</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">isize</span>)) <span class="op">=</span> <span class="number">0</span>;
+            }
+        }
+    }
 }</pre>
 </section>
     <section id='search' class="content hidden"></section>

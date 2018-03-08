@@ -77,7 +77,17 @@
 <span id="21">21</span>
 <span id="22">22</span>
 <span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
 </pre><pre class="rust ">
+<span class="doccomment">/*!
+    Simple argument interator.
+
+    Used in `expand_args!`.
+*/</span>
 <span class="kw">use</span> <span class="ident">types</span>::<span class="ident">Cell</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Parser</span> {
@@ -88,7 +98,7 @@
 <span class="kw">impl</span> <span class="ident">Parser</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">params</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Cell</span>) <span class="op">-&gt;</span> <span class="ident">Parser</span> {
         <span class="ident">Parser</span> {
-            <span class="ident">params</span>,
+            <span class="ident">params</span>, 
             <span class="ident">index</span>: <span class="number">0</span>,
         }
     }

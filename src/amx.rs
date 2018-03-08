@@ -1,5 +1,5 @@
 /*!
-
+    Core of SDK to interact with AMX.
 */
 
 use std::ptr::{read};
@@ -12,6 +12,7 @@ use data::amx_functions;
 
 pub type AmxResult<T> = Result<T, AmxError>;
 
+/// Converts a raw AMX error to `AmxError`.
 macro_rules! ret {
     ($res:ident, $ret:expr) => {
         {
@@ -24,6 +25,7 @@ macro_rules! ret {
     }
 }
 
+/// Makes an call to any AMX functions and uses `ret!`.
 macro_rules! call {
     (
         $ex:expr
@@ -37,6 +39,7 @@ macro_rules! call {
     }
 }
 
+/// Gets a function from a raw pointer in `data::amx_functions`.
 macro_rules! import {
     ($type:ident) => {
         unsafe {
@@ -51,14 +54,16 @@ pub struct AMX {
 }
 
 impl AMX {
-    /// Convert raw `types::AMX` pointer.
+    /// Converts a raw `types::AMX` pointer.
+    ///
+    /// Shouldn't used directly in your code. `AMX::new()` is calling from raw natives functions.
     pub fn new(amx: *mut types::AMX) -> AMX {
         AMX {
             amx,
         }
     }
 
-    /// Register natives functions
+    /// Registers natives functions
     ///
     /// # Examples
     /// 
@@ -88,6 +93,15 @@ impl AMX {
     /// Return typle of two addresses:
     /// * The address of the variable relatived to AMX data section.
     /// * The physical address.
+    ///
+    /// # Examples
+    /// Allot one cell to a reference to a value and push it.
+    /// ```
+    /// let (amx_addr, phys_addr) = amx.allot(1)?;
+    /// let value: &mut i32 = phys_addr as &mut i32;
+    /// *value = 655;
+    /// amx.push(amx_addr)?;
+    /// ```
     pub fn allot(&self, cells: usize) -> AmxResult<(Cell, usize)> {
         let amx_addr = 0;
         let phys_addr = 0;
@@ -111,7 +125,7 @@ impl AMX {
     ///
     /// ```
     /// // native: SomeNative(&int_value);
-    /// fn some_native(amx: AMX, args: *mut Cell) -> Cell {
+    /// fn some_native(amx: &AMX, args: *mut Cell) -> Cell {
     ///     let ptr = std::ptr::read(args.offset(1));
     ///     let int_value: &mut i32 = amx.get_address(ptr).unwrap();
     ///     *int_value = 10;
@@ -135,7 +149,7 @@ impl AMX {
         }
     }
 
-    /// Push a primitive value or an address to AMX stack.
+    /// Pushes a primitive value or an address to AMX stack.
     ///
     /// # Examples
     ///
@@ -156,7 +170,7 @@ impl AMX {
         }
     }
 
-    /// Push a slice to the AMX stack.
+    /// Pushes a slice to the AMX stack.
     ///
     /// # Examples
     ///
@@ -210,7 +224,7 @@ impl AMX {
         }
     }
 
-    /// Exec an AMX function.
+    /// Execs an AMX function.
     ///
     /// # Examples
     ///
@@ -232,7 +246,7 @@ impl AMX {
         }
     }
 
-    /// Return an index of a public by its name.
+    /// Returns an index of a public by its name.
     ///
     /// # Examples
     ///
@@ -250,7 +264,7 @@ impl AMX {
         }
     }
 
-    /// Return an index of a native by its name.
+    /// Returns an index of a native by its name.
     ///
     /// # Examples
     /// See `find_public` and `exec` examples.
@@ -276,7 +290,7 @@ impl AMX {
         }
     }
 
-    /// Get length of a string.
+    /// Gets length of a string.
     pub fn string_len(&self, address: *const Cell) -> AmxResult<usize> {
         let string_len = import!(StrLen);
         let mut length = 0;
@@ -284,12 +298,12 @@ impl AMX {
         call!(string_len(address, &mut length) => length as usize)
     }
 
-    /// Get a string from AMX.
+    /// Gets a string from AMX.
     /// 
     /// # Examples
     /// 
     /// ```
-    /// fn raw_function(amx: AMX, params: *mut types::Cell) -> AmxResult<Cell> {
+    /// fn raw_function(&self, amx: &AMX, params: *mut types::Cell) -> AmxResult<Cell> {
     ///     unsafe {
     ///         let ptr = std::ptr::read(params.offset(1));
     ///         let mut addr = amx.get_address::<i32>(ptr)?; // get a pointer from amx
@@ -349,7 +363,7 @@ impl AMX {
         }
     }
 
-    /// Raise an AMX error.
+    /// Raises an AMX error.
     pub fn raise_error(&self, error: AmxError) -> AmxResult<()> {
         let raise_error = import!(RaiseError);
         call!(raise_error(self.amx, error as i32) => ())

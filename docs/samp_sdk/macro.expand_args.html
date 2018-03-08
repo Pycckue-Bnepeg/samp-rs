@@ -59,7 +59,7 @@
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a class='srclink' href='../src/samp_sdk/macros.rs.html#232-331' title='goto source code'>[src]</a></span></h1>
+               </span><a class='srclink' href='../src/samp_sdk/macros.rs.html#232-332' title='goto source code'>[src]</a></span></h1>
 <pre class="rust macro">
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">expand_args</span> {
     (
@@ -67,14 +67,7 @@
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>:<span class="ident">ident</span>,
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>:<span class="ident">ident</span>,
 
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span> : <span class="ident">String</span>,
-    ) <span class="op">=&gt;</span> { ... };
-    (
-        @
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>:<span class="ident">ident</span>,
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>: <span class="ident">ident</span>,
-
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span> : <span class="kw-2">ref</span> <span class="ident">String</span>,
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span> : <span class="ident">String</span>
     ) <span class="op">=&gt;</span> { ... };
     (
         @
@@ -96,6 +89,14 @@
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>:<span class="ident">ident</span>,
 
         <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span> : <span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span>,
+        $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_arg</span>:<span class="ident">ident</span> : $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_data</span>:<span class="ident">ident</span> )<span class="op">+</span> ),<span class="op">*</span>
+    ) <span class="op">=&gt;</span> { ... };
+    (
+        @
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">amx</span>:<span class="ident">ident</span>,
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">parser</span>:<span class="ident">ident</span>,
+
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span> : <span class="ident">String</span>,
         $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_arg</span>:<span class="ident">ident</span> : $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_data</span>:<span class="ident">ident</span> )<span class="op">+</span> ),<span class="op">*</span>
     ) <span class="op">=&gt;</span> { ... };
     (

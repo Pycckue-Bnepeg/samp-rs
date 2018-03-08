@@ -10,6 +10,7 @@ Macros:
 * `log!` calls `logprinft` funciton.
 * `natives!` makes a vec of your natives.
 * `get_string!` and `get_array!` convert pointers to a `slice` or a `String`.
+* `set_string!` sets a string to an AMX by a physical address.
 
 ### Useful macros
 #### Make a new plugin
@@ -68,7 +69,7 @@ new_plugin!(Plugin with process_tick)
 #### Define a native function.
 Hides arguments parsing inside the macro.
 
-All you need is define a method `function_name` in your new plugin with given arguments.
+All you need are to define a method `function_name` in your new plugin with given arguments.
 ``` Rust
 // native: FunctionName(int_arg, &float_arg);
 define_native!(function_name, int_arg: i32, float_ref_arg: ref f32);

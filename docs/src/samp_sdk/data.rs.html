@@ -65,7 +65,23 @@
 <span id="9"> 9</span>
 <span id="10">10</span>
 <span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
 </pre><pre class="rust ">
+<span class="doccomment">/*!
+    Raw pointers to logprintf and the list of AMX functions.
+
+    Do **not** use it directly.
+
+    Used in `log!` macro and `amx` module.
+*/</span>
+
 <span class="kw">use</span> <span class="ident">std</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>;
 <span class="kw">use</span> <span class="ident">types</span>::<span class="ident">Logprintf_t</span>;

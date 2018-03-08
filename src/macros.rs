@@ -537,12 +537,11 @@ macro_rules! get_array {
 ///
 /// ```
 /// // native: rot13(const source[], dest[], size=sizeof(dest));
-/// define_native!(n_rot13, source: String, dest_ptr: Cell, size: usize);
+/// define_native!(n_rot13, source: String, dest_ptr: ref Cell, size: usize);
 ///
-/// fn n_rot13(&self, amx: &AMX, source: String, dest_ptr: Cell, size: usize) -> AmxResult<Cell> {
+/// fn n_rot13(&self, amx: &AMX, source: String, dest_ptr: &mut Cell, size: usize) -> AmxResult<Cell> {
 ///     let roted = rot13(&source);
-///     let phys_addr = amx.get_address::<Cell>(dest_ptr)?;
-///     set_string!(roted, phys_addr);
+///     set_string!(roted, dest_ptr);
 ///     Ok(0)
 /// }
 /// ```

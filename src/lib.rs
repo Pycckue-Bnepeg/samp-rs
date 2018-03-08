@@ -1,7 +1,7 @@
 /*! 
 
 # SA:MP SDK
-`samp_sdk` is a Rust lang bindings for original C SA:MP SDK
+This crate is a Rust language wrapper for SA:MP SDK.
 
 */
 

@@ -1,3 +1,6 @@
+/*!
+    List of AMX types such as `Cell`, `AMX_NATIVE_INFO` and signatures of functions.
+*/
 use std::os::raw::c_void;
 
 pub type Cell = i32;
