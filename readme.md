@@ -47,7 +47,7 @@ impl Plugin {
         AMX_ERR_NONE
     }
 
-    fn my_function(&self, amx: AMX, player_id: i32) -> AmxResult<Cell> {
+    fn my_function(&self, _amx: &AMX, player_id: i32) -> AmxResult<Cell> {
         Ok(-player_id)
     }
 }
