@@ -1,10 +1,11 @@
 [package]
 name = "samp-sdk"
-version = "0.8.0"
+version = "0.8.1"
 authors = ["ZOTTCE <zottce@gmail.com>"]
 description = "Bindings for C SA:MP SDK"
 license = "MIT"
 repository = "https://github.com/zottce/samp-sdk"
+readme = "readme.md"
 
 [dependencies]
 lazy_static = "1.0"
