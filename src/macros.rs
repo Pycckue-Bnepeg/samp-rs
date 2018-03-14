@@ -543,25 +543,26 @@ macro_rules! get_array {
 ///
 /// fn n_rot13(&self, amx: &AMX, source: String, dest_ptr: &mut Cell, size: usize) -> AmxResult<Cell> {
 ///     let roted = rot13(&source);
-///     set_string!(roted, dest_ptr);
+///     set_string!(roted, dest_ptr, size);
 ///     Ok(0)
 /// }
 /// ```
 #[macro_export]
 macro_rules! set_string {
-    ($string:ident, $address:ident) => {
+    ($string:expr, $address:expr, $size:expr) => {
         {
+            let length = if $string.len() > $size { $size } else { $string.len() }; 
             let bytes = $string.as_bytes();
             let dest = $address as *mut $crate::types::Cell;
 
-            for i in 0..$string.len() {
+            for i in 0..length {
                 unsafe {
                     *(dest.offset(i as isize)) = ::std::mem::transmute_copy(&bytes[i]);
                 }
             }
 
             unsafe {
-                *(dest.offset($string.len() as isize)) = 0;
+                *(dest.offset(length as isize)) = 0;
             }
         }
     }
