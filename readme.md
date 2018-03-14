@@ -1,4 +1,7 @@
 # SA:MP SDK
+[![Docs](https://docs.rs/samp-sdk/badge.svg)](https://docs.rs/samp-sdk)
+[![Crates](https://img.shields.io/crates/v/samp-sdk.svg)](https://crates.io/crates/samp-sdk)
+
 Pretty cool and beautiful bindings for SA:MP SDK.
 
 ## Features
