@@ -2,6 +2,9 @@
 name = "samp-sdk"
 version = "0.8.0"
 authors = ["ZOTTCE <zottce@gmail.com>"]
+description = "Bindings for C SA:MP SDK"
+license = "MIT"
+repository = "https://github.com/zottce/samp-sdk"
 
 [dependencies]
 lazy_static = "1.0"
