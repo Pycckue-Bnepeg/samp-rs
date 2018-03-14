@@ -108,13 +108,15 @@ macro_rules! new_plugin {
         }
 
         #[no_mangle]
-        pub extern "C" fn AmxLoad(amx: *mut $crate::types::AMX) -> u32 {
-            ___PLUGIN.lock().unwrap().amx_load($crate::amx::AMX::new(amx))
+        pub extern "C" fn AmxLoad(amx: *mut $crate::types::AMX) -> $crate::types::Cell {
+            let mut amx = $crate::amx::AMX::new(amx);
+            ___PLUGIN.lock().unwrap().amx_load(&mut amx)
         }
 
         #[no_mangle]
-        pub extern "C" fn AmxUnload(amx: *mut $crate::types::AMX) -> u32 {
-            ___PLUGIN.lock().unwrap().amx_unload($crate::amx::AMX::new(amx))
+        pub extern "C" fn AmxUnload(amx: *mut $crate::types::AMX) -> $crate::types::Cell {
+            let mut amx = $crate::amx::AMX::new(amx);
+            ___PLUGIN.lock().unwrap().amx_unload(&mut amx)
         }
     };
 

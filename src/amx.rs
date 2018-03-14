@@ -279,14 +279,21 @@ impl AMX {
         }
     }
 
-    pub fn find_pubvar(&self, name: &str) -> AmxResult<i32> {
+    /// Returns a pointer to a public variable.
+    pub fn find_pubvar<T: Sized>(&self, name: &str) -> AmxResult<&mut T> {
         let find_pubvar = import!(FindPubVar);
 
-        let value = -1;
+        let value: Cell = 0;
         let c_name = CString::new(name).unwrap();
 
         unsafe {
-            call!(find_pubvar(self.amx, c_name.as_ptr(), transmute(&value)) => value)
+            let retval = find_pubvar(self.amx, c_name.as_ptr(), transmute(&value));
+            
+            if retval == 0 {
+                self.get_address(value)
+            } else {
+                Err(AmxError::from(retval))
+            }
         }
     }
 
