@@ -26,7 +26,7 @@ impl Plugin {
         return true;
     }
 
-    fn amx_load(&mut self, amx: AMX) -> Cell {
+    fn amx_load(&mut self, amx: &AMX) -> Cell {
         let natives = natives![
             { "MyFunction", my_function }
         ];
@@ -41,7 +41,7 @@ impl Plugin {
         AMX_ERR_NONE
     }
 
-    fn amx_unload(&mut self, _: AMX) -> Cell {
+    fn amx_unload(&mut self, _: &AMX) -> Cell {
         self.amx_count -= 1;
 
         AMX_ERR_NONE
