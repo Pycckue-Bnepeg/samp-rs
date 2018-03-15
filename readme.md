@@ -18,6 +18,8 @@ Macros:
 ### Useful macros
 #### Make a new plugin
 ``` Rust
+define_native!(my_function, playerid: u32);
+
 struct Plugin {
     version: &'static str,
     amx_count: u32,
@@ -28,13 +30,17 @@ impl Plugin {
         log!("Plugin is loaded. Version: {}", self.version);
         return true;
     }
+    
+    fn unload(&self) { 
+       log!("Plugin has unloaded");
+    }
 
     fn amx_load(&mut self, amx: &AMX) -> Cell {
         let natives = natives![
             { "MyFunction", my_function }
         ];
 
-        match amx.register(natives) {
+        match amx.register(&natives) {
             Ok(_) => log!("Natives are successful loaded"),
             Err(err) => log!("Whoops, there is an error {:?}", err),
         }
@@ -50,7 +56,7 @@ impl Plugin {
         AMX_ERR_NONE
     }
 
-    fn my_function(&self, _amx: &AMX, player_id: i32) -> AmxResult<Cell> {
+    fn my_function(&self, _amx: &AMX, player_id: u32) -> AmxResult<Cell> {
         Ok(-player_id)
     }
 }
