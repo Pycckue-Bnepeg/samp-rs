@@ -18,7 +18,7 @@ Macros:
 ### Useful macros
 #### Make a new plugin
 ``` Rust
-define_native!(my_function, playerid: u32);
+define_native!(my_function, playerid: i32);
 
 struct Plugin {
     version: &'static str,
@@ -56,7 +56,7 @@ impl Plugin {
         AMX_ERR_NONE
     }
 
-    fn my_function(&self, _amx: &AMX, player_id: u32) -> AmxResult<Cell> {
+    fn my_function(&self, _amx: &AMX, player_id: i32) -> AmxResult<Cell> {
         Ok(-player_id)
     }
 }
