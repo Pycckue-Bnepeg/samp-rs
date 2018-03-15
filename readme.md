@@ -2,7 +2,7 @@
 [![Docs](https://docs.rs/samp-sdk/badge.svg)](https://docs.rs/samp-sdk)
 [![Crates](https://img.shields.io/crates/v/samp-sdk.svg)](https://crates.io/crates/samp-sdk)
 
-Pretty cool and beautiful bindings for SA:MP SDK.
+Pretty cool and beautiful bindings for SA:MP SDK. Read [Get Started](https://github.com/ZOTTCE/samp-sdk/wiki/Get-started) wiki page.
 
 ## Features
 Hides most of type coercion. You don't need make a `cell` type as a `String` or other things yourself.
