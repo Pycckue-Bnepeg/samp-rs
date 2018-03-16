@@ -119,6 +119,42 @@ impl AMX {
         call!(release(self.amx, address) => ())
     }
 
+    /// Returns flags of compiled AMX.
+    ///
+    /// # Examples
+    /// ```
+    /// use samp_sdk::consts::AMX_FLAG_DEBUG;
+    ///
+    /// amx.flags().and_then(|flags| if flags && AMX_FLAG_DEBUG { log!("AMX has debug information") });
+    /// ```
+    pub fn flags(&self) -> AmxResult<u16> {
+        let flags = import!(Flags);
+        let value: u16 = 0;
+
+        unsafe {
+            call!(flags(self.amx, transmute(&value)) => value)
+        }
+    }
+
+    /// Returns memory information.
+    ///
+    /// All sizes in bytes.
+    /// # Examples
+    /// ```
+    /// let (codesize, datasize, stackheap) = amx.mem_info().unwrap();
+    /// log!("Size of code section {}, data section {}, stack and heap {}", codesize, datasize, stackheap);
+    /// ```
+    pub fn mem_info(&self) -> AmxResult<(i64, i64, i64)> {
+        let mem_info = import!(MemInfo);
+        let codesize: i64 = 0;
+        let datasize: i64 = 0;
+        let stackheap: i64 = 0;
+
+        unsafe {
+            call!(mem_info(self.amx, transmute(&codesize), transmute(&datasize), transmute(&stackheap)) => (codesize, datasize, stackheap))
+        }
+    }
+
     /// Get an address of a reference value given to native.
     ///
     /// # Examples

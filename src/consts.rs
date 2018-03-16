@@ -44,14 +44,14 @@ pub const AMX_ERR_PARAMS: i32 = 25;
 pub const AMX_ERR_DOMAIN: i32 = 26;
 pub const AMX_ERR_GENERAL: i32 = 27;
 
-pub const AMX_FLAG_DEBUG: i32 = 0x02;
-pub const AMX_FLAG_COMPACT: i32 = 0x04;
-pub const AMX_FLAG_BYTEOPC: i32 = 0x08;
-pub const AMX_FLAG_NOCHECKS: i32 = 0x10;
-pub const AMX_FLAG_NTVREG: i32 = 0x1000;
-pub const AMX_FLAG_JITC: i32 = 0x2000;
-pub const AMX_FLAG_BROWSE: i32 = 0x4000;
-pub const AMX_FLAG_RELOC: i32 = 0x8000;
+pub const AMX_FLAG_DEBUG: u16 = 0x02;
+pub const AMX_FLAG_COMPACT: u16 = 0x04;
+pub const AMX_FLAG_BYTEOPC: u16 = 0x08;
+pub const AMX_FLAG_NOCHECKS: u16 = 0x10;
+pub const AMX_FLAG_NTVREG: u16 = 0x1000;
+pub const AMX_FLAG_JITC: u16 = 0x2000;
+pub const AMX_FLAG_BROWSE: u16 = 0x4000;
+pub const AMX_FLAG_RELOC: u16 = 0x8000;
 
 pub const AMX_EXEC_MAIN: i32 = -1;
 pub const AMX_EXEC_CONT: i32 = -2;
