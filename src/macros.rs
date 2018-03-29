@@ -92,7 +92,7 @@ macro_rules! new_plugin {
         }
 
         #[no_mangle]
-        pub unsafe extern "C" fn Load(data: *const *const u32) -> bool {
+        pub unsafe extern "system" fn Load(data: *const *const u32) -> bool {
             let mut log = $crate::data::logprintf.lock().unwrap();
 
             *log = *(data as *const $crate::types::Logprintf_t);
@@ -103,18 +103,18 @@ macro_rules! new_plugin {
         }
 
         #[no_mangle]
-        pub extern "C" fn Unload() {
+        pub extern "system" fn Unload() {
             ___PLUGIN.lock().unwrap().unload();
         }
 
         #[no_mangle]
-        pub extern "C" fn AmxLoad(amx: *mut $crate::types::AMX) -> $crate::types::Cell {
+        pub extern "system" fn AmxLoad(amx: *mut $crate::types::AMX) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             ___PLUGIN.lock().unwrap().amx_load(&mut amx)
         }
 
         #[no_mangle]
-        pub extern "C" fn AmxUnload(amx: *mut $crate::types::AMX) -> $crate::types::Cell {
+        pub extern "system" fn AmxUnload(amx: *mut $crate::types::AMX) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             ___PLUGIN.lock().unwrap().amx_unload(&mut amx)
         }
@@ -124,7 +124,7 @@ macro_rules! new_plugin {
         new_plugin!(@internal $name);
 
         #[no_mangle]
-        pub extern "C" fn Supports() -> u32 {
+        pub extern "system" fn Supports() -> u32 {
             $crate::consts::SUPPORTS_VERSION | $crate::consts::SUPPORTS_AMX_NATIVES
         }
     };
@@ -133,12 +133,12 @@ macro_rules! new_plugin {
         new_plugin!(@internal $name);
 
         #[no_mangle]
-        pub extern "C" fn ProcessTick() {
+        pub extern "system" fn ProcessTick() {
             ___PLUGIN.lock().unwrap().process_tick();
         }
 
         #[no_mangle]
-        pub extern "C" fn Supports() -> u32 {
+        pub extern "system" fn Supports() -> u32 {
             $crate::consts::SUPPORTS_PROCESS_TICK | $crate::consts::SUPPORTS_VERSION | $crate::consts::SUPPORTS_AMX_NATIVES
         }
     }
@@ -187,7 +187,7 @@ macro_rules! log {
 #[macro_export]
 macro_rules! define_native {
     ($name:ident as raw) => {
-        pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
+        pub extern "system" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             match super::___PLUGIN.lock().unwrap().$name(&mut amx, params) {
                 Ok(res) => return res,
@@ -200,7 +200,7 @@ macro_rules! define_native {
     };
 
     ($name:ident) => {
-        pub extern "C" fn $name(amx: *mut $crate::types::AMX, _: *mut $crate::types::Cell) -> $crate::types::Cell {
+        pub extern "system" fn $name(amx: *mut $crate::types::AMX, _: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             match super::___PLUGIN.lock().unwrap().$name(&mut amx) {
                 Ok(res) => return res,
@@ -213,7 +213,7 @@ macro_rules! define_native {
     };
 
     ($name:ident, $( $arg:ident : $( $data:ident )+ ),* ) => {
-        pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
+        pub extern "system" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             expand_args!(amx, params, $( $arg : $( $data )+ ),* );
             
