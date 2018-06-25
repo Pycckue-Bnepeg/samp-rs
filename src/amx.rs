@@ -66,16 +66,25 @@ impl AMX {
     /// Registers natives functions
     ///
     /// # Examples
-    /// 
+    ///
     /// ```
-    /// fn amx_load(amx: AMX) -> Cell {
+    /// #[macro_use] extern crate samp_sdk;
+    /// use samp_sdk::types;
+    /// use samp_sdk::amx::{AMX, AmxResult};
+    /// use samp_sdk::consts::AMX_ERR_NONE;
+    ///
+    /// extern "system" fn some_function(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
+    /// extern "system" fn another_function(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
+    ///
+    /// fn amx_load(amx: &AMX) -> types::Cell {
+    ///
     ///     let natives = natives!{
     ///         "SomeFunction" => some_function,
-    ///         "AnotherFunction" => another_function   
+    ///         "AnotherFunction" => another_function
     ///     };
-    /// 
+    ///
     ///     amx.register(&natives).unwrap();
-    ///     
+    ///
     ///     AMX_ERR_NONE
     /// }
     /// ```
@@ -88,19 +97,27 @@ impl AMX {
     }
 
     /// Allocates memory cells inside AMX.
-    /// 
+    ///
     /// # Return
-    /// Return typle of two addresses:
+    /// Return tuple of two addresses:
     /// * The address of the variable relatived to AMX data section.
     /// * The physical address.
     ///
     /// # Examples
     /// Allot one cell to a reference to a value and push it.
     /// ```
-    /// let (amx_addr, phys_addr) = amx.allot(1)?;
-    /// let value: &mut i32 = phys_addr as &mut i32;
-    /// *value = 655;
-    /// amx.push(amx_addr)?;
+    /// use samp_sdk::amx::{AMX, AmxResult};
+    /// use samp_sdk::types::Cell;
+    ///
+    /// fn allocate(amx: &AMX) -> AmxResult<()> {
+    ///     let (amx_addr, phys_addr) = amx.allot(1)?;
+    ///     let value = phys_addr as *mut Cell;
+    ///
+    ///     unsafe { *value = 655; }
+    ///     amx.push(amx_addr)?;
+    ///
+    ///     Ok(())
+    /// }
     /// ```
     pub fn allot(&self, cells: usize) -> AmxResult<(Cell, usize)> {
         let amx_addr = 0;
@@ -123,9 +140,18 @@ impl AMX {
     ///
     /// # Examples
     /// ```
+    /// #[macro_use] extern crate samp_sdk;
+    /// use samp_sdk::amx::AMX;
     /// use samp_sdk::consts::AMX_FLAG_DEBUG;
     ///
-    /// amx.flags().and_then(|flags| if flags && AMX_FLAG_DEBUG { log!("AMX has debug information") });
+    /// fn check_flags(amx: &AMX) {
+    ///     let flags = amx.flags().unwrap();
+    ///     let has_debug_flag = flags & AMX_FLAG_DEBUG == AMX_FLAG_DEBUG;
+    ///
+    ///     if (has_debug_flag) {
+    ///         log!("AMX has debug information");
+    ///     }
+    /// }
     /// ```
     pub fn flags(&self) -> AmxResult<u16> {
         let flags = import!(Flags);
@@ -141,8 +167,13 @@ impl AMX {
     /// All sizes in bytes.
     /// # Examples
     /// ```
-    /// let (codesize, datasize, stackheap) = amx.mem_info().unwrap();
-    /// log!("Size of code section {}, data section {}, stack and heap {}", codesize, datasize, stackheap);
+    /// #[macro_use] extern crate samp_sdk;
+    /// use samp_sdk::amx::AMX;
+    ///
+    /// fn log_mem_info(amx: &AMX) {
+    ///    let (codesize, datasize, stackheap) = amx.mem_info().unwrap();
+    ///    log!("Size of code section {}, data section {}, stack and heap {}", codesize, datasize, stackheap);
+    /// }
     /// ```
     pub fn mem_info(&self) -> AmxResult<(i64, i64, i64)> {
         let mem_info = import!(MemInfo);
@@ -160,9 +191,14 @@ impl AMX {
     /// # Examples
     ///
     /// ```
+    /// use samp_sdk::amx::AMX;
+    /// use samp_sdk::types::Cell;
+    ///
     /// // native: SomeNative(&int_value);
-    /// fn some_native(amx: &AMX, args: *mut Cell) -> Cell {
-    ///     let ptr = std::ptr::read(args.offset(1));
+    /// fn some_native(amx: &AMX, args: *mut Cell) {
+    ///     let ptr = unsafe {
+    ///         std::ptr::read(args.offset(1))
+    ///     };
     ///     let int_value: &mut i32 = amx.get_address(ptr).unwrap();
     ///     *int_value = 10;
     /// }
@@ -170,7 +206,7 @@ impl AMX {
     pub fn get_address<'a, T: Sized>(&self, address: Cell) -> AmxResult<&'a mut T> {
         unsafe {
             let header = (*self.amx).base as *const types::AMX_HEADER;
-            
+
             let data = if (*self.amx).data.is_null() {
                 (*self.amx).base as usize + (*header).dat as usize
             } else {
@@ -190,17 +226,19 @@ impl AMX {
     /// # Examples
     ///
     /// ```
-    /// let index = amx.find_public("OnPlayerHPChanged").unwrap();
-    /// let player_id: u32 = 12;
-    /// let health: f32 = 100.0;
+    /// use samp_sdk::amx::AMX;
     ///
-    /// amx.push(health);
-    /// amx.push(player_id);
-    /// amx.exec(index);
+    /// fn change_hp(amx: &AMX, player_id: u32, health: f32) {
+    ///     let index = amx.find_public("OnPlayerHPChanged").unwrap();
+    ///
+    ///     amx.push(health);
+    ///     amx.push(player_id);
+    ///     amx.exec(index);
+    /// }
     /// ```
     pub fn push<T: Sized>(&self, value: T) -> AmxResult<()> {
         let push = import!(Push);
-        
+
         unsafe {
             call!(push(self.amx, transmute_copy(&value)) => ())
         }
@@ -211,14 +249,20 @@ impl AMX {
     /// # Examples
     ///
     /// ```
-    /// let func = amx.find_public("GiveMeArray")?;
-    /// let player_data = vec![1, 2, 3, 4, 5];
-    /// let player_ids = vec![1, 2, 3, 4, 5];
-    /// 
-    /// let amx_addr = amx.push_array(&player_data)?; // push an array and save address relatived to first item on the heap.
-    /// amx.push_array(&player_ids)?; // push the next array
-    /// amx.exec(func)?; // exec the public
-    /// amx.release(amx_addr)?; // release all allocated memory inside AMX
+    /// use samp_sdk::amx::{AMX, AmxResult};
+    ///
+    /// fn call_with_array(amx: &AMX) -> AmxResult<()> {
+    ///     let func = amx.find_public("GiveMeArray")?;
+    ///     let player_data = vec![1, 2, 3, 4, 5];
+    ///     let player_ids = vec![1, 2, 3, 4, 5];
+    ///
+    ///     let amx_addr = amx.push_array(&player_data)?; // push an array and save address relatived to first item on the heap.
+    ///     amx.push_array(&player_ids)?; // push the next array
+    ///     amx.exec(func)?; // exec the public
+    ///     amx.release(amx_addr)?; // release all allocated memory inside AMX
+    ///
+    ///     Ok(())
+    /// }
     /// ```
     pub fn push_array<T: Sized>(&self, array: &[T]) -> AmxResult<Cell> {
         let (amx_addr, phys_addr) = self.allot(array.len())?;
@@ -265,12 +309,17 @@ impl AMX {
     /// # Examples
     ///
     /// ```
-    /// let index = amx.find_native("GetPlayerMoney").unwrap();
-    /// amx.push(1); // a player with ID 1
-    /// 
-    /// match amx.exec(index) {
-    ///     Ok(money) => log!("Player has {} money.", money),
-    ///     Err(err) => log!("Error: {:?}", err),
+    /// #[macro_use] extern crate samp_sdk;
+    /// use samp_sdk::amx::AMX;
+    ///
+    /// fn log_player_money(amx: &AMX) {
+    ///     let index = amx.find_native("GetPlayerMoney").unwrap();
+    ///     amx.push(1); // a player with ID 1
+    ///
+    ///     match amx.exec(index) {
+    ///         Ok(money) => log!("Player has {} money.", money),
+    ///         Err(err) => log!("Error: {:?}", err),
+    ///     }
     /// }
     /// ```
     pub fn exec(&self, index: i32) -> AmxResult<i64> {
@@ -287,14 +336,19 @@ impl AMX {
     /// # Examples
     ///
     /// ```
-    /// let public_index = amx.find_public("OnPlayerConnect").unwrap();
+    /// use samp_sdk::amx::AMX;
+    ///
+    /// fn hasOnPlayerConnect(amx: &AMX) -> bool {
+    ///     let public_index = amx.find_public("OnPlayerConnect").unwrap();
+    ///     public_index >= 0
+    /// }
     /// ```
     pub fn find_public(&self, name: &str) -> AmxResult<i32> {
         let find_public = import!(FindPublic);
 
         let index = -1;
         let c_name = CString::new(name).unwrap();
-        
+
         unsafe {
             call!(find_public(self.amx, c_name.as_ptr(), transmute(&index)) => index)
         }
@@ -309,7 +363,7 @@ impl AMX {
 
         let index = -1;
         let c_name = CString::new(name).unwrap();
-        
+
         unsafe {
             call!(find_native(self.amx, c_name.as_ptr(), transmute(&index)) => index)
         }
@@ -324,7 +378,7 @@ impl AMX {
 
         unsafe {
             let retval = find_pubvar(self.amx, c_name.as_ptr(), transmute(&value));
-            
+
             if retval == 0 {
                 self.get_address(value)
             } else {
@@ -337,28 +391,38 @@ impl AMX {
     pub fn string_len(&self, address: *const Cell) -> AmxResult<usize> {
         let string_len = import!(StrLen);
         let mut length = 0;
-        
+
         call!(string_len(address, &mut length) => length as usize)
     }
 
     /// Gets a string from AMX.
-    /// 
-    /// # Examples
-    /// 
-    /// ```
-    /// fn raw_function(&self, amx: &AMX, params: *mut types::Cell) -> AmxResult<Cell> {
-    ///     unsafe {
-    ///         let ptr = std::ptr::read(params.offset(1));
-    ///         let mut addr = amx.get_address::<i32>(ptr)?; // get a pointer from amx
-    ///         let len = amx.string_len(addr.as_mut())?; // get string length in amx
-    ///         let string = amx.get_string(addr.as_mut(), len + 1)?; // convert amx string to rust String
-    ///        
-    ///         log!("got string: {}", string);
     ///
-    ///         std::mem::forget(addr);
+    /// # Examples
+    ///
+    /// ```
+    /// #[macro_use] extern crate samp_sdk;
+    /// use samp_sdk::amx::{AMX, AmxResult};
+    /// use samp_sdk::types::Cell;
+    ///
+    /// pub struct MyPlugin;
+    ///
+    /// impl MyPlugin {
+    ///
+    ///     fn raw_function(&self, amx: &AMX, params: *mut Cell) -> AmxResult<Cell> {
+    ///         unsafe {
+    ///             let ptr = std::ptr::read(params.offset(1));
+    ///             let mut addr = amx.get_address::<i32>(ptr)?; // get a pointer from amx
+    ///             let len = amx.string_len(addr)?; // get string length in amx
+    ///             let string = amx.get_string(addr, len + 1)?; // convert amx string to rust String
+    ///
+    ///             log!("got string: {}", string);
+    ///
+    ///             std::mem::forget(addr);
+    ///         }
+    ///
+    ///         Ok(0)
     ///     }
     ///
-    ///     Ok(0)
     /// }
     /// ```
     pub fn get_string(&self, address: *const Cell, size: usize) -> AmxResult<String> {
@@ -366,7 +430,7 @@ impl AMX {
         const CHARBITS: usize = 8 * size_of::<u8>();
 
         let mut string = Vec::with_capacity(size);
-        
+
         unsafe {
             if read(address) as u32 > UNPACKEDMAX {
                 // packed string
@@ -417,11 +481,17 @@ impl AMX {
 /// Can be casted from i32
 ///
 /// # Examples
-/// 
+///
 /// ```
-/// let find_public: samp_sdk::types::FindPublic_t = ...;
-/// let result = find_public(...);
-/// return AmxError::from(result);
+/// use samp_sdk::amx::{AMX, AmxResult, AmxError};
+/// use samp_sdk::types::Cell;
+///
+/// fn throw_exit_error(amx: &AMX, params: *mut Cell) -> AmxResult<Cell> {
+///     let error_id = 1;
+///     let error = AmxError::from(error_id);
+///
+///     Err(error)
+/// }
 /// ```
 #[derive(Debug)]
 pub enum AmxError {
