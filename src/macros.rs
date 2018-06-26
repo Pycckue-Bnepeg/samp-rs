@@ -9,11 +9,20 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 /// # Examples
 ///
 /// ```
-/// let natives = natives![
-///    { "ShowSomething", show_something },
-///    { "WhereIsPlayer", where_is_player }
-/// ];
-/// amx.register(natives);
+/// #[macro_use] extern crate samp_sdk;
+/// use samp_sdk::amx::AMX;
+/// use samp_sdk::types;
+///
+/// fn amx_load(amx: &AMX) {
+///     extern "system" fn show_something(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
+///     extern "system" fn where_is_player(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
+///
+///     let natives = natives![
+///        { "ShowSomething", show_something },
+///        { "WhereIsPlayer", where_is_player }
+///     ];
+///     amx.register(&natives);
+/// }
 /// ```
 #[macro_export]
 macro_rules! natives {
@@ -49,37 +58,59 @@ macro_rules! natives {
 }
 
 /// Hides ugly C code from your eyes.
-/// 
-/// Generates raw extern C functions and makes call to your own static methods. 
+///
+/// Generates raw extern C functions and makes call to your own static methods.
 ///
 /// # Examples
 ///
 /// ```
+/// #[macro_use] extern crate samp_sdk;
+/// use samp_sdk::amx::AMX;
+/// use samp_sdk::types;
+///
 /// struct MyPlugin;
-/// 
+///
 /// impl MyPlugin {
 ///     fn load(&self) -> bool {
-///         amx_log!("My plugin is loaded!");
-///         return true;
+///         log!("My plugin is loaded!");
+///         true
 ///     }
-///     
-///     fn unload(&self);
-///     fn amx_load(&self, amx: AMX) -> Cell;
-///     fn amx_unload(&self, amx: AMX) -> Cell;
+///
+///     fn unload(&self) {}
+///     fn amx_load(&self, amx: &AMX) -> types::Cell { 0 }
+///     fn amx_unload(&self, amx: &AMX) -> types::Cell { 0 }
 /// }
 ///
 /// impl Default for MyPlugin {
 ///     fn default() -> MyPlugin {
-///         MyPlugin{}
+///         MyPlugin {}
 ///     }
 /// }
-/// 
-/// new_plugin!(MyPlugin) 
+///
+/// new_plugin!(MyPlugin) ;
 /// ```
+///
 /// To make a plugin with `ProccessTick` support use this:
 /// ```
+/// #[macro_use] extern crate samp_sdk;
+/// use samp_sdk::amx::AMX;
+/// use samp_sdk::types;
+///
+/// struct MyPlugin;
+///
 /// impl MyPlugin {
-///     fn process_tick(&self);
+///     fn process_tick(&self) {}
+///
+///     fn load(&self) -> bool { true }
+///     fn unload(&self) {}
+///     fn amx_load(&self, amx: &AMX) -> types::Cell { 0 }
+///     fn amx_unload(&self, amx: &AMX) -> types::Cell { 0 }
+/// }
+///
+/// impl Default for MyPlugin {
+///     fn default() -> MyPlugin {
+///         MyPlugin {}
+///     }
 /// }
 ///
 /// new_plugin!(MyPlugin with process_tick);
@@ -162,23 +193,27 @@ macro_rules! log {
 ///
 /// # Examples
 /// Define a native with raw params (`*mut Cell`).
-/// ```
+/// ```compile_fail
+/// #[macro_use] extern crate samp_sdk;
+/// use samp_sdk::amx::{AMX, AmxResult};
+/// use samp_sdk::types::Cell;
+///
 /// // native: WithRawParams(&arg1, arg2, arg3);
 /// define_native!(with_raw_params as raw);
 ///
-/// fn with_raw_params(&self, amx: &AMX, args: *mut Cell) -> AmxResult<Cell>;
+/// fn with_raw_params(amx: &AMX, args: *mut Cell) -> AmxResult<Cell> { Ok(0) };
 /// ```
 ///
 /// Define a native without arguments.
-/// ```
+/// ```compile_fail
 /// // native: WithoutArguments();
 /// define_native!(without_arguments);
 ///
 /// fn without_arguments(&self, amx: &AMX) -> AmxResult<Cell>;
 /// ```
-/// 
+///
 /// Define a native with converted arguments.
-/// ```
+/// ```compile_fail
 /// // native: SomeFunction(&int_val, float_val);
 /// define_native!(some_function, int_val: ref i32, float_val: f32);
 ///
@@ -216,7 +251,7 @@ macro_rules! define_native {
         pub extern "system" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             expand_args!(amx, params, $( $arg : $( $data )+ ),* );
-            
+
             let retval = super::___PLUGIN.lock().unwrap().$name(&mut amx, $($arg),*);
 
             match retval {
@@ -257,7 +292,7 @@ macro_rules! expand_args {
         @
         $amx:ident,
         $parser:ident,
-        
+
         $arg:ident : ref $type:ty
     ) => {
         let $arg: &mut $type = unsafe {
@@ -337,9 +372,14 @@ macro_rules! expand_args {
 ///
 /// # Examples
 /// ```
-/// fn native(&self, _amx: &AMX, params: *mut Cell) -> AmxResult<Cell> {
+/// #[macro_use] extern crate samp_sdk;
+/// use samp_sdk::types::Cell;
+/// use samp_sdk::amx::{AMX, AmxResult};
+///
+/// fn native(_amx: &AMX, params: *mut Cell) -> AmxResult<Cell> {
 ///     let count = args_count!(params);
 ///     log!("Args count: {}", count);
+///     Ok(1)
 /// }
 /// ```
 #[macro_export]
@@ -351,21 +391,26 @@ macro_rules! args_count {
     }
 }
 
+// FIXME: describe more clearly syntax of exec macro
+// FIXME: write valid code example
 /// Executes `AMX::exec` with given arguments.
 ///
 /// # Examples
-/// ```
+/// ```compile_fail
+///
 /// fn native(&self, amx: &AMX) -> AmxResult<Cell> {
 ///     let public = amx.find_public("TestPublic");
 ///     let player_name = String::from("Some_Name");
-///     let player_id = 12;
+///     let player_id = 12 as i32;
 ///     let player_data = vec![51, 2, 256, 0, 22];
-///     let data_size = player_data.len();
-///     
-///     let res = exec!(amx, public; 
-///         player_name => string, 
-///         player_id, 
-///         player_data => array, 
+///     let data_size = player_data.len() as i32;
+///
+///     let res = exec!(
+///         amx, public;
+///
+///         player_name => string,
+///         player_id,
+///         player_data => array,
 ///         data_size
 ///     );
 /// }
@@ -433,7 +478,7 @@ macro_rules! exec {
     };
 
     (
-        $amx:ident, 
+        $amx:ident,
         $index:ident;
         $($tail:tt)*
     ) => {
@@ -453,10 +498,14 @@ macro_rules! exec {
 ///
 /// # Examples
 /// ```
-/// fn native(&self, amx: &AMX) -> AmxResult<Cell> {
+/// #[macro_use] extern crate samp_sdk;
+/// use samp_sdk::types::Cell;
+/// use samp_sdk::amx::{AMX, AmxResult};
+///
+/// fn native(amx: &AMX) {
 ///     let old_name = String::from("Old_Name");
 ///     let new_name = String::from("Name_Surname");
-///     exec_public!(amx, "OnPlayerNameChanged"; old_name => string, new_name => string); 
+///     exec_public!(amx, "OnPlayerNameChanged"; old_name => string, new_name => string);
 /// }
 /// ```
 #[macro_export]
@@ -489,9 +538,13 @@ macro_rules! exec_native {
 ///
 /// # Examples
 /// ```
+/// #[macro_use] extern crate samp_sdk;
+/// use samp_sdk::types::Cell;
+/// use samp_sdk::amx::{AMX, AmxResult};
+///
 /// // native:PushString(const string[]);
-/// fn raw_arguments(&self, amx: &AMX, args: *mut Cell) -> AmxResult<Cell> {
-///     let string = get_string!(amx, args.offset(1));
+/// fn raw_arguments(amx: &AMX, args: *mut Cell) -> AmxResult<Cell> {
+///     let string = get_string!(amx, args.offset(1))?;
 ///     log!("got a string: {}", string);
 ///     Ok(0)
 /// }
@@ -518,11 +571,15 @@ macro_rules! get_string {
 /// # Examples
 ///
 /// ```
+/// #[macro_use] extern crate samp_sdk;
+/// use samp_sdk::types::Cell;
+/// use samp_sdk::amx::{AMX, AmxResult};
+///
 /// // native:PassArray(const array[], size);
-/// define_native!(pass_array, array_ptr: Cell, size: usize);
-/// 
-/// fn pass_array(&self, amx: &AMX, array_ptr: Cell, size: usize) {
-///     let array: &[u32] = get_array!(amx, array_ptr, size);
+/// // define_native!(pass_array, array_ptr: Cell, size: usize);
+///
+/// fn pass_array(amx: &AMX, array_ptr: Cell, size: usize) {
+///     let array: &[u32] = get_array!(amx, array_ptr, size).unwrap();
 /// }
 /// ```
 #[macro_export]
@@ -538,20 +595,39 @@ macro_rules! get_array {
 /// # Examples
 ///
 /// ```
-/// // native: rot13(const source[], dest[], size=sizeof(dest));
-/// define_native!(n_rot13, source: String, dest_ptr: ref Cell, size: usize);
+/// #[macro_use] extern crate samp_sdk;
+/// use samp_sdk::types::Cell;
+/// use samp_sdk::amx::{AMX, AmxResult};
 ///
-/// fn n_rot13(&self, amx: &AMX, source: String, dest_ptr: &mut Cell, size: usize) -> AmxResult<Cell> {
-///     let roted = rot13(&source);
+/// // native: rot13(const source[], dest[], size=sizeof(dest));
+/// // define_native!(n_rot13, source: String, dest_ptr: &mut types::Cell, size: usize);
+///
+/// fn n_rot13(amx: &AMX, source: String, dest_ptr: &mut Cell, size: usize) -> AmxResult<Cell> {
+///     let roted = rot13(source);
 ///     set_string!(roted, dest_ptr, size);
 ///     Ok(0)
+/// }
+///
+/// fn rot13(string: String) -> String {
+///      let alphabet = [
+///          'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+///          'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+///      ];
+///
+///      string.chars()
+///            .map(|c| *alphabet.iter()
+///                              .chain(alphabet.iter())
+///                              .skip_while(|&x| *x != c)
+///                              .nth(13)
+///                              .unwrap_or(&c))
+///            .collect()
 /// }
 /// ```
 #[macro_export]
 macro_rules! set_string {
     ($string:expr, $address:expr, $size:expr) => {
         {
-            let length = if $string.len() > $size { $size } else { $string.len() }; 
+            let length = if $string.len() > $size { $size } else { $string.len() };
             let bytes = $string.as_bytes();
             let dest = $address as *mut $crate::types::Cell;
 

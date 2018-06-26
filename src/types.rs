@@ -7,7 +7,7 @@ pub type Cell = i32;
 pub type Ucell = u32;
 
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct AMX {
     pub base: *mut u8,
     pub data: *mut u8,
@@ -36,7 +36,7 @@ pub type AmxCallback = extern "system" fn(*mut AMX, index: Cell, result: *mut Ce
 pub type AmxDebug = extern "system" fn(*mut AMX) -> i32;
 
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct AMX_NATIVE_INFO {
     pub name: *const i8,
     pub func: AmxNative,
@@ -57,7 +57,7 @@ pub struct FUNCSTUBNT {
 }
 
 #[repr(C, packed)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct AMX_HEADER {
     pub size: i32,
     pub magic: u16,
@@ -122,4 +122,4 @@ pub type UTF8Get = extern "system" fn(*const i8, *mut *const i8, *mut Cell) -> i
 pub type UTF8Len = extern "system" fn(*const Cell, *mut i32) -> i32;
 pub type UTF8Put = extern "system" fn(*mut i8, *mut *mut i8, i32, Cell) -> i32;
 
-pub type Logprintf_t = extern "system" fn(*const i8, ...);
+pub type Logprintf_t = extern "C" fn(*const i8, ...);
