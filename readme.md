@@ -1,4 +1,6 @@
 # SA:MP SDK
+[![Build Status](https://travis-ci.org/ZOTTCE/samp-sdk.svg?branch=master)](https://travis-ci.org/ZOTTCE/samp-sdk)
+[![Build status](https://ci.appveyor.com/api/projects/status/ldq6suvwlmka072o/branch/master?svg=true)](https://ci.appveyor.com/project/ZOTTCE/samp-sdk/branch/master)
 [![Docs](https://docs.rs/samp-sdk/badge.svg)](https://docs.rs/samp-sdk)
 [![Crates](https://img.shields.io/crates/v/samp-sdk.svg)](https://crates.io/crates/samp-sdk)
 
@@ -30,8 +32,8 @@ impl Plugin {
         log!("Plugin is loaded. Version: {}", self.version);
         return true;
     }
-    
-    fn unload(&self) { 
+
+    fn unload(&self) {
        log!("Plugin has unloaded");
     }
 
@@ -91,7 +93,7 @@ define_native(function_name);
 ``` Rust
 // Broadcast to all subscribers that a user have changed his name.
 fn notify(&self, amx: AMX, player_id: u32, old_name: String, new_name: String) -> AmxResult<Cell> {
-    exec_public!(amx, "OnPlayerNameChanged"; player_id, old_name => string, new_name => string) 
+    exec_public!(amx, "OnPlayerNameChanged"; player_id, old_name => string, new_name => string)
 }
 ```
 
