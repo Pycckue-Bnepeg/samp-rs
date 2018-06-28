@@ -1,5 +1,5 @@
 # SA:MP SDK
-[![Build Status](https://travis-ci.org/ZOTTCE/samp-sdk.svg?branch=master)](https://travis-ci.org/ZOTTCE/samp-sdk)
+[![Build Status](https://travis-ci.com/ZOTTCE/samp-sdk.svg?branch=master)](https://travis-ci.com/ZOTTCE/samp-sdk)
 [![Build status](https://ci.appveyor.com/api/projects/status/ldq6suvwlmka072o/branch/master?svg=true)](https://ci.appveyor.com/project/ZOTTCE/samp-sdk/branch/master)
 [![Docs](https://docs.rs/samp-sdk/badge.svg)](https://docs.rs/samp-sdk)
 [![Crates](https://img.shields.io/crates/v/samp-sdk.svg)](https://crates.io/crates/samp-sdk)
