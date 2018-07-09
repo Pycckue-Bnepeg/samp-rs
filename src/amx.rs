@@ -73,8 +73,8 @@ impl AMX {
     /// use samp_sdk::amx::{AMX, AmxResult};
     /// use samp_sdk::consts::AMX_ERR_NONE;
     ///
-    /// extern "system" fn some_function(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
-    /// extern "system" fn another_function(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
+    /// extern "C" fn some_function(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
+    /// extern "C" fn another_function(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
     ///
     /// fn amx_load(amx: &AMX) -> types::Cell {
     ///
