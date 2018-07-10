@@ -14,8 +14,8 @@ Most of them hide raw C bindings and exports to make code easier to understand.
 /// use samp_sdk::types;
 ///
 /// fn amx_load(amx: &AMX) {
-///     extern "system" fn show_something(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
-///     extern "system" fn where_is_player(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
+///     extern "C" fn show_something(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
+///     extern "C" fn where_is_player(_: *mut types::AMX, _: *mut i32) -> i32 { 0 }
 ///
 ///     let natives = natives![
 ///        { "ShowSomething", show_something },
@@ -222,7 +222,7 @@ macro_rules! log {
 #[macro_export]
 macro_rules! define_native {
     ($name:ident as raw) => {
-        pub extern "system" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
+        pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             match super::___PLUGIN.lock().unwrap().$name(&mut amx, params) {
                 Ok(res) => return res,
@@ -235,7 +235,7 @@ macro_rules! define_native {
     };
 
     ($name:ident) => {
-        pub extern "system" fn $name(amx: *mut $crate::types::AMX, _: *mut $crate::types::Cell) -> $crate::types::Cell {
+        pub extern "C" fn $name(amx: *mut $crate::types::AMX, _: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             match super::___PLUGIN.lock().unwrap().$name(&mut amx) {
                 Ok(res) => return res,
@@ -248,7 +248,7 @@ macro_rules! define_native {
     };
 
     ($name:ident, $( $arg:ident : $( $data:ident )+ ),* ) => {
-        pub extern "system" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
+        pub extern "C" fn $name(amx: *mut $crate::types::AMX, params: *mut $crate::types::Cell) -> $crate::types::Cell {
             let mut amx = $crate::amx::AMX::new(amx);
             expand_args!(amx, params, $( $arg : $( $data )+ ),* );
 
