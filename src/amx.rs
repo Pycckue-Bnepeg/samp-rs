@@ -5,10 +5,10 @@
 use std::ptr::{read};
 use std::mem::{transmute, transmute_copy, size_of};
 use std::ffi::CString;
-use types;
-use types::Cell;
-use consts::*;
-use data::amx_functions;
+use crate::types;
+use crate::types::Cell;
+use crate::consts::*;
+use crate::data::amx_functions;
 
 pub type AmxResult<T> = Result<T, AmxError>;
 

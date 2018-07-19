@@ -3,7 +3,7 @@
 
     Used in `expand_args!`.
 */
-use types::Cell;
+use crate::types::Cell;
 
 pub struct Parser {
     params: *mut Cell,

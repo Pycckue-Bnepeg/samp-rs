@@ -8,7 +8,8 @@
 
 use std;
 use std::sync::Mutex;
-use types::Logprintf_t;
+use crate::types::Logprintf_t;
+use crate::lazy_static;
 
 lazy_static! {
     pub static ref logprintf: Mutex<Logprintf_t> = unsafe {
