@@ -10,7 +10,7 @@ They shouldn't be used in yours plugin code.
 pub const SUPPORTS_VERSION: u32 = 512;
 pub const SUPPORTS_VERSION_MASK: u32 = 65535;
 pub const SUPPORTS_AMX_NATIVES: u32 = 65536;
-pub const SUPPORTS_PROCESS_TICK: u32 = 131072;
+pub const SUPPORTS_PROCESS_TICK: u32 = 131_072;
 
 pub const PLUGIN_DATA_LOGPRINTF: u32 = 0;
 pub const PLUGIN_DATA_AMX_EXPORTS: u32 = 16;
