@@ -50,7 +50,7 @@ macro_rules! import {
 
 /// AMX struct that holds raw `types::AMX` pointer.
 pub struct AMX {
-    amx: *mut types::AMX,
+    pub amx: *mut types::AMX,
 }
 
 impl AMX {
@@ -322,7 +322,7 @@ impl AMX {
     ///     }
     /// }
     /// ```
-    pub fn exec(&self, index: i32) -> AmxResult<i64> {
+    pub fn exec(&self, index: i32) -> AmxResult<i32> {
         let exec = import!(Exec);
 
         let retval = -1;
@@ -384,6 +384,46 @@ impl AMX {
             } else {
                 Err(AmxError::from(retval))
             }
+        }
+    }
+
+    /// Get a number of AMX natives.
+    pub fn num_natives(&self) -> AmxResult<i32> {
+        let num_natives = import!(NumNatives);
+
+        let value: i32 = -1;
+
+        unsafe {
+            call!(num_natives(self.amx, transmute(&value)) => value)
+        }
+    }
+
+    /// Get a name of a native by its index.
+    pub fn get_native(&self, index: i32) -> AmxResult<CString> {
+        let get_native = import!(GetNative);
+
+        let value = CString::new(vec![1; 32]).unwrap();
+
+        let ptr = value.into_raw();
+
+        unsafe {
+            call!(get_native(self.amx, index, ptr) => CString::from_raw(ptr))
+        }
+    }
+
+    pub fn get_native_addr(&self, index: i32) -> AmxResult<usize> {
+        let header = self.header();
+       
+        let amx_addr = unsafe {
+            (*((header as i32 + (*header).natives + (*header).defsize as i32 * index) as *const types::AMX_FUNCSTUB)).address
+        };
+
+        Ok(amx_addr as usize)
+    }
+
+    pub fn header(&self) -> *const types::AMX_HEADER {
+        unsafe {
+            (*self.amx).base as _
         }
     }
 

@@ -524,10 +524,140 @@ macro_rules! exec_public {
 /// Same as `exec_public!`.
 #[macro_export]
 macro_rules! exec_native {
+    (@internal
+        $amx:ident,
+        $params:ident,
+        $count:ident,
+        $addr:ident;
+        $arg:expr
+    ) => {
+        $params.push(unsafe {
+            ::std::mem::transmute_copy(&$arg)
+        });
+
+        $count += 1;
+    };
+
+    (@internal
+        $amx:ident,
+        $params:ident,
+        $count:ident,
+        $addr:ident;
+        $head:expr,
+        $($tail:tt)*
+    ) => {
+        exec_native!(@internal $amx, $params, $count, $addr; $head);
+        exec_native!(@internal $amx, $params, $count, $addr; $($tail)*);
+    };
+
+    // strings
+    (@internal
+        $amx:ident,
+        $params:ident,
+        $count:ident,
+        $addr:ident;
+        $arg:expr => string
+    ) => {
+        let (__amx, __phys) = $amx.allot($arg.len() + 1)?;
+
+        set_string!($arg, __phys, $arg.len());
+        $params.push(__amx);
+
+        if $addr.is_none() {
+            $addr = Some(__amx);
+        }
+
+        $count += 1;
+    };
+
+    (@internal
+        $amx:ident,
+        $params:ident,
+        $count:ident,
+        $addr:ident;
+        $head:expr => string,
+        $($tail:tt)*
+    ) => {
+        exec_native!(@internal $amx, $params, $count, $addr; $head => string);
+        exec_native!(@internal $amx, $params, $count, $addr; $($tail)*);
+    };
+
+    // arrays
+    (@internal
+        $amx:ident,
+        $params:ident,
+        $count:ident,
+        $addr:ident;
+        $arg:expr => array
+    ) => {
+        let (__amx, __phys) = $amx.allot($arg.len())?;
+        let __dest = __phys as *mut $crate::types::Cell;
+
+        for i in 0..$arg.len() {
+            unsafe {
+                *(__dest.offset(i as isize)) = ::std::mem::transmute_copy(&$arg[i]);
+            }
+        }
+
+        $params.push(__amx);
+
+        if $addr.is_none() {
+            $addr = Some(__amx);
+        }
+
+        $count += 1;
+    };
+
+    (@internal
+        $amx:ident,
+        $params:ident,
+        $count:ident,
+        $addr:ident;
+        $head:expr => array,
+        $($tail:tt)*
+    ) => {
+        exec_native!(@internal $amx, $params, $count, $addr; $head => array);
+        exec_native!(@internal $amx, $params, $count, $addr; $($tail)*);
+    };
+
+    (@internal
+        $amx:ident,
+        $index:ident,
+        $params:ident,
+        $count:ident,
+        $($args:tt)*
+    ) => {
+        {
+            let mut __first_addr = None;
+
+            exec_native!(@internal $amx, $params, $count, __first_addr; $($args)*);
+            
+            $params[0] = $count * ::std::mem::size_of::<$crate::types::Cell>() as $crate::types::Cell;
+
+            let __native_addr = $amx.get_native_addr($index)?;
+            let __func: $crate::types::AmxNative = unsafe { ::std::mem::transmute(__native_addr) };
+
+            let __res = __func($amx.amx, $params.as_slice().as_ptr() as _);
+            
+            if let Some(__addr) = __first_addr {
+                $amx.release(__addr)?;
+            }
+            
+            Ok(__res)
+        }
+    };
+
     ($amx:ident, $name:expr; $($args:tt)*) => {
         {
             $amx.find_native($name)
-                .and_then(|index| exec!($amx, index; $($args)*))
+                .and_then(|__index| {
+                    let mut __params: Vec<$crate::types::Cell> = Vec::new();
+                    let mut __count = 0;
+                    
+                    __params.push(__count);
+
+                    exec_native!(@internal $amx, __index, __params, __count, $($args)*)
+                })
         }
     }
 }
@@ -633,7 +763,7 @@ macro_rules! set_string {
 
             for i in 0..length {
                 unsafe {
-                    *(dest.offset(i as isize)) = ::std::mem::transmute_copy(&bytes[i]);
+                    *(dest.offset(i as isize)) = bytes[i] as i32;
                 }
             }
 
