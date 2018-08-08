@@ -119,7 +119,7 @@ macro_rules! natives {
 macro_rules! new_plugin {
     (@internal $name:ident) => {
         lazy_static! {
-            static ref ___PLUGIN: ::std::sync::Mutex<$name> = ::std::sync::Mutex::new($name::default());
+            pub static ref ___PLUGIN: ::std::sync::Mutex<$name> = ::std::sync::Mutex::new($name::default());
         }
 
         #[no_mangle]

@@ -411,6 +411,19 @@ impl AMX {
         }
     }
 
+    /// Get a name of a public by its index.
+    pub fn get_public(&self, index: i32) -> AmxResult<CString> {
+        let get_public = import!(GetPublic);
+
+        let value = CString::new(vec![1; 32]).unwrap();
+
+        let ptr = value.into_raw();
+
+        unsafe {
+            call!(get_public(self.amx, index, ptr) => CString::from_raw(ptr))
+        }
+    }
+
     pub fn get_native_addr(&self, index: i32) -> AmxResult<usize> {
         let header = self.header();
        
