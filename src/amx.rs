@@ -5,10 +5,12 @@
 use std::ptr::{read};
 use std::mem::{transmute, transmute_copy, size_of};
 use std::ffi::CString;
+
 use crate::types;
 use crate::types::Cell;
 use crate::consts::*;
 use crate::data::amx_functions;
+use crate::cp1251;
 
 pub type AmxResult<T> = Result<T, AmxError>;
 
@@ -285,7 +287,8 @@ impl AMX {
         if packed {
             unimplemented!()
         } else {
-            let bytes = string.as_bytes();
+            // let bytes = string.as_bytes();
+            let bytes = cp1251::encode(string)?;
             let (amx_addr, phys_addr) = self.allot(bytes.len() + 1)?;
             let dest = phys_addr as *mut Cell;
 
@@ -519,7 +522,9 @@ impl AMX {
                     byte = read(address.offset(length));
                 }
             }
-            Ok(String::from_utf8_unchecked(string))
+
+            cp1251::decode(string.as_slice())
+            // Ok(String::from_utf8_unchecked(string))
         }
     }
 

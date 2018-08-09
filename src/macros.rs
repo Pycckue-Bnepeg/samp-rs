@@ -564,9 +564,11 @@ macro_rules! exec_native {
         $addr:ident;
         $arg:expr => string
     ) => {
-        let (__amx, __phys) = $amx.allot($arg.len() + 1)?;
+        let bytes = $crate::cp1251::encode($arg).unwrap();
 
-        set_string!($arg, __phys, $arg.len());
+        let (__amx, __phys) = $amx.allot(bytes.len() + 1)?;
+
+        set_string!(bytes, __phys, bytes.len());
         $params.push(__amx);
 
         if $addr.is_none() {
@@ -740,7 +742,8 @@ macro_rules! get_array {
 ///
 /// fn n_rot13(amx: &AMX, source: String, dest_ptr: &mut Cell, size: usize) -> AmxResult<Cell> {
 ///     let roted = rot13(source);
-///     set_string!(roted, dest_ptr, size);
+///     let encoded = samp_sdk::cp1251::encode(roted)?;
+///     set_string!(encoded, dest_ptr, size);
 ///     Ok(0)
 /// }
 ///
@@ -764,12 +767,11 @@ macro_rules! set_string {
     ($string:expr, $address:expr, $size:expr) => {
         {
             let length = if $string.len() > $size { $size } else { $string.len() };
-            let bytes = $string.as_bytes();
             let dest = $address as *mut $crate::types::Cell;
 
             for i in 0..length {
                 unsafe {
-                    *(dest.offset(i as isize)) = bytes[i] as i32;
+                    *(dest.offset(i as isize)) = $string[i] as i32;
                 }
             }
 

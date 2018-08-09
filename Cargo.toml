@@ -13,3 +13,4 @@ edition = "2018"
 [dependencies]
 lazy_static = "1.0.2"
 detour = "0.5"
+encoding = "0.2"

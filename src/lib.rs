@@ -17,5 +17,6 @@ pub mod consts;
 pub mod data;
 pub mod types;
 pub mod amx;
+pub mod cp1251;
 
 pub use lazy_static::{lazy_static, __lazy_static_internal, __lazy_static_create};
