@@ -564,7 +564,7 @@ macro_rules! exec_native {
         $addr:ident;
         $arg:expr => string
     ) => {
-        let bytes = $crate::cp1251::encode($arg).unwrap();
+        let bytes = $crate::cp1251::encode($arg)?;
 
         let (__amx, __phys) = $amx.allot(bytes.len() + 1)?;
 
