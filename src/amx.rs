@@ -6,6 +6,8 @@ use std::ptr::{read};
 use std::mem::{transmute, transmute_copy, size_of};
 use std::ffi::CString;
 
+use failure_derive::Fail;
+
 use crate::types;
 use crate::types::Cell;
 use crate::consts::*;
@@ -90,9 +92,9 @@ impl AMX {
     ///     AMX_ERR_NONE
     /// }
     /// ```
-    pub fn register(&self, natives: &Vec<types::AMX_NATIVE_INFO>) -> AmxResult<()> {
+    pub fn register(&self, natives: &[types::AMX_NATIVE_INFO]) -> AmxResult<()> {
         let len = natives.len();
-        let ptr = natives.as_slice().as_ptr();
+        let ptr = natives.as_ptr();
 
         let register = import!(Register);
         call!(register(self.amx, ptr, len as i32) => ())
@@ -551,33 +553,60 @@ impl AMX {
 ///     Err(error)
 /// }
 /// ```
-#[derive(Debug)]
+#[derive(Fail, Debug)]
+#[fail(display = "AMX Error.")]
 pub enum AmxError {
+    #[fail(display = "Exit AMX.")]
     Exit = 1,
+    #[fail(display = "Assertation error.")]
     Assert = 2,
+    #[fail(display = "Stack error.")]
     StackError = 3,
+    #[fail(display = "Out of bounds.")]
     Bounds = 4,
+    #[fail(display = "Can't access to memory area.")]
     MemoryAccess = 5,
+    #[fail(display = "Invalid instruction.")]
     InvalidInstruction = 6,
+    #[fail(display = "Stack low.")]
     StackLow = 7,
+    #[fail(display = "Heap low.")]
     HeapLow = 8,
+    #[fail(display = "Public error.")]
     Callback = 9,
+    #[fail(display = "Native error.")]
     Native = 10,
+    #[fail(display = "Divide error.")]
     Divide = 11,
+    #[fail(display = "AMX is sleeping.")]
     Sleep = 12,
+    #[fail(display = "Invalid state.")]
     InvalidState = 13,
+    #[fail(display = "Out of memory.")]
     Memory = 16,
+    #[fail(display = "Wrong format.")]
     Format = 17,
+    #[fail(display = "Incorrect AMX version.")]
     Version = 18,
+    #[fail(display = "Function not found.")]
     NotFound = 19,
+    #[fail(display = "Incorrect public index.")]
     Index = 20,
+    #[fail(display = "Debug error.")]
     Debug = 21,
+    #[fail(display = "Error while init AMX.")]
     Init = 22,
+    #[fail(display = "Incorrect user data.")]
     UserData = 23,
+    #[fail(display = "Error while init JIT.")]
     InitJit = 24,
+    #[fail(display = "Error in arguments.")]
     Params = 25,
+    #[fail(display = "Domain error.")]
     Domain = 26,
+    #[fail(display = "General error.")]
     General = 27,
+    #[fail(display = "Unknown error.")]
     Unknown,
 }
 

@@ -4,7 +4,6 @@
 This crate is a Rust language wrapper for SA:MP SDK.
 
 */
-#![feature(rust_2018_preview, use_extern_macros)]
 
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
