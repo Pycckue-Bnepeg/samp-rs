@@ -2,9 +2,10 @@
     Core of SDK to interact with AMX.
 */
 
-use std::ptr::{read};
+use std::ptr::read;
+use std::os::raw::{c_char, c_void};
 use std::mem::{transmute, transmute_copy, size_of};
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 
 use failure_derive::Fail;
 
@@ -417,16 +418,33 @@ impl AMX {
     }
 
     /// Get a name of a public by its index.
-    pub fn get_public(&self, index: i32) -> AmxResult<CString> {
-        let get_public = import!(GetPublic);
+    #[inline(always)]
+    pub fn get_public(&self, index: i32) -> AmxResult<&CStr> {
+        let name = unsafe {
+            let header = self.header();
 
-        let value = CString::new(vec![1; 32]).unwrap();
+            if header.is_null() {
+                return Err(AmxError::Memory);
+            }
 
-        let ptr = value.into_raw();
+            let ptr = header as i32 + (*header).publics + index * (*header).defsize as i32;
 
-        unsafe {
-            call!(get_public(self.amx, index, ptr) => CString::from_raw(ptr))
-        }
+            let func = ptr as *const c_void;
+
+            if func.is_null() {
+                return Err(AmxError::Memory);
+            }
+
+            let str_ptr = if (*header).defsize as usize == size_of::<types::FUNCSTUBNT>() {
+                (header as u32 + (*(func as *const types::FUNCSTUBNT)).nameofs) as *const c_char
+            } else {
+                (*(func as *const types::AMX_FUNCSTUB)).name.as_ptr() as *const c_char
+            };
+
+            CStr::from_ptr(str_ptr)
+        };
+
+        Ok(name)
     }
 
     pub fn get_native_addr(&self, index: i32) -> AmxResult<usize> {
@@ -439,6 +457,7 @@ impl AMX {
         Ok(amx_addr as usize)
     }
 
+    #[inline(always)]
     pub fn header(&self) -> *const types::AMX_HEADER {
         unsafe {
             (*self.amx).base as _

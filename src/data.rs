@@ -13,7 +13,7 @@ use crate::lazy_static;
 
 lazy_static! {
     pub static ref logprintf: Mutex<Logprintf_t> = unsafe {
-        Mutex::new(std::mem::transmute(0u32))
+        Mutex::new(std::mem::transmute(0usize))
     };
 }
 
