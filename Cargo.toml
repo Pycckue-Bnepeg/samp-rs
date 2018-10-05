@@ -1,5 +1,3 @@
-cargo-features = ["edition"]
-
 [package]
 name = "samp-sdk"
 version = "0.8.3"
