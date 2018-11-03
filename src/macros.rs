@@ -742,7 +742,7 @@ macro_rules! get_array {
 ///
 /// fn n_rot13(amx: &AMX, source: String, dest_ptr: &mut Cell, size: usize) -> AmxResult<Cell> {
 ///     let roted = rot13(source);
-///     let encoded = samp_sdk::cp1251::encode(roted)?;
+///     let encoded = samp_sdk::cp1251::encode(&roted)?;
 ///     set_string!(encoded, dest_ptr, size);
 ///     Ok(0)
 /// }
