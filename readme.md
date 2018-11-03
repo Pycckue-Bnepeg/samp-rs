@@ -101,7 +101,7 @@ fn notify(&self, amx: AMX, player_id: u32, old_name: String, new_name: String) -
 * Develop a new samp-plugin-example that shows all good points of this samp-sdk.
 
 ## Documentation
-[Here](https://zottce.github.io/samp-sdk/samp_sdk/).
+[Here](https://docs.rs/samp-sdk).
 
 ## Plugin example
 [Here](https://github.com/ZOTTCE/samp-plugin-example) you can see such a beautiful example of the samp-sdk.
