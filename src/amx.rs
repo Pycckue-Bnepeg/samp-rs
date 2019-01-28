@@ -297,7 +297,7 @@ impl AMX {
 
             for i in 0..string.len() {
                 unsafe {
-                    *(dest.offset(i as isize)) = transmute_copy(&bytes[i]);
+                    *(dest.offset(i as isize)) = transmute_copy(&(bytes[i] as  i32)) ;
                 }
             }
 
