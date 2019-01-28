@@ -290,19 +290,18 @@ impl AMX {
         if packed {
             unimplemented!()
         } else {
-            // let bytes = string.as_bytes();
             let bytes = cp1251::encode(string)?;
             let (amx_addr, phys_addr) = self.allot(bytes.len() + 1)?;
             let dest = phys_addr as *mut Cell;
 
-            for i in 0..string.len() {
+            for i in 0..bytes.len() {
                 unsafe {
-                    *(dest.offset(i as isize)) = transmute_copy(&(bytes[i] as  i32)) ;
+                    *(dest.offset(i as isize)) = bytes[i] as i32;
                 }
             }
 
             unsafe {
-                *(dest.offset(string.len() as isize)) = 0;
+                *(dest.offset(bytes.len() as isize)) = 0;
             }
 
             self.push(amx_addr)?;
