@@ -5,6 +5,29 @@ use samp::raw::types::AMX;
 
 mod natives;
 
+#[derive(Debug, Clone, Copy)]
+enum NativeResult {
+    AllGood,
+    NoMana,
+    NoHealth,
+}
+
+impl From<NativeResult> for i32 {
+    fn from(value: NativeResult) -> i32 {
+        match value {
+            NativeResult::AllGood => 0,
+            NativeResult::NoMana => 1,
+            NativeResult::NoHealth => 2,
+        }
+    }
+}
+
+impl Cell<'_> for NativeResult {
+    fn as_cell(&self) -> i32 {
+        (*self).into()
+    }
+}
+
 struct Plugin {
     admin_list: Vec<&'static str>,
 }
@@ -16,7 +39,7 @@ impl Plugin {
         }
     }
 
-    fn callback(amx: &Amx, ptr: Ref<usize>, somevalue: usize) -> AmxResult<f32> {
+    fn callback(amx: &Amx, ptr: Ref<usize>, somevalue: usize) -> AmxResult<NativeResult> {
         let allocator = amx.allocator();
         let val = allocator.allot::<f32>(1.0)?;
 
@@ -33,8 +56,11 @@ impl Plugin {
         amx.push(somevalue)?;
         amx.push(&arr)?;
 
-        let refer = amx.get_ref::<f32>(10)?;
-        Ok(*refer)
+        if somevalue == 255 {
+            return Ok(NativeResult::NoMana);
+        }
+
+        Ok(NativeResult::AllGood)
     }
 
     unsafe fn raw_callback(amx: *mut AMX, args: *mut i32) -> i32 {

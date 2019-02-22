@@ -4,11 +4,17 @@ use super::{Buffer, Cell, UnsizedBuffer};
 use crate::amx::Amx;
 use crate::error::AmxResult;
 
+const MAX_UNPACKED: i32 = 0x00FFFFFF;
+
+// A wrapper around an AMX string.
 pub struct AmxString<'amx> {
     inner: Buffer<'amx>,
+    // real length of the string
+    len: usize,
 }
 
 impl<'amx> AmxString<'amx> {
+    /// Create a new AmxString from allocated buffer and fill it with string
     pub fn new(mut buffer: Buffer<'amx>, string: &str) -> AmxString<'amx> {
         let bytes = string.as_bytes();
 
@@ -17,15 +23,17 @@ impl<'amx> AmxString<'amx> {
         }
 
         AmxString {
+            len: buffer.len(),
             inner: buffer,
         }
     }
 
+    /// Convert an AMX string to `Vec<u8>`.
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut vec = Vec::with_capacity(self.inner.len());
+        let mut vec = Vec::with_capacity(self.len);
 
         // packed string
-        if self.inner[0] > 0x00FFFFFF {
+        if self.inner[0] > MAX_UNPACKED {
             unsafe {
                 std::ptr::copy(self.inner.as_ptr() as *const u8, vec.as_mut_ptr(), vec.len());
             }
@@ -38,6 +46,23 @@ impl<'amx> AmxString<'amx> {
         return vec;
     }
 
+    /// Convert an AMX string to `String`.
+    /// Only ASCII chars by default. Pass `cp1251` to crate features to enable Windows 1251 encoding (TODO).
+    /// 
+    /// # Example
+    /// ```
+    /// #[native(name = "LogError")]
+    /// fn log_error(&self, amx: &Amx, text: AmxString) -> AmxResult<bool> {
+    ///     if !self.logger_enabled {
+    ///         return false;
+    ///     }
+    /// 
+    ///     let string = text.to_string();
+    ///     println!("[{}] PluginName error: {}", current_date(), string);
+    /// 
+    ///     return true;
+    /// }
+    /// ```
     pub fn to_string(&self) -> String {
         unsafe {
             String::from_utf8_unchecked(self.to_bytes())
@@ -50,25 +75,39 @@ impl<'amx> Cell<'amx> for AmxString<'amx> {
         let buffer = UnsizedBuffer::from_raw(amx, cell)?;
 
         let length = unsafe {
-            let mut ptr = buffer.as_ptr();
-            let mut length = 0;
+            let ptr = buffer.as_ptr();
 
-            while ptr.read() != 0 {
-                length += 1;
-                ptr = ptr.offset(1);
-            }
+            let length = if ptr.read() > MAX_UNPACKED {
+                strlen(ptr as *const i8, 0)
+            } else {
+                strlen(ptr, 0)
+            };
 
             length
         };
 
         Ok(AmxString {
             inner: buffer.into_sized_buffer(length),
+            len: length,
         })
     }
 
     fn as_cell(&self) -> i32 {
         self.inner.as_cell()
     }
+}
+
+fn strlen<T: PartialEq>(mut string: *const T, zerochar: T) -> usize {
+    let mut length = 0;
+
+    unsafe {
+        while string.read() != zerochar {
+            string = string.offset(1);
+            length += 1;
+        }
+    }
+
+    return length;
 }
 
 impl fmt::Display for AmxString<'_> {
