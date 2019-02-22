@@ -1,0 +1,9 @@
+[package]
+name = "samp"
+version = "0.1.0"
+authors = ["ZOTTCE <zottce@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+samp-sdk = { path = "../samp-sdk" }
+samp-codegen = { path = "../samp-codegen" }
