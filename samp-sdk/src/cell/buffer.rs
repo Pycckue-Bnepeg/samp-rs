@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 use super::{Ref, Cell};
 use crate::amx::Amx;
 use crate::error::AmxResult;
@@ -13,18 +15,6 @@ impl<'amx> Buffer<'amx> {
             inner: reference,
             len,
         }
-    }
-
-    pub fn set_string(&mut self, string: &str) -> bool {
-        if self.len < string.bytes().len() {
-            return false;
-        }
-
-        return true;
-    }
-
-    pub fn to_string(&self) -> String {
-        String::new()
     }
 
     #[inline]
@@ -50,11 +40,25 @@ impl<'amx> Cell<'amx> for Buffer<'amx> {
     }
 }
 
+impl Deref for Buffer<'_> {
+    type Target = [i32];
+    
+    fn deref(&self) -> &[i32] {
+        self.as_slice()
+    }
+}
+
+impl DerefMut for Buffer<'_> {
+    fn deref_mut(&mut self) -> &mut [i32] {
+        self.as_mut_slice()
+    }
+}
+
 /// It's more like a temorary buffer that comes from AMX when a native is calling.
 /// 
 /// #Example
 /// ```
-/// fn null_my_array(amx: &Amx, array: UnsizedArray, length: usize) -> AmxResult<u32> {
+/// fn null_my_array(amx: &Amx, array: UnsizedBuffer, length: usize) -> AmxResult<u32> {
 ///     let array = array.into_sized_buffer(length);
 /// 
 ///     unsafe {
@@ -70,8 +74,29 @@ pub struct UnsizedBuffer<'amx> {
 }
 
 impl<'amx> UnsizedBuffer<'amx> {
+    /// Convert `UnsizedBuffer` into `Buffer` with given length.
+    ///
+    /// #Example
+    /// fn push_ones(amx: &Amx, unsized: UnsizedBuffer, length: usize) {
+    ///     let mut buffer = unsized.into_sized_buffer(length);
+    ///     let slice = buffer.as_mut_slice();
+    ///     
+    ///     for item in slice.iter_mut() {
+    ///         *item = 1;
+    ///     }
+    /// }
     pub fn into_sized_buffer(self, len: usize) -> Buffer<'amx> {
         Buffer::new(self.inner, len)
+    }
+
+    #[inline]
+    pub fn as_ptr(&self) -> *const i32 {
+        self.inner.as_ptr()
+    }
+
+    #[inline]
+    pub fn as_mut_ptr(&mut self) -> *mut i32 {
+        self.inner.as_mut_ptr()
     }
 }
 
@@ -87,7 +112,3 @@ impl<'amx> Cell<'amx> for UnsizedBuffer<'amx> {
         self.inner.as_cell()
     }
 }
-
-// pub struct AmxString<'amx> {
-//     // inner: UnsizedBuffer<'amx>,
-// }

@@ -1,4 +1,4 @@
-use crate::cell::{AmxPrimitive, Buffer, Cell, Ref};
+use crate::cell::{AmxPrimitive, Buffer, Cell, Ref, AmxString};
 use crate::consts::{AmxExecIdx, AmxFlags};
 use crate::error::{AmxError, AmxResult};
 use crate::exports::*;
@@ -176,10 +176,9 @@ impl<'amx> Allocator<'amx> {
         return Ok(buffer);
     }
 
-    pub fn allot_string(&self, string: &str) -> AmxResult<Buffer> {
-        let mut buffer = self.allot_buffer(string.bytes().len())?;
-        buffer.set_string(string);
-        return Ok(buffer);
+    pub fn allot_string(&self, string: &str) -> AmxResult<AmxString> {
+        let buffer = self.allot_buffer(string.bytes().len())?;
+        return Ok(AmxString::new(buffer, string));
     }
 }
 

@@ -1,5 +1,5 @@
 use samp::{initialize_plugin, SampPlugin, amx::Amx};
-use samp::cell::{Ref, Cell, UnsizedBuffer};
+use samp::cell::{Ref, Cell, UnsizedBuffer, AmxString};
 use samp::error::AmxResult;
 use samp::raw::types::AMX;
 
@@ -41,7 +41,8 @@ impl Plugin {
         let amx = Amx::new(amx, 0);
         let ptr = Ref::<usize>::from_raw(&amx, args.offset(1).read()).unwrap();
         let somevalue = usize::from_raw(&amx, args.offset(2).read()).unwrap();
-        let rr = UnsizedBuffer::from_raw(&amx, args.offset(3).read()).unwrap();
+        let _ = UnsizedBuffer::from_raw(&amx, args.offset(3).read()).unwrap();
+        let _ = AmxString::from_raw(&amx, args.offset(4).read()).unwrap();
 
         match Plugin::callback(&amx, ptr, somevalue) {
             Ok(retval) => convert(retval),

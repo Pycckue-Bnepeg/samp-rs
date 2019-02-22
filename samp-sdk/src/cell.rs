@@ -6,10 +6,13 @@ use crate::error::AmxResult;
 
 pub mod repr;
 pub mod buffer;
+pub mod string;
 
 pub use repr::{Cell, AmxPrimitive};
 pub use buffer::{Buffer, UnsizedBuffer};
+pub use string::AmxString;
 
+/// A reference to a cell in the AMX.
 pub struct Ref<'amx, T: Sized + AmxPrimitive> {
     amx_addr: i32,
     phys_addr: *mut T,
@@ -17,6 +20,7 @@ pub struct Ref<'amx, T: Sized + AmxPrimitive> {
 }
 
 impl<'amx, T: Sized + AmxPrimitive> Ref<'amx, T> {
+    /// Create a new wrapper over AMX cell.
     pub unsafe fn new(amx_addr: i32, phys_addr: *mut T) -> Ref<'amx, T> {
         Ref {
             amx_addr,
