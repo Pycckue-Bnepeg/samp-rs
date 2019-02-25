@@ -56,7 +56,7 @@ impl DerefMut for Buffer<'_> {
 
 /// It's more like a temorary buffer that comes from AMX when a native is calling.
 /// 
-/// #Example
+/// # Example
 /// ```
 /// fn null_my_array(amx: &Amx, array: UnsizedBuffer, length: usize) -> AmxResult<u32> {
 ///     let array = array.into_sized_buffer(length);
@@ -76,7 +76,8 @@ pub struct UnsizedBuffer<'amx> {
 impl<'amx> UnsizedBuffer<'amx> {
     /// Convert `UnsizedBuffer` into `Buffer` with given length.
     ///
-    /// #Example
+    /// # Example
+    /// ```
     /// fn push_ones(amx: &Amx, unsized: UnsizedBuffer, length: usize) {
     ///     let mut buffer = unsized.into_sized_buffer(length);
     ///     let slice = buffer.as_mut_slice();
@@ -85,6 +86,7 @@ impl<'amx> UnsizedBuffer<'amx> {
     ///         *item = 1;
     ///     }
     /// }
+    /// ```
     pub fn into_sized_buffer(self, len: usize) -> Buffer<'amx> {
         Buffer::new(self.inner, len)
     }

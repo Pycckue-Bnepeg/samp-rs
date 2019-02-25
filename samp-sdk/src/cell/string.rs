@@ -14,7 +14,7 @@ pub struct AmxString<'amx> {
 }
 
 impl<'amx> AmxString<'amx> {
-    /// Create a new AmxString from allocated buffer and fill it with string
+    /// Create a new AmxString from an allocated buffer and fill it with a string
     pub fn new(mut buffer: Buffer<'amx>, string: &str) -> AmxString<'amx> {
         let bytes = string.as_bytes();
 
@@ -28,7 +28,7 @@ impl<'amx> AmxString<'amx> {
         }
     }
 
-    /// Convert an AMX string to `Vec<u8>`.
+    /// Convert an AMX string to a `Vec<u8>`.
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut vec = Vec::with_capacity(self.len);
 
@@ -46,7 +46,7 @@ impl<'amx> AmxString<'amx> {
         return vec;
     }
 
-    /// Convert an AMX string to `String`.
+    /// Convert an AMX string to a `String`.
     /// Only ASCII chars by default. Pass `cp1251` to crate features to enable Windows 1251 encoding (TODO).
     /// 
     /// # Example
@@ -68,27 +68,38 @@ impl<'amx> AmxString<'amx> {
             String::from_utf8_unchecked(self.to_bytes())
         }
     }
+
+    /// Return a length of a string.
+    pub fn len(&self) -> usize {
+        self.len
+    }
+
+    /// Return a length of a buffer of a string
+    pub fn bytes_len(&self) -> usize {
+        self.inner.len()
+    }
 }
 
 impl<'amx> Cell<'amx> for AmxString<'amx> {
     fn from_raw(amx: &'amx Amx, cell: i32) -> AmxResult<AmxString<'amx>> {
         let buffer = UnsizedBuffer::from_raw(amx, cell)?;
+        let ptr = buffer.as_ptr();
+        let packed = unsafe { ptr.read() > MAX_UNPACKED };
 
-        let length = unsafe {
-            let ptr = buffer.as_ptr();
-
-            let length = if ptr.read() > MAX_UNPACKED {
-                strlen(ptr as *const i8, 0)
+        let (str_len, buf_len) = {
+            if packed {
+                let len = strlen(ptr as *const i8, 0);
+                let buf_len = len / 4 + 1; // count of 4 length cells
+                (len, buf_len)
             } else {
-                strlen(ptr, 0)
-            };
-
-            length
+                let len = strlen(ptr, 0);
+                (len, len + 1)
+            }
         };
 
         Ok(AmxString {
-            inner: buffer.into_sized_buffer(length),
-            len: length,
+            inner: buffer.into_sized_buffer(buf_len),
+            len: str_len,
         })
     }
 

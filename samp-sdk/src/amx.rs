@@ -145,9 +145,15 @@ impl<'amx> Allocator<'amx> {
 
     /// Allocate memory for a primitive value.
     ///
-    /// #Example
+    /// # Example
     /// ```
     /// let allocator = amx.allocator();
+    /// let string = allocator.allot_string("Hello!");
+    /// let player_id = 10;
+    /// 
+    /// amx.push(string)?;
+    /// amx.push(player_id)?;
+    /// amx.exec(AmxIdxExec::Custom(21))?;
     /// ```
     pub fn allot<T: Sized + AmxPrimitive>(&self, init_value: T) -> AmxResult<Ref<T>> {
         let mut cell = self.amx.allot(1)?;
@@ -161,6 +167,7 @@ impl<'amx> Allocator<'amx> {
         return Ok(Buffer::new(buffer, size));
     }
 
+    /// Allocate an array on the heap, copy values from the passed array and return `Buffer` containing reference to the allocated cell.
     pub fn allot_array<T>(&self, array: &[T]) -> AmxResult<Buffer>
     where
         T: Cell<'amx> + AmxPrimitive,

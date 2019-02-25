@@ -20,7 +20,7 @@ pub struct Ref<'amx, T: Sized + AmxPrimitive> {
 }
 
 impl<'amx, T: Sized + AmxPrimitive> Ref<'amx, T> {
-    /// Create a new wrapper over AMX cell.
+    /// Create a new wrapper over an AMX cell.
     pub unsafe fn new(amx_addr: i32, phys_addr: *mut T) -> Ref<'amx, T> {
         Ref {
             amx_addr,

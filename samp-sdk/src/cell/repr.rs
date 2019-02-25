@@ -13,7 +13,9 @@ pub trait Cell<'amx> where Self: Sized {
 }
 
 /// A marker showing that a value can be stored directly on a stack or a heap of an AMX.
+/// 
 /// Types: i8, u8, i16, u16, i32, u32, usize, isize, f32, bool
+/// 
 /// There is no values that's bigger than 4 bytes, because size of an AMX cell is 32 bits.
 pub unsafe trait AmxPrimitive where Self: Sized {}
 

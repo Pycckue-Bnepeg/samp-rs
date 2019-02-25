@@ -3,6 +3,7 @@ pub mod data;
 use crate::SampPlugin;
 pub(crate) use data::PluginData;
 use samp_sdk::raw::types::AMX_NATIVE_INFO;
+use samp_sdk::cell::Cell;
 use std::ptr::NonNull;
 
 #[inline(always)]
@@ -51,4 +52,8 @@ where
     let plugin = initializer();
 
     plugin_data.set_plugin(plugin);
+}
+
+pub fn convert_return_value<T: Cell<'static>>(retval: T) -> i32 {
+    retval.as_cell()
 }

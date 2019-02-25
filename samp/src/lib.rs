@@ -2,7 +2,6 @@ pub use samp_codegen::initialize_plugin;
 pub use samp_codegen::native;
 
 pub mod plugin;
-// pub mod amx;
 
 pub trait SampPlugin {
     fn on_load(&mut self) {}
@@ -14,10 +13,4 @@ pub trait SampPlugin {
 
 pub use plugin::enable_process_tick;
 
-pub use samp_sdk::{
-    consts,
-    raw,
-    error,
-    cell,
-    amx,
-};
+pub use samp_sdk::{amx, args, cell, consts, error, raw};
