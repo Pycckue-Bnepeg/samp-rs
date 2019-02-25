@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use super::{Ref, Cell};
+use super::{Ref, AmxCell};
 use crate::amx::Amx;
 use crate::error::AmxResult;
 
@@ -33,7 +33,7 @@ impl<'amx> Buffer<'amx> {
 }
 
 // Buffer cannot be parsed
-impl<'amx> Cell<'amx> for Buffer<'amx> {
+impl<'amx> AmxCell<'amx> for Buffer<'amx> {
     #[inline]
     fn as_cell(&self) -> i32 {
         self.inner.as_cell()
@@ -102,7 +102,7 @@ impl<'amx> UnsizedBuffer<'amx> {
     }
 }
 
-impl<'amx> Cell<'amx> for UnsizedBuffer<'amx> {
+impl<'amx> AmxCell<'amx> for UnsizedBuffer<'amx> {
     fn from_raw(amx: &'amx Amx, cell: i32) -> AmxResult<UnsizedBuffer<'amx>> {
         Ok(UnsizedBuffer {
             inner: amx.get_ref(cell)?

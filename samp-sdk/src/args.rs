@@ -1,5 +1,5 @@
 use crate::amx::Amx;
-use crate::cell::Cell;
+use crate::cell::AmxCell;
 
 /// List of arguments of a native function.
 pub struct Args<'a> {
@@ -17,13 +17,13 @@ impl<'a> Args<'a> {
         }
     }
 
-    pub fn next<T: Cell<'a> + 'a>(&mut self) -> Option<T> {
+    pub fn next<T: AmxCell<'a> + 'a>(&mut self) -> Option<T> {
         let result = self.get(self.offset);
         self.offset += 1;
         return result;
     }
 
-    pub fn get<T: Cell<'a> + 'a>(&self, offset: usize) -> Option<T> {
+    pub fn get<T: AmxCell<'a> + 'a>(&self, offset: usize) -> Option<T> {
         if offset > self.count() {
             return None;
         }

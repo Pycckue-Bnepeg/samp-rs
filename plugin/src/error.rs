@@ -1,4 +1,4 @@
-use samp::cell::Cell;
+use samp::cell::AmxCell;
 
 #[derive(Debug, Clone, Copy)]
 pub enum CastResult {
@@ -8,10 +8,9 @@ pub enum CastResult {
     NoTarget,
     NoCaster,
     NoAbility,
-    NotEnoughMoney,
 }
 
-impl Cell<'_> for CastResult {
+impl AmxCell<'_> for CastResult {
     fn as_cell(&self) -> i32 {
         use CastResult::*;
 
@@ -22,7 +21,6 @@ impl Cell<'_> for CastResult {
             NoTarget => -2,
             NoCaster => -3,
             NoAbility => -4,
-            NotEnoughMoney => -5,
         }
     }
 }

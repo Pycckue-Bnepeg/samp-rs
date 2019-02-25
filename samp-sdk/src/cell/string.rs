@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::{Buffer, Cell, UnsizedBuffer};
+use super::{Buffer, AmxCell, UnsizedBuffer};
 use crate::amx::Amx;
 use crate::error::AmxResult;
 
@@ -80,7 +80,7 @@ impl<'amx> AmxString<'amx> {
     }
 }
 
-impl<'amx> Cell<'amx> for AmxString<'amx> {
+impl<'amx> AmxCell<'amx> for AmxString<'amx> {
     fn from_raw(amx: &'amx Amx, cell: i32) -> AmxResult<AmxString<'amx>> {
         let buffer = UnsizedBuffer::from_raw(amx, cell)?;
         let ptr = buffer.as_ptr();

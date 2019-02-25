@@ -1,9 +1,9 @@
 use crate::amx::Amx;
 use crate::error::{AmxResult, AmxError};
 
-/// Cell trait is a core trait of whole SDK.
+/// AmxCell trait is a core trait of whole SDK.
 /// It shows that value can be borrowed (or copied if it's a primitive) from AMX and passed to it.
-pub trait Cell<'amx> where Self: Sized {
+pub trait AmxCell<'amx> where Self: Sized {
     fn from_raw(_amx: &'amx Amx, _cell: i32) -> AmxResult<Self> where Self: 'amx {
         Err(AmxError::General)
     }
@@ -19,13 +19,13 @@ pub trait Cell<'amx> where Self: Sized {
 /// There is no values that's bigger than 4 bytes, because size of an AMX cell is 32 bits.
 pub unsafe trait AmxPrimitive where Self: Sized {}
 
-impl<'a, T: Cell<'a>> Cell<'a> for &'a T {
+impl<'a, T: AmxCell<'a>> AmxCell<'a> for &'a T {
     fn as_cell(&self) -> i32 {
         (**self).as_cell()
     }
 }
 
-impl<'a, T: Cell<'a>> Cell<'a> for &'a mut T {
+impl<'a, T: AmxCell<'a>> AmxCell<'a> for &'a mut T {
     fn as_cell(&self) -> i32 {
         (**self).as_cell()
     }
@@ -33,7 +33,7 @@ impl<'a, T: Cell<'a>> Cell<'a> for &'a mut T {
 
 macro_rules! impl_for_primitive {
     ($type:ty) => {
-        impl Cell<'_> for $type {
+        impl AmxCell<'_> for $type {
             fn from_raw(_amx: &Amx, cell: i32) -> AmxResult<Self> {
                 Ok(cell as Self)
             }
@@ -56,7 +56,7 @@ impl_for_primitive!(u32);
 impl_for_primitive!(usize);
 impl_for_primitive!(isize);
 
-impl Cell<'_> for f32 {
+impl AmxCell<'_> for f32 {
     fn from_raw(_amx: &Amx, cell: i32) -> AmxResult<f32> {
         Ok(unsafe { std::mem::transmute(cell) })
     }
@@ -68,7 +68,7 @@ impl Cell<'_> for f32 {
     }
 }
 
-impl Cell<'_> for bool {
+impl AmxCell<'_> for bool {
     fn from_raw(_amx: &Amx, cell: i32) -> AmxResult<bool> {
         // just to be sure that boolean value will be correct I don't use there `std::mem::transmute` or `as` keyword.
         Ok(cell != 0)

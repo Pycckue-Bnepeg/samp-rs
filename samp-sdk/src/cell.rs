@@ -8,7 +8,7 @@ pub mod repr;
 pub mod buffer;
 pub mod string;
 
-pub use repr::{Cell, AmxPrimitive};
+pub use repr::{AmxCell, AmxPrimitive};
 pub use buffer::{Buffer, UnsizedBuffer};
 pub use string::AmxString;
 
@@ -70,7 +70,7 @@ impl<T: Sized + AmxPrimitive> DerefMut for Ref<'_, T> {
     }
 }
 
-impl<'amx, T: Sized + AmxPrimitive> Cell<'amx> for Ref<'amx, T> {
+impl<'amx, T: Sized + AmxPrimitive> AmxCell<'amx> for Ref<'amx, T> {
     fn from_raw(amx: &'amx Amx, cell: i32) -> AmxResult<Ref<'amx, T>> {
         amx.get_ref(cell)
     }

@@ -1,4 +1,4 @@
-use crate::cell::{AmxPrimitive, Buffer, Cell, Ref, AmxString};
+use crate::cell::{AmxPrimitive, Buffer, AmxCell, Ref, AmxString};
 use crate::consts::{AmxExecIdx, AmxFlags};
 use crate::error::{AmxError, AmxResult};
 use crate::exports::*;
@@ -167,7 +167,7 @@ impl Amx {
     }
 
     /// Push a value that implements `Cell` to an AMX stack.
-    pub fn push<'a, T: Cell<'a>>(&'a self, value: T) -> AmxResult<()> {
+    pub fn push<'a, T: AmxCell<'a>>(&'a self, value: T) -> AmxResult<()> {
         let push = Push::from_table(self.fn_table);
 
         amx_try!(push(self.ptr, value.as_cell()));
@@ -241,7 +241,7 @@ impl<'amx> Allocator<'amx> {
     /// Allocate an array on the heap, copy values from the passed array and return `Buffer` containing reference to the allocated cell.
     pub fn allot_array<T>(&self, array: &[T]) -> AmxResult<Buffer>
     where
-        T: Cell<'amx> + AmxPrimitive,
+        T: AmxCell<'amx> + AmxPrimitive,
     {
         let mut buffer = self.allot_buffer(array.len())?;
 
