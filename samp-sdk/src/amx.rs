@@ -40,6 +40,24 @@ impl Amx {
     }
 
     // TODO: return any type that can be converted to an amx cell
+
+    /// Execs an AMX function.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use samp_sdk::amx::Amx;
+    ///
+    /// fn log_player_money(amx: &Amx) {
+    ///     let index = amx.find_public("AntiCheat_GetPlayerMoney").unwrap();
+    ///     amx.push(1); // a player with ID 1
+    ///
+    ///     match amx.exec(index) {
+    ///         Ok(money) => println!("Player {} has {} money.", 1, money),
+    ///         Err(err) => println!("Error: {:?}", err),
+    ///     }
+    /// }
+    /// ```
     pub fn exec(&self, index: AmxExecIdx) -> AmxResult<i32> {
         let exec = Exec::from_table(self.fn_table);
         let mut retval = 0;
@@ -49,26 +67,54 @@ impl Amx {
         Ok(retval)
     }
 
+    /// Returns an index of a native by its name.
+    ///
+    /// # Examples
+    /// See `find_public` and `exec` examples.
     pub fn find_native(&self, name: &str) -> AmxResult<i32> {
         let find_native = FindNative::from_table(self.fn_table);
-        let mut index = -1;
         let c_str = CString::new(name).map_err(|_| AmxError::NotFound)?;
+        let mut index = -1;
 
         amx_try!(find_native(self.ptr, c_str.as_ptr(), &mut index));
 
         Ok(index)
     }
 
+    /// Returns an index of a public by its name.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use samp_sdk::amx::Amx;
+    ///
+    /// fn has_on_player_connect(amx: &Amx) -> AmxResult<bool> {
+    ///     let public_index = amx.find_public("OnPlayerConnect")?;
+    ///     Ok(public_index >= 0)
+    /// }
+    /// ```
     pub fn find_public(&self, name: &str) -> AmxResult<AmxExecIdx> {
         let find_public = FindPublic::from_table(self.fn_table);
-        let mut index = -1;
         let c_str = CString::new(name).map_err(|_| AmxError::NotFound)?;
+        let mut index = -1;
 
         amx_try!(find_public(self.ptr, c_str.as_ptr(), &mut index));
 
         Ok(AmxExecIdx::from(index))
     }
 
+    /// Returns a pointer to a public variable.
+    pub fn find_pubvar<T: Sized + AmxPrimitive>(&self, name: &str) -> AmxResult<Ref<T>> {
+        let find_pubvar = FindPubVar::from_table(self.fn_table);
+        let c_str = CString::new(name).map_err(|_| AmxError::NotFound)?;
+        let mut cell_ptr = 0;
+
+        amx_try!(find_pubvar(self.ptr, c_str.as_ptr(), &mut cell_ptr));
+
+        self.get_ref(cell_ptr)
+    }
+
+    /// Return flags of compiled AMX.
     pub fn flags(&self) -> AmxResult<AmxFlags> {
         let flags = Flags::from_table(self.fn_table);
         let mut value: u16 = 0;
@@ -78,6 +124,18 @@ impl Amx {
         Ok(AmxFlags::from_bits_truncate(value))
     }
 
+    /// Get a reference (`Ref<T>`) to a value stored inside an AMX.
+    /// 
+    /// # Example
+    /// ```
+    /// #[native(name = "SomeNativeFunction")]
+    /// // it could be like
+    /// // fn test_native(&self, amx: &Amx, reference: Ref<f32>) -> AmxResult<f32>
+    /// fn test_native(&self, amx: &Amx, cell_idx: i32) -> AmxResult<f32> {
+    ///     let reference = amx.get_ref::<f32>(cell_idx)?;
+    ///     return Ok(*reference)
+    /// }
+    /// ```
     pub fn get_ref<T: Sized + AmxPrimitive>(&self, address: i32) -> AmxResult<Ref<T>> {
         let amx = self.amx();
         let header = self.header();
@@ -108,6 +166,7 @@ impl Amx {
         Ok(())
     }
 
+    /// Push a value that implements `Cell` to an AMX stack.
     pub fn push<'a, T: Cell<'a>>(&'a self, value: T) -> AmxResult<()> {
         let push = Push::from_table(self.fn_table);
 
@@ -116,6 +175,18 @@ impl Amx {
         return Ok(());
     }
 
+    /// Get a heap `Allocator` for current `Amx`.
+    /// 
+    /// # Example
+    /// ```
+    /// let allocator = amx.allocator();
+    /// let string = allocator.allot_string("Hello!");
+    /// let player_id = 10;
+    /// 
+    /// amx.push(string)?;
+    /// amx.push(player_id)?;
+    /// amx.exec(AmxIdxExec::Custom(21))?;
+    /// ```
     pub fn allocator(&self) -> Allocator {
         Allocator::new(self)
     }
@@ -183,6 +254,7 @@ impl<'amx> Allocator<'amx> {
         return Ok(buffer);
     }
 
+    /// Alocate a string, copy passed `&str` and return `AmxString` pointing to an `Amx` cell.
     pub fn allot_string(&self, string: &str) -> AmxResult<AmxString> {
         let buffer = self.allot_buffer(string.bytes().len())?;
         return Ok(AmxString::new(buffer, string));

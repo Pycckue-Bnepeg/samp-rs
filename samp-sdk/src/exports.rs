@@ -1,4 +1,3 @@
-use crate::consts::Exports;
 use crate::raw::functions;
 
 macro_rules! impl_export {
@@ -72,3 +71,58 @@ impl_export!(UTF8Check);
 impl_export!(UTF8Get);
 impl_export!(UTF8Len);
 impl_export!(UTF8Put);
+
+/// List of `amx_*` functions exported via the extern `Load` function.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Exports {
+    Align16 = 0,
+    Align32 = 1,
+    Align64 = 2,
+    Allot = 3,
+    Callback = 4,
+    Cleanup = 5,
+    Clone = 6,
+    Exec = 7,
+    FindNative = 8,
+    FindPublic = 9,
+    FindPubVar = 10,
+    FindTagId = 11,
+    Flags = 12,
+    GetAddr = 13,
+    GetNative = 14,
+    GetPublic = 15,
+    GetPubVar = 16,
+    GetString = 17,
+    GetTag = 18,
+    GetUserData = 19,
+    Init = 20,
+    InitJIT = 21,
+    MemInfo = 22,
+    NameLength = 23,
+    NativeInfo = 24,
+    NumNatives = 25,
+    NumPublics = 26,
+    NumPubVars = 27,
+    NumTags = 28,
+    Push = 29,
+    PushArray = 30,
+    PushString = 31,
+    RaiseError = 32,
+    Register = 33,
+    Release = 34,
+    SetCallback = 35,
+    SetDebugHook = 36,
+    SetString = 37,
+    SetUserData = 38,
+    StrLen = 39,
+    UTF8Check = 40,
+    UTF8Get = 41,
+    UTF8Len = 42,
+    UTF8Put = 43,
+}
+
+impl From<Exports> for isize {
+    fn from(exports: Exports) -> isize {
+        exports as isize
+    }
+}

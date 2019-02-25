@@ -1,18 +1,44 @@
-use crate::Plugin;
+use crate::MagePlugin;
+use crate::error::CastResult;
+use crate::abilities::Ability;
+
 use samp::native;
 use samp::amx::Amx;
 use samp::error::AmxResult;
+use samp::cell::AmxString;
 
-impl Plugin {
-    #[native(name = "GetPlayerIp")]
-    pub fn get_player_ip<'a>(&self, _amx: &'a Amx, _player_id: u16) -> AmxResult<f32> {
-        Ok(10.0)
+macro_rules! try_cast {
+    ($e:expr, $err:expr) => {
+        match $e {
+            Some(__t) => __t,
+            None => return Ok($err),
+        };
+    };
+}
+
+impl MagePlugin {
+    #[native(name = "CreateAbility")]
+    pub fn create_ability(&mut self, _: &Amx, creater_id: usize, ability_name: AmxString, damage: usize, mana_cost: usize) -> AmxResult<bool> {
+        let ability_name = ability_name.to_string();
+        let list = self.abilities.entry(creater_id).or_insert(vec![]);
+
+        list.push(Ability {
+            mana_cost,
+            damage,
+            name: ability_name,
+        });
+
+        Ok(true)
     }
 
-    #[native(name = "IsPlayerAdmin")]
-    pub fn is_player_admin(&self, _amx: &Amx, player_id: u16) -> AmxResult<bool> {
-        let is_admin = self.admin_list.get(player_id as usize).is_some();
+    #[native(name = "CastAbility")]
+    pub fn cast_ability(&mut self, _: &Amx, caster_id: usize, ability_idx: usize, target_id: usize) -> AmxResult<CastResult> {
+        let caster = try_cast!(self.mages.get(&caster_id), CastResult::NoCaster);
+        let target = try_cast!(self.mages.get(&target_id), CastResult::NoTarget);
+
+        let caster_abilities = try_cast!(self.abilities.get(&caster_id), CastResult::NoAbility);
+        let ability = try_cast!(caster_abilities.get(ability_idx), CastResult::NoAbility);
         
-        return Ok(is_admin);
+        Ok(ability.cast(caster, target))
     }
 }

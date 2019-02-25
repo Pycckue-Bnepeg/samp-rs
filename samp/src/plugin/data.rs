@@ -2,14 +2,12 @@ use std::ptr::NonNull;
 
 use crate::SampPlugin;
 use samp_sdk::consts::Supports;
-use samp_sdk::amx::Amx;
 
 static mut PLUGIN_DATA: *mut PluginData = 0 as _;
 
 pub(crate) struct PluginData {
     plugin: Option<NonNull<dyn SampPlugin>>,
     proccess_tick: bool,
-    current_amx: Option<Amx>,
 }
 
 impl PluginData {
@@ -17,7 +15,6 @@ impl PluginData {
         let boxed = Box::new(PluginData {
             plugin: None,
             proccess_tick: false,
-            current_amx: None,
         });
 
         unsafe {
@@ -59,10 +56,5 @@ impl PluginData {
     #[inline(always)]
     pub fn get_plugin() -> NonNull<dyn SampPlugin> {
         Self::get().plugin.unwrap()
-    }
-
-    #[inline(always)]
-    pub fn current_amx<'a>() -> Option<&'a Amx> {
-        Self::get().current_amx.as_ref()
     }
 }

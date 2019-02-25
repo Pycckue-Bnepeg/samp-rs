@@ -29,16 +29,27 @@ impl<'amx, T: Sized + AmxPrimitive> Ref<'amx, T> {
         }
     }
 
+    /// Get an inner AMX address to cell (not physical).
+    /// 
+    /// # Example
+    /// ```
+    /// fn native_fn(amx: &Amx, arg: Ref<usize>) {
+    ///     let cell_addr = arg.address();
+    ///     println!("The argument stored in the {} cell.", cell_addr);
+    /// }
+    /// ```
     #[inline]
     pub fn address(&self) -> i32 {
         self.amx_addr
     }
 
+    /// Get a pointer to a memory cell.
     #[inline]
     pub fn as_ptr(&self) -> *const T {
         self.phys_addr
     }
 
+    /// Get a mutable pointer to a memory cell.
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut T {
         self.phys_addr
