@@ -34,7 +34,7 @@ impl Parse for InitPlugin {
         };
 
         Ok(InitPlugin {
-            natives_list: natives_list,
+            natives_list,
             block: input.call(Block::parse_within)?,
         })
     }
@@ -57,20 +57,21 @@ pub fn create_plugin(input: TokenStream) -> TokenStream {
 
     let generated = quote! {
         #[no_mangle]
-        pub extern "system" fn Load() {
-            samp::plugin::load();
+        pub extern "system" fn Load(server_data: *const usize) -> i32 {
+            samp::interlayer::load(server_data);
+            return 1;
         }
 
         #[no_mangle]
         pub extern "system" fn Unload() {
-            samp::plugin::unload();
+            samp::interlayer::unload();
         }
 
         #[no_mangle]
-        pub extern "system" fn AmxLoad() {
+        pub extern "system" fn AmxLoad(amx: *mut samp::raw::types::AMX) {
             let natives = vec![#natives];
             
-            samp::plugin::amx_load(&natives);
+            samp::interlayer::amx_load(amx, &natives);
             
             unsafe {
                 // drop allocated memory
@@ -81,8 +82,8 @@ pub fn create_plugin(input: TokenStream) -> TokenStream {
         }
 
         #[no_mangle]
-        pub extern "system" fn AmxUnload() {
-            samp::plugin::amx_unload();
+        pub extern "system" fn AmxUnload(amx: *mut samp::raw::types::AMX) {
+            samp::interlayer::amx_unload(amx);
         }
 
         #[no_mangle]
@@ -91,8 +92,8 @@ pub fn create_plugin(input: TokenStream) -> TokenStream {
                 #(#block)*
             };
 
-            samp::plugin::init(constructor);
-            samp::plugin::supports()
+            samp::plugin::initialize(constructor);
+            samp::interlayer::supports()
         }
     };
 

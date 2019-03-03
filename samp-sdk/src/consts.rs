@@ -17,6 +17,12 @@ pub enum ServerData {
     CallPublicGm = 18,
 }
 
+impl From<ServerData> for isize {
+    fn from(data: ServerData) -> isize {
+        data as isize
+    }
+}
+
 bitflags! {
     pub struct AmxFlags: u16 {
         const DEBUG = 0x02;

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use samp::{initialize_plugin, SampPlugin};
+use samp::{initialize_plugin, plugin::SampPlugin};
 
 mod abilities;
 mod error;
@@ -32,8 +32,7 @@ initialize_plugin!(
         MagePlugin::cast_ability,
     ],
     {
-        samp::enable_process_tick();
-
+        samp::plugin::enable_process_tick();
         return MagePlugin::new();
     }
 );

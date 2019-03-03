@@ -58,7 +58,7 @@ impl_for_primitive!(isize);
 
 impl AmxCell<'_> for f32 {
     fn from_raw(_amx: &Amx, cell: i32) -> AmxResult<f32> {
-        Ok(unsafe { std::mem::transmute(cell) })
+        Ok(f32::from_bits(cell as u32))
     }
 
     fn as_cell(&self) -> i32 {
@@ -75,7 +75,7 @@ impl AmxCell<'_> for bool {
     }
 
     fn as_cell(&self) -> i32 {
-        if *self { 1 } else { 0 }
+        i32::from(*self)
     }
 }
 

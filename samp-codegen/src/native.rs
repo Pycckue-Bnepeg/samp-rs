@@ -77,14 +77,22 @@ pub fn create_native(args: TokenStream, input: TokenStream) -> TokenStream {
 
     let native_generated = quote! {
         #vis extern "C" fn #native_name(amx: *mut samp::raw::types::AMX, args: *mut i32) -> i32 {
-            let amx = samp::amx::Amx::new(amx, 0);
-            let mut args = samp::args::Args::new(&amx, args);
+            let amx_ident = samp::amx::AmxIdent::from(amx);
+            
+            let amx = match samp::amx::get(amx_ident) {
+                Some(amx) => amx,
+                None => {
+                    return 0;
+                }
+            };
+
+            let mut args = samp::args::Args::new(amx, args);
             let mut plugin = samp::plugin::get::<Self>();
 
             #(#native_args)*
 
             unsafe {
-                match plugin.as_mut().#origin_name(&amx, #(#fn_input),*) {
+                match plugin.as_mut().#origin_name(amx, #(#fn_input),*) {
                     Ok(retval) => {
                         return samp::plugin::convert_return_value(retval);
                     },

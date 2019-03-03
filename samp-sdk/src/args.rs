@@ -20,7 +20,8 @@ impl<'a> Args<'a> {
     pub fn next<T: AmxCell<'a> + 'a>(&mut self) -> Option<T> {
         let result = self.get(self.offset);
         self.offset += 1;
-        return result;
+        
+        result
     }
 
     pub fn get<T: AmxCell<'a> + 'a>(&self, offset: usize) -> Option<T> {
@@ -29,7 +30,7 @@ impl<'a> Args<'a> {
         }
 
         unsafe {
-            T::from_raw(self.amx, self.args.offset((offset + 1) as isize).read())
+            T::from_raw(self.amx, self.args.add(offset + 1).read())
                 .ok()
         }
     }

@@ -6,8 +6,8 @@ use proc_macro::TokenStream;
 mod plugin;
 mod native;
 
-pub(crate) const NATIVE_PREFIX: &'static str = "__samp_native_";
-pub(crate) const REG_PREFIX: &'static str = "__samp_reg_";
+pub(crate) const NATIVE_PREFIX: &str = "__samp_native_";
+pub(crate) const REG_PREFIX: &str = "__samp_reg_";
 
 #[proc_macro_attribute]
 pub fn native(args: TokenStream, input: TokenStream) -> TokenStream {

@@ -2,9 +2,10 @@ use crate::cell::{AmxPrimitive, Buffer, AmxCell, Ref, AmxString};
 use crate::consts::{AmxExecIdx, AmxFlags};
 use crate::error::{AmxError, AmxResult};
 use crate::exports::*;
-use crate::raw::types::{AMX, AMX_HEADER};
+use crate::raw::types::{AMX, AMX_HEADER, AMX_NATIVE_INFO};
 
 use std::ffi::CString;
+use std::ptr::NonNull;
 
 macro_rules! amx_try {
     ($call:expr) => {
@@ -26,6 +27,16 @@ pub struct Amx {
 impl Amx {
     pub fn new(ptr: *mut AMX, fn_table: usize) -> Amx {
         Amx { ptr, fn_table }
+    }
+
+    pub fn register(&self, natives: &[AMX_NATIVE_INFO]) -> AmxResult<()> {
+        let register = Register::from_table(self.fn_table);
+        let len = natives.len();
+        let ptr = natives.as_ptr();
+
+        amx_try!(register(self.ptr, ptr, len as i32));
+
+        Ok(())
     }
 
     pub(crate) fn allot<T: Sized + AmxPrimitive>(&self, cells: usize) -> AmxResult<Ref<T>> {
@@ -137,8 +148,11 @@ impl Amx {
     /// }
     /// ```
     pub fn get_ref<T: Sized + AmxPrimitive>(&self, address: i32) -> AmxResult<Ref<T>> {
-        let amx = self.amx();
-        let header = self.header();
+        let amx_ptr = self.amx();
+        let header_ptr = self.header();
+
+        let amx = unsafe { amx_ptr.as_ref() };
+        let header = unsafe { header_ptr.as_ref() };
 
         let data = if amx.data.is_null() {
             unsafe { amx.base.offset(header.dat as isize) }
@@ -157,7 +171,8 @@ impl Amx {
 
     #[inline(always)]
     pub(crate) fn release(&self, address: i32) -> AmxResult<()> {
-        let amx = self.amx();
+        let mut amx = self.amx();
+        let amx = unsafe { amx.as_mut() };
 
         if amx.hea > address {
             amx.hea = address;
@@ -172,7 +187,7 @@ impl Amx {
 
         amx_try!(push(self.ptr, value.as_cell()));
 
-        return Ok(());
+        Ok(())
     }
 
     /// Get a heap `Allocator` for current `Amx`.
@@ -191,12 +206,12 @@ impl Amx {
         Allocator::new(self)
     }
 
-    pub fn amx(&self) -> &mut AMX {
-        unsafe { &mut *self.ptr }
+    pub fn amx(&self) -> NonNull<AMX> {
+        unsafe { NonNull::new_unchecked(self.ptr) }
     }
 
-    pub fn header(&self) -> &mut AMX_HEADER {
-        unsafe { &mut *((*self.ptr).base as *mut AMX_HEADER) }
+    pub fn header(&self) -> NonNull<AMX_HEADER> {
+        unsafe { NonNull::new_unchecked((*self.ptr).base as *mut AMX_HEADER) }
     }
 }
 
@@ -208,9 +223,12 @@ pub struct Allocator<'amx> {
 
 impl<'amx> Allocator<'amx> {
     pub(crate) fn new(amx: &'amx Amx) -> Allocator<'amx> {
+        let amx_ptr = amx.amx();
+        let amx_ptr = unsafe { amx_ptr.as_ref() };
+
         Allocator {
             amx,
-            release_addr: amx.amx().hea,
+            release_addr: amx_ptr.hea,
         }
     }
 
@@ -229,13 +247,15 @@ impl<'amx> Allocator<'amx> {
     pub fn allot<T: Sized + AmxPrimitive>(&self, init_value: T) -> AmxResult<Ref<T>> {
         let mut cell = self.amx.allot(1)?;
         *cell = init_value;
-        return Ok(cell);
+        
+        Ok(cell)
     }
 
     /// Allocate custom sized buffer on the heap.
     pub fn allot_buffer(&self, size: usize) -> AmxResult<Buffer> {
         let buffer = self.amx.allot(size)?;
-        return Ok(Buffer::new(buffer, size));
+        
+        Ok(Buffer::new(buffer, size))
     }
 
     /// Allocate an array on the heap, copy values from the passed array and return `Buffer` containing reference to the allocated cell.
@@ -251,13 +271,14 @@ impl<'amx> Allocator<'amx> {
             slice[idx] = item.as_cell();
         }
 
-        return Ok(buffer);
+        Ok(buffer)
     }
 
     /// Alocate a string, copy passed `&str` and return `AmxString` pointing to an `Amx` cell.
     pub fn allot_string(&self, string: &str) -> AmxResult<AmxString> {
         let buffer = self.allot_buffer(string.bytes().len())?;
-        return Ok(AmxString::new(buffer, string));
+        
+        Ok(AmxString::new(buffer, string))
     }
 }
 

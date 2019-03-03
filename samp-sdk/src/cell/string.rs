@@ -4,7 +4,7 @@ use super::{Buffer, AmxCell, UnsizedBuffer};
 use crate::amx::Amx;
 use crate::error::AmxResult;
 
-const MAX_UNPACKED: i32 = 0x00FFFFFF;
+const MAX_UNPACKED: i32 = 0x00FF_FFFF;
 
 // A wrapper around an AMX string.
 pub struct AmxString<'amx> {
@@ -19,7 +19,7 @@ impl<'amx> AmxString<'amx> {
         let bytes = string.as_bytes();
 
         for (idx, byte) in bytes.iter().enumerate() {
-            buffer[idx] = *byte as i32;
+            buffer[idx] = i32::from(*byte);
         }
 
         AmxString {
@@ -43,7 +43,7 @@ impl<'amx> AmxString<'amx> {
             }
         }
 
-        return vec;
+        vec
     }
 
     /// Convert an AMX string to a `String`.
@@ -72,6 +72,10 @@ impl<'amx> AmxString<'amx> {
     /// Return a length of a string.
     pub fn len(&self) -> usize {
         self.len
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 
     /// Return a length of a buffer of a string
@@ -118,7 +122,7 @@ fn strlen<T: PartialEq>(mut string: *const T, zerochar: T) -> usize {
         }
     }
 
-    return length;
+    length
 }
 
 impl fmt::Display for AmxString<'_> {
