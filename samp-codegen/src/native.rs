@@ -31,7 +31,7 @@ impl Parse for NativeName {
             } else {
                 return Err(Error::new(
                     ident.span(),
-                    "Unexpected argument name. Currently supported only \"name\" and \"raw\".",
+                    "Unexpected argument name. Currently supports only \"name\" and \"raw\".",
                 ));
             }
 
@@ -55,6 +55,7 @@ pub fn create_native(args: TokenStream, input: TokenStream) -> TokenStream {
     let amx_name = &native.name;
 
     let fn_input = origin_fn.decl.inputs.iter().skip(2);
+    
     let fn_input = fn_input.map(|arg| {
         match arg {
             FnArg::Captured(capt) => {
@@ -65,15 +66,34 @@ pub fn create_native(args: TokenStream, input: TokenStream) -> TokenStream {
         }
     }).flatten();
 
-    let native_args = args.skip(2).map(|arg| {
-        match arg {
-            FnArg::Captured(capt) => {
-                let pat = &capt.pat;
-                Some(quote_spanned!(capt.span() => let #pat = args.next().unwrap();))
-            },
-            _ => None,
-        }
-    }).flatten();
+    let args_parsing: proc_macro2::TokenStream = if !native.raw {
+        args.skip(2).map(|arg| {
+            match arg {
+                FnArg::Captured(capt) => {
+                    let pat = &capt.pat;
+                    Some(quote_spanned!{
+                        capt.span() => 
+                            let #pat = match args.next() {
+                                Some(#pat) => #pat,
+                                None => {
+                                    println!("error: couldn't parse variable {:?} in {:?} function.", stringify!(#pat), #amx_name);
+                                    return 0;
+                                }
+                            };
+                    })
+                },
+                _ => None,
+            }
+        }).flatten().collect()
+    } else {
+        proc_macro2::TokenStream::new()
+    };
+
+    let call_origin = if !native.raw {
+        quote!(plugin.as_mut().#origin_name(amx, #(#fn_input),*))
+    } else {
+        quote!(plugin.as_mut().#origin_name(amx, args))
+    };
 
     let native_generated = quote! {
         #vis extern "C" fn #native_name(amx: *mut samp::raw::types::AMX, args: *mut i32) -> i32 {
@@ -89,10 +109,10 @@ pub fn create_native(args: TokenStream, input: TokenStream) -> TokenStream {
             let mut args = samp::args::Args::new(amx, args);
             let mut plugin = samp::plugin::get::<Self>();
 
-            #(#native_args)*
+            #(#args_parsing)*
 
             unsafe {
-                match plugin.as_mut().#origin_name(amx, #(#fn_input),*) {
+                match #call_origin {
                     Ok(retval) => {
                         return samp::plugin::convert_return_value(retval);
                     },

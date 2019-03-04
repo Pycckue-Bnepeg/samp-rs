@@ -30,6 +30,7 @@ initialize_plugin!(
     natives: [
         MagePlugin::create_ability,
         MagePlugin::cast_ability,
+        MagePlugin::testique,
     ],
     {
         samp::plugin::enable_process_tick();

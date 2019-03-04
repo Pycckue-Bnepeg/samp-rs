@@ -6,6 +6,7 @@ use samp::native;
 use samp::amx::Amx;
 use samp::error::AmxResult;
 use samp::cell::AmxString;
+use samp::args::Args;
 
 macro_rules! try_cast {
     ($e:expr, $err:expr) => {
@@ -40,5 +41,11 @@ impl MagePlugin {
         let ability = try_cast!(caster_abilities.get(ability_idx), CastResult::NoAbility);
         
         Ok(ability.cast(caster, target))
+    }
+
+    #[native(name = "Testique", raw)]
+    pub fn testique(&mut self, _: &Amx, mut args: Args) -> AmxResult<i32> {
+        let first: usize = args.next().unwrap();
+        Ok(0)
     }
 }
