@@ -7,6 +7,7 @@ use samp::amx::Amx;
 use samp::error::AmxResult;
 use samp::cell::AmxString;
 use samp::args::Args;
+use samp::exec_public;
 
 macro_rules! try_cast {
     ($e:expr, $err:expr) => {
@@ -44,8 +45,13 @@ impl MagePlugin {
     }
 
     #[native(name = "Testique", raw)]
-    pub fn testique(&mut self, _: &Amx, mut args: Args) -> AmxResult<i32> {
-        let first: usize = args.next().unwrap();
+    pub fn testique(&mut self, amx: &Amx, mut args: Args) -> AmxResult<i32> {
+        let from_amx: AmxString = args.next().unwrap();
+        let somevalues = vec![1, 2, 3, 4, 5];
+        let what_to_say = String::from("hello?");
+
+        exec_public!(amx, "SomePublic", &from_amx, &somevalues => array, &what_to_say => string)?;
+
         Ok(0)
     }
 }

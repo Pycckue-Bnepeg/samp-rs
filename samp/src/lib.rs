@@ -1,6 +1,7 @@
 pub mod amx;
 #[doc(hidden)]
 pub mod interlayer;
+pub mod macros;
 pub mod plugin;
 pub(crate) mod runtime;
 
