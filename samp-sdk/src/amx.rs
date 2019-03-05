@@ -1,4 +1,4 @@
-use crate::cell::{AmxPrimitive, Buffer, AmxCell, Ref, AmxString};
+use crate::cell::{AmxCell, AmxPrimitive, AmxString, Buffer, Ref};
 use crate::consts::{AmxExecIdx, AmxFlags};
 use crate::error::{AmxError, AmxResult};
 use crate::exports::*;
@@ -136,7 +136,7 @@ impl Amx {
     }
 
     /// Get a reference (`Ref<T>`) to a value stored inside an AMX.
-    /// 
+    ///
     /// # Example
     /// ```
     /// #[native(name = "SomeNativeFunction")]
@@ -191,13 +191,13 @@ impl Amx {
     }
 
     /// Get a heap `Allocator` for current `Amx`.
-    /// 
+    ///
     /// # Example
     /// ```
     /// let allocator = amx.allocator();
     /// let string = allocator.allot_string("Hello!");
     /// let player_id = 10;
-    /// 
+    ///
     /// amx.push(string)?;
     /// amx.push(player_id)?;
     /// amx.exec(AmxIdxExec::Custom(21))?;
@@ -239,7 +239,7 @@ impl<'amx> Allocator<'amx> {
     /// let allocator = amx.allocator();
     /// let string = allocator.allot_string("Hello!");
     /// let player_id = 10;
-    /// 
+    ///
     /// amx.push(string)?;
     /// amx.push(player_id)?;
     /// amx.exec(AmxIdxExec::Custom(21))?;
@@ -247,14 +247,14 @@ impl<'amx> Allocator<'amx> {
     pub fn allot<T: Sized + AmxPrimitive>(&self, init_value: T) -> AmxResult<Ref<T>> {
         let mut cell = self.amx.allot(1)?;
         *cell = init_value;
-        
+
         Ok(cell)
     }
 
     /// Allocate custom sized buffer on the heap.
     pub fn allot_buffer(&self, size: usize) -> AmxResult<Buffer> {
         let buffer = self.amx.allot(size)?;
-        
+
         Ok(Buffer::new(buffer, size))
     }
 
@@ -276,8 +276,8 @@ impl<'amx> Allocator<'amx> {
 
     /// Alocate a string, copy passed `&str` and return `AmxString` pointing to an `Amx` cell.
     pub fn allot_string(&self, string: &str) -> AmxResult<AmxString> {
-        let buffer = self.allot_buffer(string.bytes().len())?;
-        
+        let buffer = self.allot_buffer(string.bytes().len() + 1)?;
+
         Ok(AmxString::new(buffer, string))
     }
 }

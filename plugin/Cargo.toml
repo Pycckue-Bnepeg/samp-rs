@@ -9,3 +9,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 samp = { path = "../samp" }
+memcache = "0.12"

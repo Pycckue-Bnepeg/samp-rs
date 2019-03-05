@@ -2,8 +2,8 @@ use proc_macro::TokenStream;
 use quote::quote;
 
 use syn::parse::{Parse, ParseStream};
-use syn::{Result, parse_macro_input, Ident, Token, bracketed, Path, Stmt, Block};
 use syn::punctuated::Punctuated;
+use syn::{bracketed, parse_macro_input, Block, Ident, Path, Result, Stmt, Token};
 
 use crate::REG_PREFIX;
 
@@ -43,13 +43,17 @@ impl Parse for InitPlugin {
 pub fn create_plugin(input: TokenStream) -> TokenStream {
     let mut plugin = parse_macro_input!(input as InitPlugin);
     let block = &plugin.block;
-    
-    let natives: proc_macro2::TokenStream = plugin.natives_list
+
+    let natives: proc_macro2::TokenStream = plugin
+        .natives_list
         .iter_mut()
         .flatten()
         .map(|path| {
             if let Some(mut last_part) = path.segments.last_mut() {
-                last_part.value_mut().ident = Ident::new(&format!("{}{}", REG_PREFIX, last_part.value().ident), last_part.value().ident.span());
+                last_part.value_mut().ident = Ident::new(
+                    &format!("{}{}", REG_PREFIX, last_part.value().ident),
+                    last_part.value().ident.span(),
+                );
             }
             quote!(#path(),)
         })
@@ -70,9 +74,9 @@ pub fn create_plugin(input: TokenStream) -> TokenStream {
         #[no_mangle]
         pub extern "system" fn AmxLoad(amx: *mut samp::raw::types::AMX) {
             let natives = vec![#natives];
-            
+
             samp::interlayer::amx_load(amx, &natives);
-            
+
             unsafe {
                 // drop allocated memory
                 let _ = natives.into_iter()

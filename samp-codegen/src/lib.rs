@@ -3,8 +3,8 @@
 extern crate proc_macro;
 use proc_macro::TokenStream;
 
-mod plugin;
 mod native;
+mod plugin;
 
 pub(crate) const NATIVE_PREFIX: &str = "__samp_native_";
 pub(crate) const REG_PREFIX: &str = "__samp_reg_";

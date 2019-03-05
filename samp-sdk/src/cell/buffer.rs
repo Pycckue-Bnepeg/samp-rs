@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use super::{Ref, AmxCell};
+use super::{AmxCell, Ref};
 use crate::amx::Amx;
 use crate::error::AmxResult;
 
@@ -19,16 +19,12 @@ impl<'amx> Buffer<'amx> {
 
     #[inline]
     pub fn as_slice(&self) -> &[i32] {
-        unsafe {
-            std::slice::from_raw_parts(self.inner.as_ptr(), self.len)
-        }
+        unsafe { std::slice::from_raw_parts(self.inner.as_ptr(), self.len) }
     }
 
     #[inline]
     pub fn as_mut_slice(&mut self) -> &mut [i32] {
-        unsafe {
-            std::slice::from_raw_parts_mut(self.inner.as_mut_ptr(), self.len)
-        }
+        unsafe { std::slice::from_raw_parts_mut(self.inner.as_mut_ptr(), self.len) }
     }
 }
 
@@ -42,7 +38,7 @@ impl<'amx> AmxCell<'amx> for Buffer<'amx> {
 
 impl Deref for Buffer<'_> {
     type Target = [i32];
-    
+
     fn deref(&self) -> &[i32] {
         self.as_slice()
     }
@@ -55,17 +51,17 @@ impl DerefMut for Buffer<'_> {
 }
 
 /// It's more like a temorary buffer that comes from AMX when a native is calling.
-/// 
+///
 /// # Example
 /// ```
 /// fn null_my_array(amx: &Amx, array: UnsizedBuffer, length: usize) -> AmxResult<u32> {
 ///     let array = array.into_sized_buffer(length);
-/// 
+///
 ///     unsafe {
 ///         let slice = array.as_mut_slice();
 ///         std::ptr::write_bytes(slice.as_mut_ptr(), 0, length);
 ///     }
-/// 
+///
 ///     return Ok(1)
 /// }
 /// ```
@@ -105,7 +101,7 @@ impl<'amx> UnsizedBuffer<'amx> {
 impl<'amx> AmxCell<'amx> for UnsizedBuffer<'amx> {
     fn from_raw(amx: &'amx Amx, cell: i32) -> AmxResult<UnsizedBuffer<'amx>> {
         Ok(UnsizedBuffer {
-            inner: amx.get_ref(cell)?
+            inner: amx.get_ref(cell)?,
         })
     }
 

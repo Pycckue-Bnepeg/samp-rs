@@ -1,15 +1,15 @@
-use std::ops::{Deref, DerefMut};
 use std::marker::PhantomData;
+use std::ops::{Deref, DerefMut};
 
 use crate::amx::Amx;
 use crate::error::AmxResult;
 
-pub mod repr;
 pub mod buffer;
+pub mod repr;
 pub mod string;
 
-pub use repr::{AmxCell, AmxPrimitive};
 pub use buffer::{Buffer, UnsizedBuffer};
+pub use repr::{AmxCell, AmxPrimitive};
 pub use string::AmxString;
 
 /// A reference to a cell in the AMX.
@@ -30,7 +30,7 @@ impl<'amx, T: Sized + AmxPrimitive> Ref<'amx, T> {
     }
 
     /// Get an inner AMX address to cell (not physical).
-    /// 
+    ///
     /// # Example
     /// ```
     /// fn native_fn(amx: &Amx, arg: Ref<usize>) {

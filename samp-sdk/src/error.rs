@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fmt::{self, Display};
 
 /// A specialized [`Result`] type for operations on AMX.
-/// 
+///
 /// [`Result`]: https://doc.rust-lang.org/nightly/std/result/enum.Result.html
 pub type AmxResult<T> = Result<T, AmxError>;
 

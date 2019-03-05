@@ -1,5 +1,5 @@
-use std::os::raw::{c_uchar, c_char, c_int, c_long, c_void};
 use super::functions::{AmxCallback, AmxDebug, AmxNative};
+use std::os::raw::{c_char, c_int, c_long, c_uchar, c_void};
 
 #[repr(C, packed)]
 pub struct AMX {

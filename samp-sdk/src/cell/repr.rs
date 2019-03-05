@@ -1,10 +1,16 @@
 use crate::amx::Amx;
-use crate::error::{AmxResult, AmxError};
+use crate::error::{AmxError, AmxResult};
 
 /// AmxCell trait is a core trait of whole SDK.
 /// It shows that value can be borrowed (or copied if it's a primitive) from AMX and passed to it.
-pub trait AmxCell<'amx> where Self: Sized {
-    fn from_raw(_amx: &'amx Amx, _cell: i32) -> AmxResult<Self> where Self: 'amx {
+pub trait AmxCell<'amx>
+where
+    Self: Sized,
+{
+    fn from_raw(_amx: &'amx Amx, _cell: i32) -> AmxResult<Self>
+    where
+        Self: 'amx,
+    {
         Err(AmxError::General)
     }
 
@@ -13,11 +19,15 @@ pub trait AmxCell<'amx> where Self: Sized {
 }
 
 /// A marker showing that a value can be stored directly on a stack or a heap of an AMX.
-/// 
+///
 /// Types: i8, u8, i16, u16, i32, u32, usize, isize, f32, bool
-/// 
+///
 /// There is no values that's bigger than 4 bytes, because size of an AMX cell is 32 bits.
-pub unsafe trait AmxPrimitive where Self: Sized {}
+pub unsafe trait AmxPrimitive
+where
+    Self: Sized,
+{
+}
 
 impl<'a, T: AmxCell<'a>> AmxCell<'a> for &'a T {
     fn as_cell(&self) -> i32 {

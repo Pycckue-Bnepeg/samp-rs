@@ -2,8 +2,8 @@ use proc_macro::TokenStream;
 use quote::{quote, quote_spanned};
 
 use syn::parse::{Parse, ParseStream};
-use syn::{parse_macro_input, Error, Ident, ItemFn, LitStr, Result, Token, FnArg};
 use syn::spanned::Spanned;
+use syn::{parse_macro_input, Error, FnArg, Ident, ItemFn, LitStr, Pat, Result, Token};
 
 use crate::NATIVE_PREFIX;
 use crate::REG_PREFIX;
@@ -55,32 +55,44 @@ pub fn create_native(args: TokenStream, input: TokenStream) -> TokenStream {
     let amx_name = &native.name;
 
     let fn_input = origin_fn.decl.inputs.iter().skip(2);
-    
-    let fn_input = fn_input.map(|arg| {
-        match arg {
+
+    let fn_input = fn_input
+        .map(|arg| match arg {
             FnArg::Captured(capt) => {
                 let pat = &capt.pat;
-                Some(quote_spanned!(capt.span() => #pat))
-            },
+
+                if let Pat::Ident(pat_ident) = pat {
+                    let ident = &pat_ident.ident;
+                    Some(quote_spanned!(capt.span() => #ident))
+                } else {
+                    None
+                }
+            }
             _ => None,
-        }
-    }).flatten();
+        })
+        .flatten();
 
     let args_parsing: proc_macro2::TokenStream = if !native.raw {
         args.skip(2).map(|arg| {
             match arg {
                 FnArg::Captured(capt) => {
                     let pat = &capt.pat;
-                    Some(quote_spanned!{
-                        capt.span() => 
-                            let #pat = match args.next() {
-                                Some(#pat) => #pat,
-                                None => {
-                                    println!("error: couldn't parse variable {:?} in {:?} function.", stringify!(#pat), #amx_name);
-                                    return 0;
-                                }
-                            };
-                    })
+
+                    if let Pat::Ident(pat_ident) = pat {
+                        let ident = &pat_ident.ident;
+                        Some(quote_spanned!{
+                            capt.span() => 
+                                let #ident = match args.next() {
+                                    Some(#ident) => #ident,
+                                    None => {
+                                        println!("error: couldn't parse variable {:?} in {:?} function.", stringify!(#ident), #amx_name);
+                                        return 0;
+                                    }
+                                };
+                        })
+                    } else {
+                        None
+                    }
                 },
                 _ => None,
             }
@@ -98,7 +110,7 @@ pub fn create_native(args: TokenStream, input: TokenStream) -> TokenStream {
     let native_generated = quote! {
         #vis extern "C" fn #native_name(amx: *mut samp::raw::types::AMX, args: *mut i32) -> i32 {
             let amx_ident = samp::amx::AmxIdent::from(amx);
-            
+
             let amx = match samp::amx::get(amx_ident) {
                 Some(amx) => amx,
                 None => {

@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::{Buffer, AmxCell, UnsizedBuffer};
+use super::{AmxCell, Buffer, UnsizedBuffer};
 use crate::amx::Amx;
 use crate::error::AmxResult;
 
@@ -22,6 +22,8 @@ impl<'amx> AmxString<'amx> {
             buffer[idx] = i32::from(*byte);
         }
 
+        buffer[bytes.len()] = 0;
+
         AmxString {
             len: buffer.len(),
             inner: buffer,
@@ -35,7 +37,11 @@ impl<'amx> AmxString<'amx> {
         // packed string
         if self.inner[0] > MAX_UNPACKED {
             unsafe {
-                std::ptr::copy(self.inner.as_ptr() as *const u8, vec.as_mut_ptr(), vec.len());
+                std::ptr::copy(
+                    self.inner.as_ptr() as *const u8,
+                    vec.as_mut_ptr(),
+                    vec.len(),
+                );
             }
         } else {
             for (idx, item) in vec.iter_mut().enumerate() {
@@ -48,7 +54,7 @@ impl<'amx> AmxString<'amx> {
 
     /// Convert an AMX string to a `String`.
     /// Only ASCII chars by default. Pass `cp1251` to crate features to enable Windows 1251 encoding (TODO).
-    /// 
+    ///
     /// # Example
     /// ```
     /// #[native(name = "LogError")]
@@ -56,17 +62,15 @@ impl<'amx> AmxString<'amx> {
     ///     if !self.logger_enabled {
     ///         return false;
     ///     }
-    /// 
+    ///
     ///     let string = text.to_string();
     ///     println!("[{}] PluginName error: {}", current_date(), string);
-    /// 
+    ///
     ///     return true;
     /// }
     /// ```
     pub fn to_string(&self) -> String {
-        unsafe {
-            String::from_utf8_unchecked(self.to_bytes())
-        }
+        unsafe { String::from_utf8_unchecked(self.to_bytes()) }
     }
 
     /// Return a length of a string.
