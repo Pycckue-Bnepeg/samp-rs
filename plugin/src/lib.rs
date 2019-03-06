@@ -66,8 +66,9 @@ impl Memcached {
         if con < self.clients.len() {
             match self.clients[con].get::<String>(&key.to_string()) {
                 Ok(Some(data)) => {
-                    let buffer = buffer.into_sized_buffer(size);
-                    let _ = AmxString::new(buffer, &data); // looks like shit
+                    let mut buffer = buffer.into_sized_buffer(size);
+                    let _ = samp::cell::string::put_in_buffer(&mut buffer, &data);
+
                     Ok(MemcacheResult::Success(1))
                 }
                 Ok(None) => Ok(MemcacheResult::NoData),

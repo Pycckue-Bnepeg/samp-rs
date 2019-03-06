@@ -26,29 +26,29 @@ pub struct Amx {
 
 impl Amx {
     /// Create an AMX wrapper.
-    /// 
+    ///
     /// # Arguments
     /// *ptr* is a raw pointer passed by callbacks (`AmxLoad` for example).
-    /// 
+    ///
     /// *fn_table* is a address to the exported function from AMX.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use samp_sdk::amx::Amx;
     /// use samp_sdk::consts::ServerData;
     /// use samp_sdk::raw::types::AMX;
-    /// 
+    ///
     /// static mut AMX_EXPORTS: usize = 0;
-    /// 
+    ///
     /// #[no_mangle]
     /// pub extern "system" fn Load(server_data: *const usize) -> i32 {
     ///     unsafe {
     ///         AMX_EXPORTS = server_data.offset(ServerData::AmxExports.into()).read();
     ///     }
-    /// 
+    ///
     ///     return 1;
     /// }
-    /// 
+    ///
     /// #[no_mangle]
     /// pub extern "system" fn AmxLoad(amx_ptr: *mut AMX) {
     ///     let _amx = Amx::new(amx_ptr, unsafe { AMX_EXPORTS });
@@ -59,14 +59,14 @@ impl Amx {
     }
 
     /// Register a list of plugin natives functions.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use samp_sdk::amx::Amx;
     /// use samp_sdk::raw::types::{AMX, AMX_NATIVE_INFO};
-    /// 
+    ///
     /// use std::ffi::CString;
-    /// 
+    ///
     /// #[no_mangle]
     /// pub extern "system" fn AmxLoad(amx_ptr: *mut AMX) {
     /// #   let amx_exports = 0;
@@ -78,10 +78,10 @@ impl Amx {
     ///         name: native_name.as_ptr(),
     ///         func: my_native,
     ///     }];
-    /// 
+    ///
     ///     let _ = amx.register(&natives);
     /// }
-    /// 
+    ///
     /// extern "C" fn my_native(amx: *mut AMX, args: *mut i32) -> i32 {
     ///     println!("YOYW!");
     ///     return 0;
@@ -174,6 +174,25 @@ impl Amx {
     }
 
     /// Returns a pointer to a public variable.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use samp_sdk::amx::Amx;
+    /// # use samp_sdk::error::AmxResult;
+    ///
+    /// # fn main() -> AmxResult<()> {
+    /// # let amx = Amx::new(std::ptr::null_mut(), 0);
+    /// // let amx = Amx::new(...);
+    /// let version = amx.find_pubvar::<f32>("my_plugin_version")?;
+    ///
+    /// if *version < 1.0 {
+    ///     println!("You're badass");
+    /// } else {
+    ///     println!("Alright!");
+    /// }
+    /// #   Ok(())
+    /// # }
+    /// ```
     pub fn find_pubvar<T: Sized + AmxPrimitive>(&self, name: &str) -> AmxResult<Ref<T>> {
         let find_pubvar = FindPubVar::from_table(self.fn_table);
         let c_str = CString::new(name).map_err(|_| AmxError::NotFound)?;
@@ -184,7 +203,7 @@ impl Amx {
         self.get_ref(cell_ptr)
     }
 
-    /// Return flags of compiled AMX.
+    /// Return flags of a compiled AMX.
     pub fn flags(&self) -> AmxResult<AmxFlags> {
         let flags = Flags::from_table(self.fn_table);
         let mut value: u16 = 0;
@@ -201,7 +220,7 @@ impl Amx {
     /// use samp_sdk::amx::Amx;
     /// # use samp_sdk::cell::Ref;
     /// # use samp_sdk::error::AmxResult;
-    /// 
+    ///
     /// // fn test_native(&self, amx: &Amx, reference: Ref<f32>) -> AmxResult<f32>
     /// #
     /// # struct Plugin;
@@ -213,7 +232,7 @@ impl Amx {
     /// }
     /// # }
     /// ```
-    /// 
+    ///
     /// [`Ref<T>`]: ../cell/struct.Ref.html
     pub fn get_ref<T: Sized + AmxPrimitive>(&self, address: i32) -> AmxResult<Ref<T>> {
         let amx_ptr = self.amx();
@@ -238,19 +257,17 @@ impl Amx {
     }
 
     #[inline(always)]
-    pub(crate) fn release(&self, address: i32) -> AmxResult<()> {
+    pub(crate) fn release(&self, address: i32) {
         let mut amx = self.amx();
         let amx = unsafe { amx.as_mut() };
 
         if amx.hea > address {
             amx.hea = address;
         }
-
-        Ok(())
     }
 
     /// Push a value that implements [`AmxCell`] to an AMX stack.
-    /// 
+    ///
     /// [`AmxCell`]: ../cell/repr/trait.AmxCell.html
     pub fn push<'a, T: AmxCell<'a>>(&'a self, value: T) -> AmxResult<()> {
         let push = Push::from_table(self.fn_table);
@@ -282,17 +299,23 @@ impl Amx {
     /// #       Ok(())
     /// # }
     /// ```
-    /// 
+    ///
     /// [`Allocator`]: struct.Allocator.html
     /// [`Amx`]: struct.Amx.html
     pub fn allocator(&self) -> Allocator {
         Allocator::new(self)
     }
 
+    /// Returns a pointer to a raw [`AMX`] structure.
+    ///
+    /// [`AMX`]: ../raw/types/struct.AMX.html
     pub fn amx(&self) -> NonNull<AMX> {
         unsafe { NonNull::new_unchecked(self.ptr) }
     }
 
+    /// Returns a pointer to an [`AMX_HEADER`].
+    ///
+    /// [`AMX_HEADER`]: ../raw/types/struct.AMX_HEADER.html
     pub fn header(&self) -> NonNull<AMX_HEADER> {
         unsafe { NonNull::new_unchecked((*self.ptr).base as *mut AMX_HEADER) }
     }
@@ -326,13 +349,16 @@ impl<'amx> Allocator<'amx> {
     /// #
     /// # fn main() -> AmxResult<()> {
     /// # let amx = Amx::new(std::ptr::null_mut(), 0);
+    /// // forward SomePublicFunc(player_id, &Float:health);
+    /// let public_fn = amx.find_public("SomePublicFunc")?;
     /// let allocator = amx.allocator();
-    /// let string = allocator.allot_string("Hello!")?;
+    ///
+    /// let float_ref = allocator.allot(1.2f32)?;
     /// let player_id = 10;
     ///
-    /// amx.push(string)?;
+    /// amx.push(float_ref)?;
     /// amx.push(player_id)?;
-    /// amx.exec(AmxExecIdx::UserDef(21))?;
+    /// amx.exec(public_fn)?;
     /// #
     /// #       Ok(())
     /// # }
@@ -345,6 +371,35 @@ impl<'amx> Allocator<'amx> {
     }
 
     /// Allocate custom sized buffer on the heap.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use samp_sdk::amx::Amx;
+    ///
+    /// # use samp_sdk::error::AmxResult;
+    /// # use samp_sdk::consts::AmxExecIdx;
+    /// #
+    /// # fn main() -> AmxResult<()> {
+    /// # let amx = Amx::new(std::ptr::null_mut(), 0);
+    /// // forward SomePublicFunc(player_id, ids[], size);
+    /// let public_fn = amx.find_public("SomePublicFunc")?;
+    /// let allocator = amx.allocator();
+    ///
+    /// let size = 3;
+    /// let mut buffer = allocator.allot_buffer(size)?;
+    /// let player_id = 10;
+    ///
+    /// buffer[0] = 5;
+    /// buffer[1] = 2;
+    /// buffer[2] = 15;
+    ///
+    /// amx.push(size)?;
+    /// amx.push(buffer)?;
+    /// amx.push(player_id)?;
+    /// amx.exec(public_fn)?;
+    /// #
+    /// #       Ok(())
+    /// # }
     pub fn allot_buffer(&self, size: usize) -> AmxResult<Buffer> {
         let buffer = self.amx.allot(size)?;
 
@@ -352,6 +407,30 @@ impl<'amx> Allocator<'amx> {
     }
 
     /// Allocate an array on the heap, copy values from the passed array and return `Buffer` containing reference to the allocated cell.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use samp_sdk::amx::Amx;
+    ///
+    /// # use samp_sdk::error::AmxResult;
+    /// # use samp_sdk::consts::AmxExecIdx;
+    /// #
+    /// # fn main() -> AmxResult<()> {
+    /// # let amx = Amx::new(std::ptr::null_mut(), 0);
+    /// // forward SomePublicFunc(player_id, ids[], size);
+    /// let public_fn = amx.find_public("SomePublicFunc")?;
+    /// let allocator = amx.allocator();
+    ///
+    /// let buffer = allocator.allot_array(&[5, 2, 15])?;
+    /// let player_id = 10;
+    ///
+    /// amx.push(buffer.len())?;
+    /// amx.push(buffer)?;
+    /// amx.push(player_id)?;
+    /// amx.exec(public_fn)?;
+    /// #
+    /// #       Ok(())
+    /// # }
     pub fn allot_array<T>(&self, array: &[T]) -> AmxResult<Buffer>
     where
         T: AmxCell<'amx> + AmxPrimitive,
@@ -368,16 +447,39 @@ impl<'amx> Allocator<'amx> {
     }
 
     /// Alocate a string, copy passed `&str` and return `AmxString` pointing to an `Amx` cell.
+    ///
+    /// # Example
+    /// ```rust,no_run
+    /// use samp_sdk::amx::Amx;
+    ///
+    /// # use samp_sdk::error::AmxResult;
+    /// # use samp_sdk::consts::AmxExecIdx;
+    /// #
+    /// # fn main() -> AmxResult<()> {
+    /// # let amx = Amx::new(std::ptr::null_mut(), 0);
+    /// // forward SomePublicFunc(player_id, new_name[]);
+    /// let public_fn = amx.find_public("SomePublicFunc")?;
+    /// let allocator = amx.allocator();
+    ///
+    /// let string = allocator.allot_string("hello")?;
+    /// let player_id = 10;
+    ///
+    /// amx.push(string)?;
+    /// amx.push(player_id)?;
+    /// amx.exec(public_fn)?;
+    /// #
+    /// #       Ok(())
+    /// # }
     pub fn allot_string(&self, string: &str) -> AmxResult<AmxString> {
         let buffer = self.allot_buffer(string.bytes().len() + 1)?;
 
-        Ok(AmxString::new(buffer, string))
+        Ok(unsafe { AmxString::new(buffer, string) })
     }
 }
 
 impl Drop for Allocator<'_> {
     fn drop(&mut self) {
         // AMX::release never fails
-        self.amx.release(self.release_addr).unwrap();
+        self.amx.release(self.release_addr);
     }
 }

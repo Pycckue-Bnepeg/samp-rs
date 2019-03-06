@@ -12,7 +12,15 @@ pub use buffer::{Buffer, UnsizedBuffer};
 pub use repr::{AmxCell, AmxPrimitive};
 pub use string::AmxString;
 
-/// A reference to a cell in the AMX.
+/// A reference to a cell in the [`Amx`].
+///
+/// # Notes
+/// This type implements [`Deref`] trait that allows you read or write to inner value (like smart pointers [`Box<T>`], [`Rc<T>`]).
+///
+/// [`Amx`]: ../amx/struct.Amx.html
+/// [`Deref`]: https://doc.rust-lang.org/std/ops/trait.Deref.html
+/// [`Box<T>`]: https://doc.rust-lang.org/std/boxed/struct.Box.html
+/// [`Rc<T>`]: https://doc.rust-lang.org/std/rc/struct.Rc.html
 pub struct Ref<'amx, T: Sized + AmxPrimitive> {
     amx_addr: i32,
     phys_addr: *mut T,
@@ -21,6 +29,14 @@ pub struct Ref<'amx, T: Sized + AmxPrimitive> {
 
 impl<'amx, T: Sized + AmxPrimitive> Ref<'amx, T> {
     /// Create a new wrapper over an AMX cell.
+    ///
+    /// # Safety
+    /// `Ref<T>` **should** be alive as long as `phys_addr` or it will dangling pointer.
+    ///
+    /// It's not recomended to use directly, instead get a reference from [`Args`] or [`Amx::get_ref`].
+    ///
+    /// [`Args`]: ../args/struct.Args.html
+    /// [`Amx::get_ref`]: ../amx/struct.Amx.html#method.get_ref
     pub unsafe fn new(amx_addr: i32, phys_addr: *mut T) -> Ref<'amx, T> {
         Ref {
             amx_addr,

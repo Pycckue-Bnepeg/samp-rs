@@ -15,14 +15,8 @@ pub struct AmxString<'amx> {
 
 impl<'amx> AmxString<'amx> {
     /// Create a new AmxString from an allocated buffer and fill it with a string
-    pub fn new(mut buffer: Buffer<'amx>, string: &str) -> AmxString<'amx> {
-        let bytes = string.as_bytes();
-
-        for (idx, byte) in bytes.iter().enumerate() {
-            buffer[idx] = i32::from(*byte);
-        }
-
-        buffer[bytes.len()] = 0;
+    pub unsafe fn new(mut buffer: Buffer<'amx>, string: &str) -> AmxString<'amx> {
+        let _ = put_in_buffer(&mut buffer, string); // here can't be an error.
 
         AmxString {
             len: buffer.len(),
@@ -147,4 +141,44 @@ impl fmt::Display for AmxString<'_> {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "{}", self.to_string())
     }
+}
+
+/// Fill a buffer with given string.
+///
+/// # Example
+/// ```rust,no_run
+/// use samp_sdk::cell::Buffer;
+/// use samp_sdk::cell::string;
+/// # use samp_sdk::error::AmxResult;
+/// # use samp_sdk::amx::Amx;
+///
+/// # fn main() -> AmxResult<()> {
+/// # let amx = Amx::new(std::ptr::null_mut(), 0);
+/// // let mut buffer = ...;
+/// // let amx = ...;
+/// let allocator = amx.allocator();
+/// let mut buffer = allocator.allot_buffer(25)?; // let's think that we got a mutable buffer from a native function input.
+/// let string = "Hello, world!".to_string();
+/// string::put_in_buffer(&mut buffer, &string)?; // store string in the AMX heap.
+///
+///
+/// #   Ok(())
+/// # }
+/// ```
+/// # Errors
+/// Return `AmxError::General` when length of string bytes is more than size of the buffer.
+pub fn put_in_buffer(buffer: &mut Buffer, string: &str) -> AmxResult<()> {
+    let bytes = string.as_bytes();
+
+    if bytes.len() >= buffer.len() {
+        return Err(crate::error::AmxError::General);
+    }
+
+    for (idx, byte) in bytes.iter().enumerate() {
+        buffer[idx] = i32::from(*byte);
+    }
+
+    buffer[bytes.len()] = 0;
+
+    Ok(())
 }

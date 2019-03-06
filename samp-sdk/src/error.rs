@@ -3,7 +3,7 @@ use std::fmt::{self, Display};
 
 /// A specialized [`Result`] type for operations on AMX.
 ///
-/// [`Result`]: https://doc.rust-lang.org/nightly/std/result/enum.Result.html
+/// [`Result`]: https://doc.rust-lang.org/std/result/enum.Result.html
 pub type AmxResult<T> = Result<T, AmxError>;
 
 /// Error type returned by AMX functions (origin amx_*).

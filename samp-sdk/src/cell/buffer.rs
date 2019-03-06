@@ -4,12 +4,35 @@ use super::{AmxCell, Ref};
 use crate::amx::Amx;
 use crate::error::AmxResult;
 
+/// Contains a pointer to sequence of `Amx` cells.
+///
+/// Can be dereferenced to a [`slice`].
+///
+/// # Example
+/// ```
+/// use samp_sdk::cell::{UnsizedBuffer, Buffer};
+/// # use samp_sdk::amx::Amx;
+///
+/// // native: IGiveYouABuffer(buffer[]);
+/// fn it_gave_me_a_buffer(amx: &Amx, buffer: UnsizedBuffer, size: usize) {
+///     let mut buffer: Buffer = buffer.into_sized_buffer(size);
+///     
+///     println!("Got {:?}", buffer);
+///     
+///     buffer.iter_mut().map(|elem| *elem = *elem * 2);
+///
+///     println!("Change to {:?}", buffer);
+/// }
+/// ```
+///
+/// [`slice`]: https://doc.rust-lang.org/std/primitive.slice.html
 pub struct Buffer<'amx> {
     inner: Ref<'amx, i32>,
     len: usize,
 }
 
 impl<'amx> Buffer<'amx> {
+    /// Create a buffer from a reference to its first element.
     pub fn new(reference: Ref<'amx, i32>, len: usize) -> Buffer<'amx> {
         Buffer {
             inner: reference,
@@ -17,11 +40,13 @@ impl<'amx> Buffer<'amx> {
         }
     }
 
+    /// Extracts a slice containing the entire buffer.
     #[inline]
     pub fn as_slice(&self) -> &[i32] {
         unsafe { std::slice::from_raw_parts(self.inner.as_ptr(), self.len) }
     }
 
+    /// Extracts a mutable slice of the entire buffer.
     #[inline]
     pub fn as_mut_slice(&mut self) -> &mut [i32] {
         unsafe { std::slice::from_raw_parts_mut(self.inner.as_mut_ptr(), self.len) }
@@ -47,6 +72,12 @@ impl Deref for Buffer<'_> {
 impl DerefMut for Buffer<'_> {
     fn deref_mut(&mut self) -> &mut [i32] {
         self.as_mut_slice()
+    }
+}
+
+impl std::fmt::Debug for Buffer<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self.as_slice())
     }
 }
 
@@ -94,11 +125,13 @@ impl<'amx> UnsizedBuffer<'amx> {
         Buffer::new(self.inner, len)
     }
 
+    /// Return a raw pointer to an inner value.
     #[inline]
     pub fn as_ptr(&self) -> *const i32 {
         self.inner.as_ptr()
     }
 
+    /// Return a mutable raw pointer to an inner value.
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut i32 {
         self.inner.as_mut_ptr()
