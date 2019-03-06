@@ -33,6 +33,8 @@ impl<'amx, T: Sized + AmxPrimitive> Ref<'amx, T> {
     ///
     /// # Example
     /// ```
+    /// # use samp_sdk::amx::Amx;
+    /// use samp_sdk::cell::Ref;
     /// fn native_fn(amx: &Amx, arg: Ref<usize>) {
     ///     let cell_addr = arg.address();
     ///     println!("The argument stored in the {} cell.", cell_addr);

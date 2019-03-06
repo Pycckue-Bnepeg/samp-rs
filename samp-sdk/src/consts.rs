@@ -41,7 +41,7 @@ bitflags! {
 pub enum AmxExecIdx {
     Main,
     Continue,
-    Custom(i32),
+    UserDef(i32),
 }
 
 impl From<AmxExecIdx> for i32 {
@@ -49,7 +49,7 @@ impl From<AmxExecIdx> for i32 {
         match value {
             AmxExecIdx::Main => -1,
             AmxExecIdx::Continue => -2,
-            AmxExecIdx::Custom(idx) => idx,
+            AmxExecIdx::UserDef(idx) => idx,
         }
     }
 }
@@ -59,7 +59,7 @@ impl From<i32> for AmxExecIdx {
         match idx {
             -1 => AmxExecIdx::Main,
             -2 => AmxExecIdx::Continue,
-            idx => AmxExecIdx::Custom(idx),
+            idx => AmxExecIdx::UserDef(idx),
         }
     }
 }

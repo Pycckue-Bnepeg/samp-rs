@@ -57,17 +57,31 @@ impl<'amx> AmxString<'amx> {
     ///
     /// # Example
     /// ```
-    /// #[native(name = "LogError")]
+    /// use samp_sdk::cell::AmxString;
+    /// # use samp_sdk::amx::Amx;
+    /// # use samp_sdk::error::AmxResult;
+    /// #
+    /// # fn current_date() -> String {
+    /// #       String::from("Today")
+    /// # }
+    ///
+    /// # struct Plugin {
+    /// #     logger_enabled: bool,
+    /// # }
+    /// #
+    /// # impl Plugin {
+    ///
     /// fn log_error(&self, amx: &Amx, text: AmxString) -> AmxResult<bool> {
     ///     if !self.logger_enabled {
-    ///         return false;
+    ///         return Ok(false);
     ///     }
     ///
     ///     let string = text.to_string();
     ///     println!("[{}] PluginName error: {}", current_date(), string);
     ///
-    ///     return true;
+    ///     Ok(true)
     /// }
+    /// # }
     /// ```
     pub fn to_string(&self) -> String {
         unsafe { String::from_utf8_unchecked(self.to_bytes()) }

@@ -54,8 +54,12 @@ impl DerefMut for Buffer<'_> {
 ///
 /// # Example
 /// ```
+/// use samp_sdk::cell::UnsizedBuffer;
+/// # use samp_sdk::amx::Amx;
+/// # use samp_sdk::error::AmxResult;
+///
 /// fn null_my_array(amx: &Amx, array: UnsizedBuffer, length: usize) -> AmxResult<u32> {
-///     let array = array.into_sized_buffer(length);
+///     let mut array = array.into_sized_buffer(length);
 ///
 ///     unsafe {
 ///         let slice = array.as_mut_slice();
@@ -74,8 +78,11 @@ impl<'amx> UnsizedBuffer<'amx> {
     ///
     /// # Example
     /// ```
-    /// fn push_ones(amx: &Amx, unsized: UnsizedBuffer, length: usize) {
-    ///     let mut buffer = unsized.into_sized_buffer(length);
+    /// use samp_sdk::cell::UnsizedBuffer;
+    /// # use samp_sdk::amx::Amx;
+    ///
+    /// fn push_ones(amx: &Amx, array: UnsizedBuffer, length: usize) {
+    ///     let mut buffer = array.into_sized_buffer(length);
     ///     let slice = buffer.as_mut_slice();
     ///     
     ///     for item in slice.iter_mut() {
