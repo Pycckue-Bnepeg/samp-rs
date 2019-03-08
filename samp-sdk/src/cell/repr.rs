@@ -1,3 +1,4 @@
+//! A module to discribe how AMX cells work.
 use crate::amx::Amx;
 use crate::error::{AmxError, AmxResult};
 

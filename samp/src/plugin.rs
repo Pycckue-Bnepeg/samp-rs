@@ -1,3 +1,4 @@
+//! Contains a plugin interface.
 use std::ptr::NonNull;
 
 use samp_sdk::amx::Amx;

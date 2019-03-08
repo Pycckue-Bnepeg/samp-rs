@@ -1,3 +1,4 @@
+//! Work with AMX errors.
 use std::error::Error;
 use std::fmt::{self, Display};
 

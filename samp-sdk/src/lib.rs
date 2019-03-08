@@ -2,6 +2,8 @@ pub mod amx;
 pub mod args;
 pub mod cell;
 pub mod consts;
+#[cfg(feature = "encoding")]
+pub mod encoding;
 pub mod error;
 pub mod exports;
 pub mod raw;

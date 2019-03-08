@@ -1,3 +1,4 @@
+//! Workaround to parse input of natives functions.
 use crate::amx::Amx;
 use crate::cell::AmxCell;
 

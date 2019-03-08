@@ -3,10 +3,11 @@ name = "plugin"
 version = "0.1.0"
 authors = ["ZOTTCE <zottce@gmail.com>"]
 edition = "2018"
+publish = false
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-samp = { path = "../samp" }
+samp = { path = "../samp", features = ["encoding"] }
 memcache = "0.12"

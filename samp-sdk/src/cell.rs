@@ -1,3 +1,4 @@
+//! Different smart-pointers to work around raw AMX values.
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 

@@ -1,3 +1,4 @@
+//! Contains types to interact with AMX arrays.
 use std::ops::{Deref, DerefMut};
 
 use super::{AmxCell, Ref};

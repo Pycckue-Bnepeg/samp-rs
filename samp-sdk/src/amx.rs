@@ -1,11 +1,16 @@
+//! Core Amx types.
 use crate::cell::{AmxCell, AmxPrimitive, AmxString, Buffer, Ref};
 use crate::consts::{AmxExecIdx, AmxFlags};
 use crate::error::{AmxError, AmxResult};
 use crate::exports::*;
 use crate::raw::types::{AMX, AMX_HEADER, AMX_NATIVE_INFO};
 
+#[cfg(feature = "encoding")]
+use crate::encoding;
+
 use std::ffi::CString;
 use std::ptr::NonNull;
+use std::borrow::Cow;
 
 macro_rules! amx_try {
     ($call:expr) => {
@@ -471,9 +476,18 @@ impl<'amx> Allocator<'amx> {
     /// #       Ok(())
     /// # }
     pub fn allot_string(&self, string: &str) -> AmxResult<AmxString> {
-        let buffer = self.allot_buffer(string.bytes().len() + 1)?;
+        let bytes = Allocator::string_bytes(string);
+        let buffer = self.allot_buffer(bytes.len() + 1)?;
 
-        Ok(unsafe { AmxString::new(buffer, string) })
+        Ok(unsafe { AmxString::new(buffer, bytes.as_ref()) })
+    }
+
+    fn string_bytes<'a>(string: &'a str) -> Cow<'a, [u8]> {
+        #[cfg(feature = "encoding")]
+        return encoding::get().encode(string).0;
+
+        #[cfg(not(feature = "encoding"))]
+        return Cow::from(string.as_bytes());
     }
 }
 

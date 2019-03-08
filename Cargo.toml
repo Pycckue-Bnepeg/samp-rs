@@ -3,5 +3,5 @@ members = [
     "samp-codegen",
     "samp-sdk",
     "samp",
-    "plugin",
+    "plugin-example",
 ]

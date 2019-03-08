@@ -1,3 +1,4 @@
+//! Core Amx types with additional functions.
 pub use samp_sdk::amx::*;
 use samp_sdk::raw::types::AMX;
 

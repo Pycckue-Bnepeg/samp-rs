@@ -1,8 +1,11 @@
+//! String interperation inside an AMX.
 use std::fmt;
 
 use super::{AmxCell, Buffer, UnsizedBuffer};
 use crate::amx::Amx;
 use crate::error::AmxResult;
+#[cfg(feature = "encoding")]
+use crate::encoding;
 
 const MAX_UNPACKED: i32 = 0x00FF_FFFF;
 
@@ -15,8 +18,13 @@ pub struct AmxString<'amx> {
 
 impl<'amx> AmxString<'amx> {
     /// Create a new AmxString from an allocated buffer and fill it with a string
-    pub unsafe fn new(mut buffer: Buffer<'amx>, string: &str) -> AmxString<'amx> {
-        let _ = put_in_buffer(&mut buffer, string); // here can't be an error.
+    pub unsafe fn new(mut buffer: Buffer<'amx>, bytes: &[u8]) -> AmxString<'amx> {
+        // let _ = put_in_buffer(&mut buffer, string); // here can't be an error.
+        for (idx, byte) in bytes.iter().enumerate() {
+            buffer[idx] = i32::from(*byte);
+        }
+
+        buffer[bytes.len()] = 0;
 
         AmxString {
             len: buffer.len(),
@@ -78,7 +86,11 @@ impl<'amx> AmxString<'amx> {
     /// # }
     /// ```
     pub fn to_string(&self) -> String {
-        unsafe { String::from_utf8_unchecked(self.to_bytes()) }
+        #[cfg(feature = "encoding")]
+        return encoding::get().decode(&self.to_bytes()).0.into_owned();
+
+        #[cfg(not(feature = "encoding"))]
+        return unsafe { String::from_utf8_unchecked(self.to_bytes()) };
     }
 
     /// Return a length of a string.
@@ -168,7 +180,13 @@ impl fmt::Display for AmxString<'_> {
 /// # Errors
 /// Return `AmxError::General` when length of string bytes is more than size of the buffer.
 pub fn put_in_buffer(buffer: &mut Buffer, string: &str) -> AmxResult<()> {
-    let bytes = string.as_bytes();
+    #[cfg(feature = "encoding")]
+    let bytes = encoding::get().encode(string).0;
+    
+    #[cfg(not(feature = "encoding"))]
+    let bytes = std::borrow::Cow::from(string.as_bytes());
+
+    let bytes = bytes.as_ref();
 
     if bytes.len() >= buffer.len() {
         return Err(crate::error::AmxError::General);

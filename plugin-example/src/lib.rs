@@ -149,6 +149,8 @@ initialize_plugin!(
     ],
     {
         samp::plugin::enable_process_tick();
+        samp::encoding::set_default_encoding(samp::encoding::WINDOWS_1251); // Cyrillic
+        
         return Memcached {
             clients: Vec::new(),
         };

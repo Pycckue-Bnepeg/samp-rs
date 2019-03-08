@@ -1,3 +1,4 @@
+//! Types to get exported functions by AMX.
 use crate::raw::functions;
 
 macro_rules! impl_export {

@@ -1,3 +1,4 @@
+//! Default AMX constants.
 use bitflags::bitflags;
 
 bitflags! {
