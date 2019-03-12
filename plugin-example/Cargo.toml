@@ -11,3 +11,4 @@ crate-type = ["cdylib"]
 [dependencies]
 samp = { path = "../samp", features = ["encoding"] }
 memcache = "0.12"
+log = "0.4.6"

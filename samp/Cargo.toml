@@ -11,3 +11,4 @@ encoding = ["samp-sdk/encoding"]
 [dependencies]
 samp-sdk = { path = "../samp-sdk" }
 samp-codegen = { path = "../samp-codegen" }
+fern = "0.5.7"

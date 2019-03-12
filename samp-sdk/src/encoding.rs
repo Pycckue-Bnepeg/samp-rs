@@ -1,3 +1,4 @@
+//! String encoding.
 pub use encoding_rs::{WINDOWS_1251, WINDOWS_1252};
 use encoding_rs::Encoding;
 

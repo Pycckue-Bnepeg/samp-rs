@@ -4,6 +4,8 @@ use samp::error::AmxResult;
 use samp::plugin::SampPlugin;
 use samp::{initialize_plugin, native};
 
+use log::{info, error};
+
 use memcache::Client;
 
 #[derive(Debug, Clone, Copy)]
@@ -135,7 +137,12 @@ impl Memcached {
     }
 }
 
-impl SampPlugin for Memcached {}
+impl SampPlugin for Memcached {
+    fn on_load(&mut self) {
+        info!("that's a info msg");
+        error!("that's an error msg");
+    }
+}
 
 initialize_plugin!(
     natives: [
@@ -150,6 +157,12 @@ initialize_plugin!(
     {
         samp::plugin::enable_process_tick();
         samp::encoding::set_default_encoding(samp::encoding::WINDOWS_1251); // Cyrillic
+
+        let logger = samp::plugin::logger();
+
+        let _ = logger.format(|callback, message, record| {
+            callback.finish(format_args!("memcached {}: {}", record.level().to_string().to_lowercase(), message))
+        }).apply();
         
         return Memcached {
             clients: Vec::new(),

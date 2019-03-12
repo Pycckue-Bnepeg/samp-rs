@@ -16,6 +16,7 @@ where
     let plugin = constructor();
 
     rt.set_plugin(plugin);
+    rt.post_initialize();
 }
 
 /// Enables process_tick function for a plugin.
@@ -37,6 +38,17 @@ where
 pub fn enable_process_tick() {
     let runtime = Runtime::get();
     runtime.enable_process_tick();
+}
+
+pub fn logger() -> fern::Dispatch {
+    let rt = Runtime::get();
+    rt.disable_default_logger();
+
+    fern::Dispatch::new()
+        .chain(fern::Output::call(|record| {
+            let rt = Runtime::get();
+            rt.log(record.args());
+        }))
 }
 
 #[doc(hidden)]

@@ -1,8 +1,9 @@
 use samp_sdk::consts::{ServerData, Supports};
-use samp_sdk::raw::types::AMX;
+use samp_sdk::raw::{functions::Logprintf, types::AMX};
 
 use std::collections::HashMap;
 use std::ptr::NonNull;
+use std::ffi::CString;
 
 use crate::amx::{Amx, AmxIdent};
 use crate::plugin::SampPlugin;
@@ -14,6 +15,7 @@ pub struct Runtime {
     process_tick: bool,
     server_exports: *const usize,
     amx_list: HashMap<AmxIdent, Amx>,
+    logger_enabled: bool,
 }
 
 impl Runtime {
@@ -23,6 +25,7 @@ impl Runtime {
             process_tick: false,
             server_exports: std::ptr::null(),
             amx_list: HashMap::default(),
+            logger_enabled: true,
         };
 
         let boxed = Box::new(rt);
@@ -34,12 +37,42 @@ impl Runtime {
         Runtime::get()
     }
 
+    pub fn post_initialize(&self) {
+        if !self.logger_enabled {
+            return;
+        }
+
+        let logger = crate::plugin::logger();
+        let _ = logger.apply();
+    }
+
     #[inline]
     pub fn amx_exports(&self) -> usize {
         unsafe {
             self.server_exports
                 .offset(ServerData::AmxExports.into())
                 .read()
+        }
+    }
+
+    #[inline]
+    pub fn logger(&self) -> Logprintf {
+        unsafe {
+            (self.server_exports.offset(ServerData::Logprintf.into()) as *const Logprintf).read()
+        }
+    }
+    
+    pub fn disable_default_logger(&mut self) {
+        self.logger_enabled = false;
+    }
+
+    pub fn log<T: std::fmt::Display>(&self, message: T) {
+        let log_fn = self.logger();
+        let msg = format!("{}", message);
+        
+        match CString::new(msg) {
+            Ok(cstr) => log_fn(cstr.as_ptr()),
+            Err(_) => (),
         }
     }
 
