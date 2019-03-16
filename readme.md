@@ -3,6 +3,9 @@
 # samp-rs
 samp-rs is a tool to develop plugins for [samp](http://sa-mp.com) servers written in rust.
 
+# documentation
+it's [here](https://zottce.github.io/samp-rs/samp/index.html)! need to find a way to fix docs.rs ...
+
 # project structure
 * `samp` is a glue between crates described below (that's what you need).
 * `samp-codegen` generates raw `extern "C"` functions and does whole nasty job.

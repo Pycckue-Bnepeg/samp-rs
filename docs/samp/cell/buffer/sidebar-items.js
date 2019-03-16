@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Buffer","Contains a pointer to sequence of `Amx` cells."],["UnsizedBuffer","It's more like a temorary buffer that comes from AMX when a native is calling."]]});

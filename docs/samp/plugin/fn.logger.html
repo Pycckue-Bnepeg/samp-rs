@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `logger` fn in crate `samp`."><meta name="keywords" content="rust, rustlang, rust-lang, logger"><title>samp::plugin::logger - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc fn"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><div class="sidebar-elems"><p class='location'><a href='../index.html'>samp</a>::<wbr><a href='index.html'>plugin</a></p><script>window.sidebarCurrent = {name: 'logger', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../../src/samp/plugin.rs.html#86-95' title='goto source code'>[src]</a></span><span class='in-band'>Function <a href='../index.html'>samp</a>::<wbr><a href='index.html'>plugin</a>::<wbr><a class="fn" href=''>logger</a></span></h1><pre class='rust fn'>pub fn logger() -&gt; <a class="struct" href="https://docs.rs/fern/0.5.7/fern/builders/struct.Dispatch.html" title="struct fern::builders::Dispatch">Dispatch</a></pre><div class='docblock'><p>Get a fern <a href="https://docs.rs/fern/0.5.7/fern/struct.Dispatch.html"><code>Dispatch</code></a> and disable auto installing logger.</p>
+<h1 id="example" class="section-header"><a href="#example">Example</a></h1>
+<div class='information'><div class='tooltip compile_fail'>ⓘ<span class='tooltiptext'>This example deliberately fails to compile</span></div></div><div class="example-wrap"><pre class="rust rust-example-rendered compile_fail">
+<span class="kw">use</span> <span class="ident">samp</span>::<span class="ident">initialize_plugin</span>;
+<span class="kw">use</span> <span class="ident">samp</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+ 
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">OpenOptions</span>;
+
+<span class="kw">struct</span> <span class="ident">MyPlugin</span>;
+
+<span class="kw">impl</span> <span class="ident">SampPlugin</span> <span class="kw">for</span> <span class="ident">MyPlugin</span> {}
+
+<span class="macro">initialize_plugin</span><span class="macro">!</span>({
+    <span class="ident">samp</span>::<span class="ident">plugin</span>::<span class="ident">enable_process_tick</span>();
+     
+    <span class="comment">// get a default samp logger (uses samp logprintf).</span>
+    <span class="kw">let</span> <span class="ident">samp_logger</span> <span class="op">=</span> <span class="ident">samp</span>::<span class="ident">plugin</span>::<span class="ident">logger</span>()
+        .<span class="ident">level</span>(<span class="ident">log</span>::<span class="ident">LevelFilter</span>::<span class="ident">Warn</span>); <span class="comment">// logging only warn and error messages</span>
+
+    <span class="kw">let</span> <span class="ident">log_file</span> <span class="op">=</span> <span class="ident">fern</span>::<span class="ident">log_file</span>(<span class="string">&quot;myplugin.log&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;Something wrong!&quot;</span>);
+
+    <span class="comment">// log trace and debug messages in an another file</span>
+    <span class="kw">let</span> <span class="ident">trace_level</span> <span class="op">=</span> <span class="ident">fern</span>::<span class="ident">Dispatch</span>::<span class="ident">new</span>()
+        .<span class="ident">level</span>(<span class="ident">log</span>::<span class="ident">LevelFilter</span>::<span class="ident">Trace</span>) <span class="comment">// write ALL types of logs</span>
+        .<span class="ident">chain</span>(<span class="ident">log_file</span>);
+
+    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">fern</span>::<span class="ident">Dispatch</span>::<span class="ident">new</span>()
+        .<span class="ident">format</span>(<span class="op">|</span><span class="ident">callback</span>, <span class="ident">message</span>, <span class="ident">record</span><span class="op">|</span> {
+            <span class="comment">// all messages will be formated like</span>
+            <span class="comment">// [MyPlugin][ERROR]: something (error!(&quot;something&quot;))</span>
+            <span class="comment">// [MyPlugin][INFO]: some info (info!(&quot;some info&quot;))</span>
+            <span class="ident">callback</span>.<span class="ident">finish</span>(<span class="macro">format_args</span><span class="macro">!</span>(<span class="string">&quot;[MyPlugin][{}]: {}&quot;</span>, <span class="ident">record</span>.<span class="ident">level</span>(), <span class="ident">message</span>))
+        })
+        .<span class="ident">chain</span>(<span class="ident">samp_logger</span>)
+        .<span class="ident">chain</span>(<span class="ident">trace_level</span>)
+        .<span class="ident">apply</span>();
+ 
+    <span class="kw">return</span> <span class="ident">MyPlugin</span>;
+});</pre></div>
+</div></section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../";window.currentCrate = "samp";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>

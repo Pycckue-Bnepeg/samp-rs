@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Allocator","AMX memory allocator (on the heap) that frees captured memory after drop."],["Amx","A wrapper around a raw pointer to an AMX and exported functions."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["AmxCell","AmxCell trait is a core trait of whole SDK. It shows that value can be borrowed (or copied if it's a primitive) from AMX and passed to it."],["AmxPrimitive","A marker showing that a value can be stored directly on a stack or a heap of an AMX."]]});

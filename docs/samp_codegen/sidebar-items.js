@@ -1,0 +1,1 @@
+initSidebarItems({"attr":[["native","Generate C function that parses passed argument and calls current function."]],"macro":[["initialize_plugin","Generates common plugin C interface."]]});
