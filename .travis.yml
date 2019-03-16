@@ -1,0 +1,15 @@
+language: rust
+rust:
+  - stable-i686
+  - beta-i686
+  - nightly-i686
+
+addons:
+  apt:
+    update: true
+    packages: &i686_unknown_linux_gnu
+    - gcc-multilib
+
+script:
+  - cargo build --verbose --all
+  - cargo test --verbose --all
