@@ -6,4 +6,6 @@ pub mod consts;
 pub mod encoding;
 pub mod error;
 pub mod exports;
+#[doc(hidden)]
+pub mod macros;
 pub mod raw;

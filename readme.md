@@ -20,6 +20,9 @@ samp = "0.2.5"
 ```
 * write your first plugin
 
+# migration from old versions
+* check out [the guide](migration.md)
+
 # examples
 * simple memcache plugin in `plugin-example` folder.
 * your `lib.rs` file

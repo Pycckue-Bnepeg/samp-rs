@@ -10,8 +10,8 @@
 /// # Examples
 /// Simple execution.
 /// ```rust,no_run
-/// use samp::exec_public;
-/// # use samp::amx::Amx;
+/// use samp_sdk::exec_public;
+/// # use samp_sdk::amx::Amx;
 /// #
 /// # let amx_owned = Amx::new(std::ptr::null_mut(), 0);
 /// # let amx = &amx_owned;
@@ -20,41 +20,30 @@
 /// ```
 ///
 /// With arguments that implement `AmxCell`.
-/// ```
-/// use samp::exec_public;
-/// # use samp::prelude::*;
-/// # use samp::native;
-/// #
-/// # struct Plugin;
-/// #
-/// # impl SampPlugin for Plugin {}
-/// #
-/// # impl Plugin {
+/// ```rust,no_run
+/// use samp_sdk::exec_public;
+/// # use samp_sdk::amx::Amx;
+/// # use samp_sdk::cell::{AmxString, UnsizedBuffer, Ref};
+/// # use samp_sdk::error::AmxResult;
 ///
-/// #[native(name = "CallPublic")]
-/// fn call_public(&mut self, amx: &Amx, pub_name: AmxString, string: AmxString, buffer: UnsizedBuffer, size: usize, reference: Ref<usize>) -> AmxResult<bool> {
+/// // native:CallPublic(const publicname[], const string[], buffer[], length, &someref);
+/// fn call_public(amx: &Amx, pub_name: AmxString, string: AmxString, buffer: UnsizedBuffer, size: usize, reference: Ref<usize>) -> AmxResult<bool> {
 ///     let buffer = buffer.into_sized_buffer(size);
 ///     let public_name = pub_name.to_string();
 ///
 ///     exec_public!(amx, &public_name, string, buffer, reference);
 ///     Ok(true)
 /// }
-/// # }
 /// ```
 /// And with Rust strings and slices.
-/// ```
-/// use samp::exec_public;
-/// # use samp::prelude::*;
-/// # use samp::native;
-/// #
-/// # struct Plugin;
-/// #
-/// # impl SampPlugin for Plugin {}
-/// #
-/// # impl Plugin {
+/// ```rust,no_run
+/// use samp_sdk::exec_public;
+/// # use samp_sdk::amx::Amx;
+/// # use samp_sdk::cell::{AmxString, UnsizedBuffer, Ref};
+/// # use samp_sdk::error::AmxResult;
 ///
-/// #[native(name = "CallPublic")]
-/// fn call_public(&mut self, amx: &Amx, pub_name: AmxString, string: AmxString) -> AmxResult<bool> {
+/// // native:CallPublic(const publicname[], const string[]);
+/// fn call_public(amx: &Amx, pub_name: AmxString, string: AmxString) -> AmxResult<bool> {
 ///     let public_name = pub_name.to_string();
 ///     let rust_string = "hello!";
 ///     let owned_string = "another hello!".to_string();
@@ -63,7 +52,6 @@
 ///     exec_public!(amx, &public_name, string, rust_string => string, &owned_string => string, &rust_array => array);
 ///     Ok(true)
 /// }
-/// # }
 /// ```
 #[macro_export]
 macro_rules! exec_public {
