@@ -1,0 +1,15 @@
+[package]
+name = "plugin"
+version = "0.1.0"
+authors = ["ZOTTCE <zottce@gmail.com>"]
+edition = "2018"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+samp = { path = "../samp", features = ["encoding"] }
+memcache = "0.12"
+log = "0.4.6"
+fern = "0.5.7"
