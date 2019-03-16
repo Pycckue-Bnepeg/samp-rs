@@ -4,7 +4,7 @@
 * new `AmxCell` trait that allows convert Rust types to AMX types.
 
 # migration guide
-* change `samp_sdk = "*"` in `Cargo.toml` to `samp = "0.2.5"`.
+* change `samp_sdk = "*"` in `Cargo.toml` to `samp = "0.1.0"`.
 * export the prelude module `use samp::prelude::*`.
 * remove `new_plugin!` call to `initialize_plugin!`
 * delete all `define_native!` calls.

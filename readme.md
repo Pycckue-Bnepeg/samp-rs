@@ -16,7 +16,7 @@ samp-rs is a tool to develop plugins for [samp](http://sa-mp.com) servers writte
 crate-type = ["cdylib"] # or dylib
 
 [dependencies]
-samp = "0.2.5"
+samp = "0.1.0"
 ```
 * write your first plugin
 
