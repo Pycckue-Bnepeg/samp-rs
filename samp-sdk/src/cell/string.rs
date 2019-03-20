@@ -46,8 +46,8 @@ impl<'amx> AmxString<'amx> {
                 );
             }
         } else {
-            for (idx, item) in vec.iter_mut().enumerate() {
-                *item = self.inner[idx] as u8;
+            for item in self.inner.iter().take(self.len) {
+                vec.push(*item as u8);
             }
         }
 

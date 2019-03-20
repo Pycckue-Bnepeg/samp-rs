@@ -1,6 +1,6 @@
 [package]
 name = "samp-sdk"
-version = "0.9.1"
+version = "0.9.2"
 authors = ["ZOTTCE <zottce@gmail.com>"]
 description = "Bindings for C SA:MP SDK"
 license = "MIT"

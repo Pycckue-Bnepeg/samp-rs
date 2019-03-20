@@ -19,7 +19,7 @@ it's [here](https://zottce.github.io/samp-rs/samp/index.html)! need to find a wa
 crate-type = ["cdylib"] # or dylib
 
 [dependencies]
-samp = "0.1.0"
+samp = "0.1.2"
 ```
 * write your first plugin
 
