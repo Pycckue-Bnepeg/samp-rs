@@ -1,7 +1,6 @@
 use crate::runtime::Runtime;
 use samp_sdk::raw::types::{AMX, AMX_NATIVE_INFO};
 
-#[doc(hidden)]
 pub fn supports() -> u32 {
     let rt = Runtime::get();
     let supports = rt.supports();
@@ -9,7 +8,6 @@ pub fn supports() -> u32 {
     supports.bits()
 }
 
-#[doc(hidden)]
 pub fn load(server_exports: *const usize) {
     let rt = Runtime::get();
     let plugin = Runtime::plugin();
@@ -18,13 +16,11 @@ pub fn load(server_exports: *const usize) {
     plugin.on_load();
 }
 
-#[doc(hidden)]
 pub fn unload() {
     let plugin = Runtime::plugin();
     plugin.on_unload();
 }
 
-#[doc(hidden)]
 pub fn amx_load(amx: *mut AMX, natives: &[AMX_NATIVE_INFO]) {
     let rt = Runtime::get();
     let plugin = Runtime::plugin();
@@ -35,7 +31,6 @@ pub fn amx_load(amx: *mut AMX, natives: &[AMX_NATIVE_INFO]) {
     plugin.on_amx_load(amx);
 }
 
-#[doc(hidden)]
 pub fn amx_unload(amx: *mut AMX) {
     let rt = Runtime::get();
     let plugin = Runtime::plugin();
@@ -46,4 +41,7 @@ pub fn amx_unload(amx: *mut AMX) {
 }
 
 #[inline]
-pub fn process_tick() {}
+pub fn process_tick() {
+    let plugin = Runtime::plugin();
+    plugin.process_tick();
+}

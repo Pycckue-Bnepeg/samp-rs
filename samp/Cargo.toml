@@ -1,6 +1,6 @@
 [package]
 name = "samp"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["ZOTTCE <zottce@gmail.com>"]
 description = "Tools to develop SA:MP plugins"
 license = "MIT"
@@ -14,7 +14,7 @@ encoding = ["samp-sdk/encoding"]
 
 [dependencies]
 samp-sdk = { path = "../samp-sdk", version = "0.9.1" }
-samp-codegen = { path = "../samp-codegen", version = "0.1.0" }
+samp-codegen = { path = "../samp-codegen", version = "0.1.1" }
 fern = "0.5.7"
 
 [package.metadata.docs.rs]

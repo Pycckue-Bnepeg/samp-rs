@@ -99,6 +99,11 @@ pub fn create_plugin(input: TokenStream) -> TokenStream {
             samp::plugin::initialize(constructor);
             samp::interlayer::supports()
         }
+
+        #[no_mangle]
+        pub extern "system" fn ProcessTick() {
+            samp::interlayer::process_tick();
+        }
     };
 
     generated.into()
