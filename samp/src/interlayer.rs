@@ -44,4 +44,6 @@ pub fn amx_unload(amx: *mut AMX) {
 pub fn process_tick() {
     let plugin = Runtime::plugin();
     plugin.process_tick();
+
+    samp_async::process();
 }

@@ -20,6 +20,8 @@ where
         let logger = logger();
         let _ = logger.apply();
     }
+
+    samp_async::initialize();
 }
 
 /// Enables process_tick function for a plugin.

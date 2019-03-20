@@ -3,6 +3,7 @@ members = [
     "samp-codegen",
     "samp-sdk",
     "samp-runtime",
+    "samp-async",
     "samp",
     "plugin-example",
 ]

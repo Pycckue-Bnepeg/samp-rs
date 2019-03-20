@@ -65,6 +65,9 @@ pub use samp_sdk::{args, cell, consts, error, exports, raw}; // macros
 #[cfg(feature = "encoding")]
 pub use samp_sdk::encoding;
 
+pub use samp_async::amx::{AmxExt, AmxGuard, AsyncAmx};
+pub use samp_async::error::AmxLockError;
+
 pub mod prelude {
     //! Most used imports.
     pub use crate::amx::Amx;

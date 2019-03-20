@@ -16,6 +16,7 @@ encoding = ["samp-sdk/encoding"]
 samp-sdk = { path = "../samp-sdk", version = "0.9.2" }
 samp-codegen = { path = "../samp-codegen", version = "0.1.1" }
 samp-runtime = { path = "../samp-runtime", version = "0.1.0" }
+samp-async = { path = "../samp-async", version = "0.1.0" }
 fern = "0.5.7"
 
 [package.metadata.docs.rs]

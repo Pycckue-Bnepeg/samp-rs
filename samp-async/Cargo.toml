@@ -1,0 +1,9 @@
+[package]
+name = "samp-async"
+version = "0.1.0"
+authors = ["ZOTTCE <zottce@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+samp-runtime = { path = "../samp-runtime", version = "0.1.0" }
+samp-sdk = { path = "../samp-sdk", version = "0.9.2" }

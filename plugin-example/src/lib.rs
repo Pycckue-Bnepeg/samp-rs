@@ -2,7 +2,8 @@ use samp::amx::Amx;
 use samp::cell::{AmxCell, AmxString, Ref, UnsizedBuffer};
 use samp::error::AmxResult;
 use samp::plugin::SampPlugin;
-use samp::{initialize_plugin, native};
+use samp::{exec_public, initialize_plugin, native};
+use samp::{AmxExt, AmxLockError};
 
 use log::{debug, error, info};
 
@@ -135,6 +136,32 @@ impl Memcached {
             Ok(MemcacheResult::NoClient)
         }
     }
+
+    #[native(name = "Timeout")]
+    pub fn timeout(&mut self, amx: &Amx, callback: AmxString, timeout: i32) -> AmxResult<bool> {
+        let amx = amx.to_async();
+        let callback = callback.to_string();
+
+        std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_secs(timeout as u64));
+
+            let amx = match amx.lock() {
+                Err(AmxLockError::AmxGone) => {
+                    debug!("AMX is gone");
+                    return;
+                }
+                Err(_) => {
+                    error!("mutex is poisoned");
+                    return;
+                }
+                Ok(amx) => amx,
+            };
+
+            let _ = exec_public!(amx, &callback, "hello!" => string);
+        });
+
+        Ok(true)
+    }
 }
 
 impl SampPlugin for Memcached {
@@ -154,6 +181,7 @@ initialize_plugin!(
         Memcached::set_string,
         Memcached::increment,
         Memcached::delete,
+        Memcached::timeout,
     ],
     {
         samp::plugin::enable_process_tick();
