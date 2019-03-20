@@ -56,19 +56,19 @@ pub mod amx;
 #[doc(hidden)]
 pub mod interlayer;
 pub mod plugin;
-pub(crate) mod runtime;
 
 pub use samp_codegen::{initialize_plugin, native};
-pub use samp_sdk::{args, cell, consts, error, exports, raw};
-pub use samp_sdk::{exec_public}; // macros
+pub use samp_runtime::SampPlugin;
+pub use samp_sdk::exec_public;
+pub use samp_sdk::{args, cell, consts, error, exports, raw}; // macros
 
 #[cfg(feature = "encoding")]
 pub use samp_sdk::encoding;
 
 pub mod prelude {
     //! Most used imports.
-    pub use crate::amx::{Amx, AmxExt};
+    pub use crate::amx::Amx;
     pub use crate::cell::{AmxCell, AmxString, Buffer, Ref, UnsizedBuffer};
     pub use crate::error::AmxResult;
-    pub use crate::plugin::SampPlugin;
+    pub use crate::SampPlugin;
 }

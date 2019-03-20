@@ -1,4 +1,4 @@
-use crate::runtime::Runtime;
+use samp_runtime::Runtime;
 use samp_sdk::raw::types::{AMX, AMX_NATIVE_INFO};
 
 pub fn supports() -> u32 {

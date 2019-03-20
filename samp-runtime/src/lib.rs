@@ -1,12 +1,10 @@
+use samp_sdk::amx::{Amx, AmxIdent};
 use samp_sdk::consts::{ServerData, Supports};
 use samp_sdk::raw::{functions::Logprintf, types::AMX};
 
 use std::collections::HashMap;
-use std::ptr::NonNull;
 use std::ffi::CString;
-
-use crate::amx::{Amx, AmxIdent};
-use crate::plugin::SampPlugin;
+use std::ptr::NonNull;
 
 static mut RUNTIME: *mut Runtime = std::ptr::null_mut();
 
@@ -37,15 +35,6 @@ impl Runtime {
         Runtime::get()
     }
 
-    pub fn post_initialize(&self) {
-        if !self.logger_enabled {
-            return;
-        }
-
-        let logger = crate::plugin::logger();
-        let _ = logger.apply();
-    }
-
     #[inline]
     pub fn amx_exports(&self) -> usize {
         unsafe {
@@ -61,7 +50,11 @@ impl Runtime {
             (self.server_exports.offset(ServerData::Logprintf.into()) as *const Logprintf).read()
         }
     }
-    
+
+    pub fn is_default_logger_enabled(&self) -> bool {
+        self.logger_enabled
+    }
+
     pub fn disable_default_logger(&mut self) {
         self.logger_enabled = false;
     }
@@ -69,7 +62,7 @@ impl Runtime {
     pub fn log<T: std::fmt::Display>(&self, message: T) {
         let log_fn = self.logger();
         let msg = format!("{}", message);
-        
+
         match CString::new(msg) {
             Ok(cstr) => log_fn(cstr.as_ptr()),
             Err(_) => (),
@@ -135,4 +128,22 @@ impl Runtime {
         let rt = Runtime::get();
         rt.plugin.as_ref().unwrap().cast()
     }
+}
+
+/// An interface that should be implemented by any plugin.
+///
+/// All methods are optional
+pub trait SampPlugin {
+    fn on_load(&mut self) {}
+    fn on_unload(&mut self) {}
+
+    fn on_amx_load(&mut self, amx: &Amx) {
+        let _ = amx;
+    }
+
+    fn on_amx_unload(&mut self, amx: &Amx) {
+        let _ = amx;
+    }
+
+    fn process_tick(&mut self) {}
 }

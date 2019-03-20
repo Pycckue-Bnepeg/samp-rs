@@ -8,9 +8,9 @@ use crate::raw::types::{AMX, AMX_HEADER, AMX_NATIVE_INFO};
 #[cfg(feature = "encoding")]
 use crate::encoding;
 
+use std::borrow::Cow;
 use std::ffi::CString;
 use std::ptr::NonNull;
-use std::borrow::Cow;
 
 macro_rules! amx_try {
     ($call:expr) => {
@@ -324,6 +324,12 @@ impl Amx {
     pub fn header(&self) -> NonNull<AMX_HEADER> {
         unsafe { NonNull::new_unchecked((*self.ptr).base as *mut AMX_HEADER) }
     }
+
+    /// Get an identifier of an `Amx`.
+    #[inline]
+    pub fn ident(&self) -> AmxIdent {
+        self.amx().as_ptr().into()
+    }
 }
 
 /// AMX memory allocator (on the heap) that frees captured memory after drop.
@@ -495,5 +501,19 @@ impl Drop for Allocator<'_> {
     fn drop(&mut self) {
         // AMX::release never fails
         self.amx.release(self.release_addr);
+    }
+}
+
+/// An unique identifier of an `Amx` instance.
+#[derive(Debug, Clone, Copy, PartialEq, Hash, Eq)]
+pub struct AmxIdent {
+    ident: usize,
+}
+
+impl From<*mut AMX> for AmxIdent {
+    fn from(ptr: *mut AMX) -> AmxIdent {
+        AmxIdent {
+            ident: ptr as usize,
+        }
     }
 }

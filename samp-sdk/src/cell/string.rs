@@ -3,9 +3,9 @@ use std::fmt;
 
 use super::{AmxCell, Buffer, UnsizedBuffer};
 use crate::amx::Amx;
-use crate::error::AmxResult;
 #[cfg(feature = "encoding")]
 use crate::encoding;
+use crate::error::AmxResult;
 
 const MAX_UNPACKED: i32 = 0x00FF_FFFF;
 
@@ -182,7 +182,7 @@ impl fmt::Display for AmxString<'_> {
 pub fn put_in_buffer(buffer: &mut Buffer, string: &str) -> AmxResult<()> {
     #[cfg(feature = "encoding")]
     let bytes = encoding::get().encode(string).0;
-    
+
     #[cfg(not(feature = "encoding"))]
     let bytes = std::borrow::Cow::from(string.as_bytes());
 

@@ -4,7 +4,7 @@ use samp::error::AmxResult;
 use samp::plugin::SampPlugin;
 use samp::{initialize_plugin, native};
 
-use log::{info, error, debug};
+use log::{debug, error, info};
 
 use memcache::Client;
 
