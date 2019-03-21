@@ -12,15 +12,20 @@ where
     T: SampPlugin + 'static,
 {
     let rt = Runtime::initialize();
+
+    #[cfg(feature = "async")]
+    rt.enable_process_tick(); //
+
     let plugin = constructor();
 
     rt.set_plugin(plugin);
 
     if rt.is_default_logger_enabled() {
-        let logger = logger();
+        let logger = logger().level(log::LevelFilter::Info);
         let _ = logger.apply();
     }
 
+    #[cfg(feature = "async")]
     samp_async::initialize();
 }
 

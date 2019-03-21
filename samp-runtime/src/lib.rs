@@ -1,3 +1,5 @@
+//! This crate is very unsafe so be careful
+
 use samp_sdk::amx::{Amx, AmxIdent};
 use samp_sdk::consts::{ServerData, Supports};
 use samp_sdk::raw::{functions::Logprintf, types::AMX};
@@ -128,6 +130,13 @@ impl Runtime {
         let rt = Runtime::get();
         rt.plugin.as_ref().unwrap().cast()
     }
+
+    pub fn consume_plugin() -> Box<dyn SampPlugin> {
+        let rt = Runtime::get();
+        let plugin = rt.plugin.take().unwrap();
+
+        unsafe { Box::from_raw(plugin.as_ptr()) }
+    }
 }
 
 /// An interface that should be implemented by any plugin.
@@ -135,7 +144,7 @@ impl Runtime {
 /// All methods are optional
 pub trait SampPlugin {
     fn on_load(&mut self) {}
-    fn on_unload(&mut self) {}
+    fn on_unload(self: Box<Self>) {}
 
     fn on_amx_load(&mut self, amx: &Amx) {
         let _ = amx;

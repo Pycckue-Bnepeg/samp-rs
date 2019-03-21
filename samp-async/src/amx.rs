@@ -4,8 +4,9 @@ use samp_sdk::amx::{Amx, AmxIdent};
 use std::ops::Deref;
 
 use crate::error::AmxLockError;
-use crate::{SampThread, Guard};
+use crate::{Guard, SampThread};
 
+/// An asynchronous version of AMX instance that is [`Send`](https://doc.rust-lang.org/std/marker/trait.Send.html) + [`Sync`](https://doc.rust-lang.org/std/marker/trait.Sync.html)
 #[derive(Debug, Clone)]
 pub struct AsyncAmx {
     ident: AmxIdent,
@@ -32,7 +33,7 @@ impl AsyncAmx {
         let guard = thread.try_lock()?;
 
         thread.wait_readiness();
-  
+
         let rt = Runtime::get();
         let amx = rt
             .amx_list()
@@ -56,11 +57,11 @@ impl<'a> Deref for AmxGuard<'a> {
     }
 }
 
-pub trait AmxExt {
+pub trait AmxAsyncExt {
     fn to_async(&self) -> AsyncAmx;
 }
 
-impl AmxExt for Amx {
+impl AmxAsyncExt for Amx {
     fn to_async(&self) -> AsyncAmx {
         AsyncAmx {
             ident: self.ident(),

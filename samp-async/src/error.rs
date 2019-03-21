@@ -1,5 +1,5 @@
-use std::sync::{PoisonError, TryLockError};
 use std::fmt;
+use std::sync::{PoisonError, TryLockError};
 
 use crate::Guard;
 

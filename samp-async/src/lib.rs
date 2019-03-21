@@ -45,7 +45,10 @@ impl SampThread {
     }
 
     pub fn wait_other_threads(&mut self) {
-        let guard = self.mutex.lock().unwrap_or_else(|poison| poison.into_inner());
+        let guard = self
+            .mutex
+            .lock()
+            .unwrap_or_else(|poison| poison.into_inner());
         self.ready.store(false, SeqCst);
         drop(guard);
 

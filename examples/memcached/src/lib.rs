@@ -1,9 +1,5 @@
-use samp::amx::Amx;
-use samp::cell::{AmxCell, AmxString, Ref, UnsizedBuffer};
-use samp::error::AmxResult;
-use samp::plugin::SampPlugin;
-use samp::{exec_public, initialize_plugin, native};
-use samp::{AmxExt};
+use samp::prelude::*;
+use samp::{initialize_plugin, native};
 
 use log::{debug, error, info};
 
@@ -136,58 +132,6 @@ impl Memcached {
             Ok(MemcacheResult::NoClient)
         }
     }
-
-    #[native(name = "Timeout")]
-    pub fn timeout(&mut self, amx: &Amx, callback: AmxString, timeout: i32) -> AmxResult<bool> {
-        let amx = amx.to_async();
-        let callback = callback.to_string();
-
-        std::thread::spawn(move || {
-            std::thread::sleep(std::time::Duration::from_secs(timeout as u64));
-            info!("timeout");
-            let amx = match amx.lock() {
-                Err(err) => {
-                    debug!("{:?}", err);
-                    return;
-                }
-                Ok(amx) => amx,
-            };
-
-            info!("panic!");
-            panic!("that's a panic yes");
-
-            let _ = exec_public!(amx, &callback, "hello!" => string);
-        });
-
-        Ok(true)
-    }
-
-    #[native(name = "Interval")]
-    pub fn interval(&mut self, amx: &Amx, callback: AmxString, interval: i32) -> AmxResult<bool> {
-        let amx = amx.to_async();
-        let callback = callback.to_string();
-
-        std::thread::spawn(move || {
-            loop {
-                std::thread::sleep(std::time::Duration::from_secs(interval as u64));
-                info!("interval");
-
-                let amx = match amx.lock() {
-                    Err(err) => {
-                        debug!("{:?}", err);
-                        return;
-                    }
-                    Ok(amx) => amx,
-                };
-
-                info!("got it");
-
-                let _ = exec_public!(amx, &callback, "hello!" => string);
-            }
-        });
-
-        Ok(true)
-    }
 }
 
 impl SampPlugin for Memcached {
@@ -207,8 +151,6 @@ initialize_plugin!(
         Memcached::set_string,
         Memcached::increment,
         Memcached::delete,
-        Memcached::timeout,
-        Memcached::interval,
     ],
     {
         samp::plugin::enable_process_tick();

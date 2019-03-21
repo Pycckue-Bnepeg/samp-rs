@@ -17,7 +17,7 @@ pub fn load(server_exports: *const usize) {
 }
 
 pub fn unload() {
-    let plugin = Runtime::plugin();
+    let plugin = Runtime::consume_plugin();
     plugin.on_unload();
 }
 
@@ -45,5 +45,6 @@ pub fn process_tick() {
     let plugin = Runtime::plugin();
     plugin.process_tick();
 
+    #[cfg(feature = "async")]
     samp_async::process();
 }
