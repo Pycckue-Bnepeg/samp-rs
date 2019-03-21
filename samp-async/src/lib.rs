@@ -1,59 +1,77 @@
-use std::sync::PoisonError;
-use std::sync::{Mutex, MutexGuard};
+use std::sync::atomic::{AtomicBool, Ordering::SeqCst};
+use std::sync::Mutex;
+
+use crossbeam_utils::Backoff;
 
 pub mod amx;
 pub mod error;
 
-static mut PARKER: *mut GlobalParker = std::ptr::null_mut();
+static mut THREAD: *mut SampThread = std::ptr::null_mut();
 
-pub(crate) type Guard = MutexGuard<'static, ()>;
+pub(crate) type Guard<'a> = std::sync::MutexGuard<'a, ()>;
 
-pub(crate) struct GlobalParker {
-    mutex: Mutex<()>,
-    guard: Option<Guard>,
+pub(crate) struct SampThread {
+    ready: AtomicBool,
+    mutex: Mutex<()>, // why mutex? to deal with panics of other threads
 }
 
-impl GlobalParker {
-    /// Park SAMP main thread to allow other threads access to AMX instances
-    pub fn park() {
-        let _ = unsafe { (*PARKER).guard.take() };
+impl SampThread {
+    #[inline]
+    pub fn get() -> &'static mut SampThread {
+        unsafe { &mut *THREAD }
     }
 
-    /// Unpark SAMP main thread
-    pub fn unpark() {
-        unsafe {
-            let guard = (*PARKER).mutex.lock().unwrap();
-            (*PARKER).guard = Some(guard);
+    #[inline]
+    pub fn make_ready(&self) {
+        self.ready.store(true, SeqCst);
+    }
+
+    pub fn wait_readiness(&self) {
+        let backoff = Backoff::new();
+
+        while !self.ready.load(SeqCst) {
+            backoff.snooze();
         }
     }
 
     #[inline]
-    pub fn lock() -> Result<Guard, PoisonError<Guard>> {
-        unsafe { (*PARKER).mutex.lock() }
+    pub fn lock(&self) -> Result<Guard, std::sync::PoisonError<Guard>> {
+        self.mutex.lock()
     }
 
     #[inline]
-    pub fn try_lock() -> std::sync::TryLockResult<Guard> {
-        unsafe { (*PARKER).mutex.try_lock() }
+    pub fn try_lock(&self) -> std::sync::TryLockResult<Guard> {
+        self.mutex.try_lock()
+    }
+
+    pub fn wait_other_threads(&mut self) {
+        let guard = self.mutex.lock().unwrap_or_else(|poison| poison.into_inner());
+        self.ready.store(false, SeqCst);
+        drop(guard);
+
+        if self.mutex.is_poisoned() {
+            // recreate a mutex if some of other threads panic
+            self.mutex = Mutex::default();
+        }
     }
 }
 
 pub fn initialize() {
-    let lock = GlobalParker {
+    let lock = SampThread {
+        ready: AtomicBool::new(false),
         mutex: Mutex::default(),
-        guard: None,
     };
 
     let lock_ptr = Box::into_raw(Box::new(lock));
 
     unsafe {
-        PARKER = lock_ptr;
+        THREAD = lock_ptr;
     }
 }
 
 pub fn process() {
-    // kind of shit but that will work
-    GlobalParker::park();
-    std::thread::sleep(std::time::Duration::from_nanos(1));
-    GlobalParker::unpark();
+    let thread = SampThread::get();
+
+    thread.make_ready();
+    thread.wait_other_threads();
 }

@@ -4,7 +4,7 @@ use samp_sdk::amx::{Amx, AmxIdent};
 use std::ops::Deref;
 
 use crate::error::AmxLockError;
-use crate::{GlobalParker, Guard};
+use crate::{SampThread, Guard};
 
 #[derive(Debug, Clone)]
 pub struct AsyncAmx {
@@ -13,7 +13,11 @@ pub struct AsyncAmx {
 
 impl AsyncAmx {
     pub fn lock<'a>(&'a self) -> Result<AmxGuard<'a>, AmxLockError> {
-        let guard = GlobalParker::lock()?;
+        let thread = SampThread::get();
+        let guard = thread.lock()?;
+
+        thread.wait_readiness();
+
         let rt = Runtime::get();
         let amx = rt
             .amx_list()
@@ -24,7 +28,11 @@ impl AsyncAmx {
     }
 
     pub fn try_lock<'a>(&'a self) -> Result<AmxGuard<'a>, AmxLockError> {
-        let guard = GlobalParker::try_lock()?;
+        let thread = SampThread::get();
+        let guard = thread.try_lock()?;
+
+        thread.wait_readiness();
+  
         let rt = Runtime::get();
         let amx = rt
             .amx_list()
@@ -36,7 +44,7 @@ impl AsyncAmx {
 }
 
 pub struct AmxGuard<'a> {
-    _guard: Guard,
+    _guard: Guard<'a>,
     amx: &'a Amx,
 }
 
