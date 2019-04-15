@@ -282,6 +282,50 @@ impl Amx {
         Ok(())
     }
 
+    /// Get a name of a public function by its index.
+    ///     
+    /// # Example
+    /// ```rust,no_run
+    /// use samp_sdk::amx::Amx;
+    /// use samp_sdk::consts::AmxExecIdx;
+    /// 
+    /// # use samp_sdk::error::AmxResult;
+    /// #
+    /// # fn main() -> AmxResult<()> {
+    /// #       let amx = Amx::new(std::ptr::null_mut(), 0);
+    /// #
+    /// let public_idx = AmxExecIdx::UserDef(0);
+    /// let public_name = amx.get_public(public_idx)?;
+    /// println!("Public({:?}): {:?}", public_idx, public_name);
+    /// #
+    /// #       Ok(())
+    /// # }
+    /// ```
+    pub fn get_public<T: Into<AmxExecIdx>>(&self, idx: T) -> AmxResult<CString> {
+        let get_public = GetPublic::from_table(self.fn_table);
+        let idx = idx.into();
+        let cstring = CString::new(vec![1; 20]).unwrap();
+        let ptr = cstring.into_raw();
+
+        amx_try!(get_public(self.ptr, idx.into(), ptr));
+
+        Ok(unsafe { CString::from_raw(ptr) })
+    }
+
+    /// Get an address of a native function by its index.
+    pub fn native_addr(&self, index: i32) -> AmxResult<usize> {
+        let header_ptr = self.header();
+        let header = unsafe { header_ptr.as_ref() };
+
+        let amx_addr = unsafe {
+            (*((header_ptr.as_ptr() as i32 + (*header).natives + (*header).defsize as i32 * index)
+                as *const crate::raw::types::AMX_FUNCSTUB))
+                .address
+        };
+
+        Ok(amx_addr as usize)
+    }
+
     /// Get a heap [`Allocator`] for current [`Amx`].
     ///
     /// # Example
@@ -329,6 +373,12 @@ impl Amx {
     #[inline]
     pub fn ident(&self) -> AmxIdent {
         self.amx().as_ptr().into()
+    }
+
+    /// Get an AMX function
+    #[inline]
+    pub fn amx_function<T: Export>(&self) -> T::Output {
+        T::from_table(self.fn_table)
     }
 }
 
