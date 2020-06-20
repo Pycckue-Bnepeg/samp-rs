@@ -76,13 +76,6 @@ pub fn create_plugin(input: TokenStream) -> TokenStream {
             let natives = vec![#natives];
 
             samp::interlayer::amx_load(amx, &natives);
-
-            unsafe {
-                // drop allocated memory
-                let _ = natives.into_iter()
-                    .map(|info| std::ffi::CString::from_raw(info.name as *mut _))
-                    .collect::<Vec<_>>();
-            }
         }
 
         #[no_mangle]
