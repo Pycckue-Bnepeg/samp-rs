@@ -114,7 +114,8 @@ pub fn create_native(args: TokenStream, input: TokenStream) -> TokenStream {
             let amx = match samp::amx::get(amx_ident) {
                 Some(amx) => amx,
                 None => {
-                    return 0;
+                    samp::amx::add(amx);  // For GDK
+                    samp::amx::get(amx_ident).unwrap()
                 }
             };
 
