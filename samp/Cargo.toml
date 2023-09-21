@@ -1,6 +1,6 @@
 [package]
 name = "samp"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["ZOTTCE <zottce@gmail.com>"]
 description = "Tools to develop SA:MP plugins"
 license = "MIT"

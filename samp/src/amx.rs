@@ -48,6 +48,12 @@ pub fn get<'a>(ident: AmxIdent) -> Option<&'a Amx> {
     rt.amx_list().get(&ident)
 }
 
+#[inline]
+pub fn add<'a>(amx: *mut AMX) {
+    let rt = Runtime::get();
+    rt.insert_amx(amx);
+}
+
 /// An unique identifier of an `Amx` instance.
 #[derive(Debug, Clone, Copy, PartialEq, Hash, Eq)]
 pub struct AmxIdent {
