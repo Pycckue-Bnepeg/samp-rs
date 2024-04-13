@@ -35,15 +35,20 @@ impl<'amx> AmxString<'amx> {
     /// Convert an AMX string to a `Vec<u8>`.
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut vec = Vec::with_capacity(self.len);
-
         // packed string
         if self.inner[0] > MAX_UNPACKED {
-            unsafe {
-                std::ptr::copy(
-                    self.inner.as_ptr() as *const u8,
-                    vec.as_mut_ptr(),
-                    vec.len(),
-                );
+            let mut ptr = self.inner.as_ptr();
+            let mut mark = 3;
+            for _ in 0..self.len {
+                let ch = (unsafe { *ptr } >> mark * 8) as u8;
+                if ch == b'\0' {
+                    break;
+                }
+                vec.push(ch);
+                mark = (mark + 3) % 4;
+                if mark == 3 {
+                    ptr = unsafe { ptr.add(1) };
+                }
             }
         } else {
             for item in self.inner.iter().take(self.len) {
@@ -112,18 +117,8 @@ impl<'amx> AmxCell<'amx> for AmxString<'amx> {
     fn from_raw(amx: &'amx Amx, cell: i32) -> AmxResult<AmxString<'amx>> {
         let buffer = UnsizedBuffer::from_raw(amx, cell)?;
         let ptr = buffer.as_ptr();
-        let packed = unsafe { ptr.read() > MAX_UNPACKED };
-
-        let (str_len, buf_len) = {
-            if packed {
-                let len = strlen(ptr as *const i8, 0);
-                let buf_len = len / 4 + 1; // count of 4 length cells
-                (len, buf_len)
-            } else {
-                let len = strlen(ptr, 0);
-                (len, len + 1)
-            }
-        };
+        let str_len = amx.strlen(ptr)?;
+        let buf_len = str_len + 1;
 
         Ok(AmxString {
             inner: buffer.into_sized_buffer(buf_len),
@@ -134,19 +129,6 @@ impl<'amx> AmxCell<'amx> for AmxString<'amx> {
     fn as_cell(&self) -> i32 {
         self.inner.as_cell()
     }
-}
-
-fn strlen<T: PartialEq>(mut string: *const T, zerochar: T) -> usize {
-    let mut length = 0;
-
-    unsafe {
-        while string.read() != zerochar {
-            string = string.offset(1);
-            length += 1;
-        }
-    }
-
-    length
 }
 
 impl fmt::Display for AmxString<'_> {
