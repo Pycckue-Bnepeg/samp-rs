@@ -240,25 +240,13 @@ impl Amx {
     ///
     /// [`Ref<T>`]: ../cell/struct.Ref.html
     pub fn get_ref<T: Sized + AmxPrimitive>(&self, address: i32) -> AmxResult<Ref<T>> {
-        let amx_ptr = self.amx();
-        let header_ptr = self.header();
+        let get_addr = GetAddr::from_table(self.fn_table);
+        let mut dest = 0;
+        let mut dest_addr = std::ptr::addr_of_mut!(dest);
+        
+        amx_try!(get_addr(self.ptr,address,&mut dest_addr));
 
-        let amx = unsafe { amx_ptr.as_ref() };
-        let header = unsafe { header_ptr.as_ref() };
-
-        let data = if amx.data.is_null() {
-            unsafe { amx.base.offset(header.dat as isize) }
-        } else {
-            amx.data
-        };
-
-        if address >= amx.hea && address < amx.stk || address < 0 || address >= amx.stp {
-            return Err(AmxError::MemoryAccess);
-        }
-
-        let ptr = unsafe { data.offset(address as isize) };
-
-        unsafe { Ok(Ref::new(address, ptr as *mut T)) }
+        unsafe { Ok(Ref::new(address, dest_addr as *mut T)) }
     }
 
     #[inline(always)]
@@ -280,6 +268,15 @@ impl Amx {
         amx_try!(push(self.ptr, value.as_cell()));
 
         Ok(())
+    }
+
+    /// Returns the length of a string in characters
+    ///
+    pub fn strlen<'a>(&'a self, value: *const i32) -> AmxResult<usize> {
+        let strlen = StrLen::from_table(self.fn_table);
+        let mut len = 0;
+        amx_try!(strlen(value, &mut len));
+        Ok(len as usize)
     }
 
     /// Get a heap [`Allocator`] for current [`Amx`].
